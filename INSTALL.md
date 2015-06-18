@@ -49,7 +49,8 @@
 * Clone git project with the simple overlay template here
 * Execute inside the project folder:  mvn clean package
 * Copy simple-cas-overlay-template/target/cas.war to $CATALINA_HOME/webapps/
-* Copy etc/* directory to ${HOME}/etc/cas
+* Copy etc/* directory to ${HOME}/etc/cas , but tomcat-deployment.properties.template
+* Copy etc/tomcat-deployment.properties.template to ${HOME}/etc/cas/tomcat-deployment.properties , and set it up properly
 
 * If you don’t have any applications running in the 8080 port, you can comment out the lines inside $CATALINA_BASE/conf/server.xml:
 ```xml

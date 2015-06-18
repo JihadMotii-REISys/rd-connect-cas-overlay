@@ -19,7 +19,7 @@
     under the License.
 
 -->
-<project name="cas" default="deploy" basedir=".">
+<project name="cas-management" default="deploy" basedir=".">
 
 	<!-- ******************* PROPERTIES ************************* -->
 	<property environment="env" />
@@ -29,7 +29,21 @@
 	<property name="tomcat.log.patterns" value="**/*.log, **/*.txt" />
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties" />
 	<property file="etc/cas.properties" />
+	<property file="${user.home}/etc/cas/tomcat-deployment.properties" />
+
+	<property name="catalina.home" location="/usr/share/tomcat"/>
 	
+	<property name="application.context" value="${cas-management.context}" />
+	<property name="application.war" location="${basedir}/dist/${ant.project.name}.war"/>
+	
+	<if>
+		<not>
+			<isset property="deploy.tomcat.pass" />
+		</not>
+		<then>
+			<echo message="You have not provided a password using deploy.tomcat.pass property. Something like 'ant -Ddeploy.tomcat.pass=.... ${ant.project.invoked-targets}'" level="error" />
+		</then>
+	</if>
 	<!-- ******************* MAVEN PROPERTIES******************** -->
 	<condition property="mavenExecutableFile" value="mvn.bat" else="mvn">
 		<os family="windows" />
@@ -39,7 +53,7 @@
 
 	<if>
 		<not>
-			<isset property="${maven.exec.exists}" />
+			<isset property="maven.exec.exists" />
 		</not>
 		<then>
 			<var name="mavenExecutable" value="${env.MAVEN_HOME}\bin\${mavenExecutableFile}"/>
@@ -58,6 +72,16 @@
 		<os family="windows" />
 	</condition>
 	<property name="tomcatShutDown" value="${catalina.home}\bin\${tomcatShutDownFile}" />
+
+	<!-- Tomcat deployment task -->
+	<!-- This taskdef is needed to use the power of ant deployments! -->
+	<taskdef resource="org/apache/catalina/ant/catalina.tasks">
+		<classpath>
+			<fileset dir="${catalina.home}/lib">
+				<include name="catalina-ant.jar" />
+			</fileset>
+		</classpath>
+	</taskdef>
 	
 	<!-- ********************* TARGETS *************************** -->
 	<target name="cleanTomcatLogs" description="Clean tomcat log files">
@@ -69,28 +93,15 @@
 	</target>
 
 	<target name="clean" description="Clean deployed artifacts and logs">
-		<delete file="${catalina.home}/webapps/${ant.project.name}.war" verbose="false" failonerror="true" />
-		<delete file="${catalina.home}/conf/Catalina/localhost/cas.xml" verbose="false" failonerror="true" />
-		<delete file="${catalina.home}/bin/${ant.project.name}.log" verbose="false" failonerror="true" />
-		
-		<delete dir="${catalina.home}/webapps/${ant.project.name}" verbose="false" includeemptydirs="true" failonerror="true" />
-		<delete file="${catalina.home}/webapps/cas-management.war" verbose="false" includeemptydirs="true" failonerror="true" />
-		<delete dir="${catalina.home}/webapps/cas-management" verbose="false" includeemptydirs="true" failonerror="true" />
-		<delete dir="${cas.log.dir}" verbose="false" includeemptydirs="true" failonerror="true" />
-
-		<delete dir="${catalina.home}/work/Catalina" verbose="false" includeemptydirs="true"  failonerror="true"/>
-
-
 		<exec dir="${basedir}" executable="${mavenExecutable}">
 			<arg value="clean" />
 			<arg value="-Dmaven.test.skip=true" />
 		</exec>
-		<antcall target="cleanTomcatLogs" />
 	</target>
 
-	<target name="compile" description="Compile artifacts" depends="clean">
+	<target name="package" description="Compile artifacts and prepare the package" depends="clean">
 		<exec dir="${basedir}" executable="${mavenExecutable}">
-      		<arg value="compile" />
+			<arg value="compile" />
 			<arg value="-Dmaven.test.skip=true" />
 		</exec>
 	</target>
@@ -100,36 +111,26 @@
 			<arg value="test" />
 		</exec>
 	</target>
-
-	<target name="copy" description="Copy artifacts over to tomcat" depends="package">
-		<copy overwrite="true"
-		      todir="${catalina.home}/webapps"
-		      file="target/${ant.project.name}.war"
-			  verbose="true"
+	
+	<target name="undeploy" description="Undeploy the application">
+		<undeploy
+			url="${deploy.tomcat.url}"
+			failOnError="false"
+			username="${deploy.tomcat.user}"
+			password="${deploy.tomcat.pass}"
+			path="${application.context}"
 		/>
-
-		<mkdir dir="${cas.resources.dir}" />
-		<copy overwrite="true" verbose="true" todir="${cas.resources.dir}" flatten="true">
-			<fileset dir="${basedir}/etc" includes="*.conf" />
-		</copy>
-		<copy overwrite="true" verbose="true" todir="${cas.resources.dir}" flatten="true">
-			<fileset dir="${basedir}/etc" includes="*.xml" />
-		</copy>
-		<copy overwrite="true" verbose="true" todir="${cas.resources.dir}" flatten="true">
-			<fileset dir="${basedir}/etc" includes="*.properties" />
-		</copy>
-
 	</target>
 
-	<target name="package" description="Package src artifacts and prepare for deployment" depends="clean">
-		<exec dir="${basedir}" executable="${mavenExecutable}">
-			<arg value="install" />
-			<arg value="-Dmaven.test.skip=true" />
-		</exec>
+	<target name="deploy">
+ 		<deploy
+			url="${deploy.tomcat.url}"
+			username="${deploy.tomcat.user}"
+			password="${deploy.tomcat.pass}"
+			path="${application.context}"
+			war="file:${application.war}"
+		/>
 	</target>
-
-
-	<target name="deploy" depends="copy" description="Clean, package and deploy artifacts" />
 
 	<target name="help" description="Prints instructions on how to run the build.">
 		<echo message="Use 'ant -projecthelp' to see all available commands" />
