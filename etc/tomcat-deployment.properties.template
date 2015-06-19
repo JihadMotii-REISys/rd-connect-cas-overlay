@@ -1,5 +1,6 @@
+catalina.home=/usr/share/tomcat
 deploy.host=localhost
-deploy.tomcat.protocol=http
-deploy.tomcat.port=8080
+deploy.tomcat.protocol=https
+deploy.tomcat.port=9443
 deploy.tomcat.url=${deploy.tomcat.protocol}://${deploy.host}:${deploy.tomcat.port}/manager
 deploy.tomcat.user=tomcat-deployer
