@@ -23,4 +23,4 @@ and configured to satisfy local CAS installation needs. Current files are:
 # Deployment
 
 * Execute `mvn clean package`
-* Deploy resultant `target/cas.war` to a Servlet container of choice
+* Deploy resultant `target/cas.war` to a servlet container of choice. If it is Tomcat, you can use ant.

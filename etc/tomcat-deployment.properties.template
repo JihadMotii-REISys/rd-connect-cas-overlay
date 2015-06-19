@@ -2,4 +2,4 @@ deploy.host=localhost
 deploy.tomcat.protocol=http
 deploy.tomcat.port=8080
 deploy.tomcat.url=${deploy.tomcat.protocol}://${deploy.host}:${deploy.tomcat.port}/manager
-deploy.tomcat.user=admin
+deploy.tomcat.user=tomcat-deployer

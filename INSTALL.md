@@ -1,6 +1,6 @@
 * Install Java >= 1.7
 * export JAVA_HOME, JAVA_JRE
-* Install tomcat7
+* Install tomcat7, creating an user tomcat-deployer in conf/tomcat-users.xml with the `manager-script` and `manager-gui` roles
 * export CATALINA_HOME
 * Install Apache Maven >=3.0
 * Config DNS giving server a name (rdconnectcas.rd-connect.eu). In our case server hostname is rdconnectcas. In client machine we added an entry for rdconnectcas.rd-connect.eu in /etc/hosts
@@ -15,19 +15,28 @@
 * Edit /etc/ssl/openssl.cnf. Set dir = /etc/ssl/rdconnect_demo_CA
 
 * Create Tomcat Server Certificate (at ${HOME}/etc/ssl/rdconnect_demo_CA):
-* keytool -genkey -alias tomcat-server -keyalg RSA -keystore tomcat-server.jks -storepass changeit -keypass changeit -dname "CN=rdconnectcas.rd-connect.eu, OU=Spanish Bioinformatics Institute, O=INB at CNIO, L=Madrid, S=Madrid, C=CN"
-* keytool -certreq -keyalg RSA -alias tomcat-server -file tomcat-server.csr -keystore tomcat-server.jks -storepass changeit
+```bash
+	keytool -genkey -alias tomcat-server -keyalg RSA -keystore tomcat-server.jks -storepass changeit -keypass changeit -dname "CN=rdconnectcas.rd-connect.eu, OU=Spanish Bioinformatics Institute, O=INB at CNIO, L=Madrid, S=Madrid, C=CN"
+	keytool -certreq -keyalg RSA -alias tomcat-server -file tomcat-server.csr -keystore tomcat-server.jks -storepass changeit
+```
 * Sign the request
-* openssl x509 -req -in tomcat-server.csr -out tomcat-server.pem  -CA ${HOME}/etc/ssl/rdconnect_demo_CA/cacert.pem -CAkey ${HOME}/etc/ssl/rdconnect_demo_CA/cacert.key -days 365 -CAcreateserial -sha1 -trustout  -CA ${HOME}/etc/ssl/rdconnect_demo_CA/cacert.pem -CAkey ${HOME}/etc/ssl/rdconnect_demo_CA/cacert.key -days 365 -CAserial ${HOME}/etc/ssl/rdconnect_demo_CA/serial -sha1 -trustout
+```bash
+	openssl x509 -req -in tomcat-server.csr -out tomcat-server.pem  -CA ${HOME}/etc/ssl/rdconnect_demo_CA/cacert.pem -CAkey ${HOME}/etc/ssl/rdconnect_demo_CA/cacert.key -days 365 -CAcreateserial -sha1 -trustout  -CA ${HOME}/etc/ssl/rdconnect_demo_CA/cacert.pem -CAkey ${HOME}/etc/ssl/rdconnect_demo_CA/cacert.key -days 365 -CAserial ${HOME}/etc/ssl/rdconnect_demo_CA/serial -sha1 -trustout
+```
 * Verify the purpose
-* openssl verify -CAfile ${HOME}/etc/ssl/rdconnect_demo_CA/cacert.pem -purpose sslserver tomcat-server.pem
-* openssl x509 -in tomcat-server.pem -inform PEM -out tomcat-server.der -outform DER
+```bash
+	openssl verify -CAfile ${HOME}/etc/ssl/rdconnect_demo_CA/cacert.pem -purpose sslserver tomcat-server.pem
+	openssl x509 -in tomcat-server.pem -inform PEM -out tomcat-server.der -outform DER
+```
 * Import root certificate:
-* keytool -import -alias rdconnect-root -file ${HOME}/etc/ssl/rdconnect_demo_CA/cacert.pem -keystore tomcat-server.jks -storepass changeit
+```bash
+	keytool -import -alias rdconnect-root -file ${HOME}/etc/ssl/rdconnect_demo_CA/cacert.pem -keystore tomcat-server.jks -storepass changeit
+```
 * Import tomcat-server certificate:
-* keytool -import -trustcacerts -alias tomcat-server -file tomcat-server.der -keystore tomcat-server.jks -storepass changeit
-* keytool -list -v -keystore tomcat-server.jks -storepass changeit
-
+```bash
+	keytool -import -trustcacerts -alias tomcat-server -file tomcat-server.der -keystore tomcat-server.jks -storepass changeit
+	keytool -list -v -keystore tomcat-server.jks -storepass changeit
+```
 
 # Configure Tomcat to use certificate:
 * Edit conf/server.xml adding:
@@ -50,7 +59,8 @@
 * Execute inside the project folder:  mvn clean package
 * Copy simple-cas-overlay-template/target/cas.war to $CATALINA_HOME/webapps/
 * Copy etc/* directory to ${HOME}/etc/cas , but tomcat-deployment.properties.template
-* Copy etc/tomcat-deployment.properties.template to ${HOME}/etc/cas/tomcat-deployment.properties , and set it up properly
+* Copy etc/tomcat-deployment.properties.template to etc/tomcat-deployment.properties , and set it up properly.
+* Remember to set up a Tomcat user with `manager-script` and `manager-gui` roles.
 
 * If you don’t have any applications running in the 8080 port, you can comment out the lines inside $CATALINA_BASE/conf/server.xml:
 ```xml
