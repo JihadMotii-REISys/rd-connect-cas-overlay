@@ -11,3 +11,4 @@ overlays/
 build/
 bin/
 *.iml
+etc/tomcat-deployment.properties
