@@ -59,12 +59,18 @@
     </logger>
 
     <logger name="org.jasig" additivity="true">
+        <level value="INFO" />
+        <!--
         <level value="DEBUG" />
+        -->
         <appender-ref ref="cas" />
     </logger>
 
     <logger name="net.unicon.cas" additivity="true">
+        <level value="INFO" />
+        <!--
         <level value="DEBUG" />
+        -->
         <appender-ref ref="cas" />
     </logger>
 
@@ -100,7 +106,10 @@
       logger to System.out.
     -->
     <root>
+        <level value="INFO" />
+        <!--
         <level value="DEBUG" />
+        -->
         <appender-ref ref="console" />
     </root>
 </log4j:configuration>

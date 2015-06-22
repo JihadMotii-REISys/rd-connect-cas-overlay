@@ -1,6 +1,6 @@
 catalina.home=/usr/share/tomcat
+# Change to the fully qualified name of the host
 deploy.host=localhost
 deploy.tomcat.protocol=https
 deploy.tomcat.port=9443
-deploy.tomcat.url=${deploy.tomcat.protocol}://${deploy.host}:${deploy.tomcat.port}/manager
 deploy.tomcat.user=tomcat-deployer

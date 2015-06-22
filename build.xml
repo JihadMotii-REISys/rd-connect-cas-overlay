@@ -53,9 +53,10 @@
 	<available file="${catalina.home}" type="dir" property="catalina.home.exists" />
 	<fail unless="catalina.home.exists" message="Tomcat directory ${catalina.home} does not exist" />
 	
-	
-	<property name="application.context" value="${cas-management.context}" />
+	<property name="application.context" value="${cas.context}" />
 	<property name="application.war" location="${basedir}/target/${ant.project.name}.war"/>
+	
+	<property name="deploy.tomcat.url" value="${deploy.tomcat.protocol}://${deploy.host}:${deploy.tomcat.port}/manager/text"/>
 	
 	<if>
 		<not>
@@ -168,29 +169,56 @@
 		/>
 	</target>
 	
-	<target name="genjks">
-		<tempfile property="temp.file.cer" suffix=".cer" deleteonexit="true"/>
+	<target name="genclientjks" description="Generate a client Java keystore which holds the deployment server certificate">
+		<tempfile property="temp.client.cer" suffix=".cer" deleteonexit="true"/>
 		
-		<exec executable="openssl" inputstring="" output="${temp.file.cer}" errorproperty="openssl.error" failonerror="true">
+		<exec executable="openssl" inputstring="" output="${temp.client.cer}" errorproperty="openssl.error" failonerror="true">
 			<arg value="s_client" />
 			<arg value="-connect" /> <arg value="${deploy.host}:${deploy.tomcat.port}" />
 		</exec>
 		<exec executable="sed" errorproperty="openssl.error" failonerror="true">
 			<arg value="-i" />
 			<arg value="-ne" /> <arg value="/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p" />
-			<arg value="${temp.file.cer}" />
+			<arg value="${temp.client.cer}" />
 		</exec>
 		
-		<tempfile property="temp.file.jks" suffix=".jks" deleteonexit="true"/>
+		<tempfile property="temp.client.jks" prefix="client" suffix=".jks" deleteonexit="false"/>
+		<echo message="Temporal client JKS to access ${deploy.host}:${deploy.tomcat.port} is ${temp.client.jks}" />
 		<property name="jre.cacerts.path" location="${java.home}/lib/security/cacerts"/>
-		<copy file="${jre.cacerts.path}" tofile="${temp.file.jks}" />
+		<copy file="${jre.cacerts.path}" tofile="${temp.client.jks}" />
 		
-		<exec executable="keytool" inputstring="yes&#10;" failonerror="true">
+		<exec executable="keytool" inputstring="yes${line.separator}" failonerror="true">
 			<arg value="-importcert"/>
-			<arg value="-keystore"/> <arg value="${temp.file.jks}"/>
+			<arg value="-keystore"/> <arg value="${temp.client.jks}"/>
 			<arg value="-alias"/> <arg value="localhost"/>
 			<arg value="-storepass"/> <arg value="changeit"/>
-			<arg value="-file"/> <arg value="${temp.file.cer}"/>
+			<arg value="-file"/> <arg value="${temp.client.cer}"/>
+		</exec>
+		
+		<echo>You can use this temporal JKS with ant as:${line.separator}ANT_OPTS="-Djavax.net.ssl.trustStore=${temp.client.jks}" ant -Ddeploy.tomcat.pass=... deploy</echo>
+	</target>
+	
+	<target name="genserverjks" description="Generate a self-signed SSL certificate in a Java keystore">
+		<!--
+		<exec executable="hostname" outputproperty="computer.hostname" failonerror="true">
+			<arg value="-f" />
+		</exec>
+		-->
+		<hostinfo prefix="machine"/>
+		
+		<property name="computer.hostname" value="${machine.NAME}.${machine.DOMAIN}"/>
+		
+		<tempfile property="temp.server.jks" prefix="server" suffix=".jks" deleteonexit="false"/>
+		<echo message="Temporal server JKS for ${computer.hostname} will be in ${temp.server.jks}" />
+		
+		<exec executable="keytool" inputstring="${computer.hostname}${line.separator}INB${line.separator}CNIO${line.separator}Madrid${line.separator}Madrid${line.separator}ES${line.separator}yes${line.separator}${line.separator}" failonerror="true">
+			<arg value="-genkeypair"/>
+			<arg value="-keyalg"/> <arg value="RSA"/>
+			<arg value="-alias"/> <arg value="selfsigned"/>
+			<arg value="-keystore"/> <arg value="${temp.server.jks}"/>
+			<arg value="-storepass"/> <arg value="changeit"/>
+			<arg value="-validity"/> <arg value="360"/>
+			<arg value="-keysize"/> <arg value="8192"/>
 		</exec>
 	</target>
 
@@ -199,4 +227,3 @@
 	</target>
 
 </project>
-
