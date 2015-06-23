@@ -68,14 +68,16 @@
         <value>classpath:messages</value>
     </util:list>
     
-    <!--  This is to use the default, in-memory service registry
+    <!--  This is to use the default, in-memory service registry -->
     <bean id="servicesManager" class="org.jasig.cas.services.DefaultServicesManagerImpl"
         c:serviceRegistryDao-ref="serviceRegistryDao" />
-    -->
 
 	<!-- This is to use the SQLite database as service registry -->
+	<!-- But, as SQLite driver does not implement JDBC4 properly, it fails on blobs -->
+	<!--
 	<bean id="servicesManager" class="org.jasig.cas.services.DefaultServicesManagerImpl"
 		c:serviceRegistryDao-ref="serviceRegistryDaoJPA" />
+	-->
 
 	<!-- This is to use LDAP as the service registry
 	<bean id="servicesManager" class="org.jasig.cas.services.DefaultServicesManagerImpl"
