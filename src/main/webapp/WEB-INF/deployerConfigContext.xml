@@ -218,8 +218,8 @@
     <util:list id="registeredServicesList">
         <bean class="org.jasig.cas.services.RegexRegisteredService"
               p:id="0" p:name="HTTP and IMAP" p:description="Allows HTTP(S) and IMAP(S) protocols"
-              p:serviceId="^https?://([A-Za-z0-9_-]+\.)*\.rd-connect\.eu/.*" p:evaluationOrder="10000001" />
-        <!--
+              p:serviceId="^https?://.*" p:evaluationOrder="10000001" />
+	<!--
         Use the following definition instead of the above to further restrict access
         to services within your domain (including sub domains).
         Note that example.com must be replaced with the domain you wish to permit.
