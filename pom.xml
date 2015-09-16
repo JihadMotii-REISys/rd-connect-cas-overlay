@@ -164,7 +164,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sqlite.hibernate.dialect.version>0.1.0</sqlite.hibernate.dialect.version>
-        <sqlite.jdbc.version>3.8.7</sqlite.jdbc.version>
+        <sqlite.jdbc.version>3.8.11.1</sqlite.jdbc.version>
     </properties>
 
     <repositories>
