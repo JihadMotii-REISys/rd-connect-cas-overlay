@@ -41,10 +41,10 @@
 
 * Adding objects People / Groups
 
-    Click Create new entry here > Click Generic: Organization Unit > Name the unit people > Commit
-    Click Create new entry here > Click Generic: Organization Unit > Name the unit groups > Commit
-    Click ou=groups > Click Create a child entry > Click Generic: Posix Group > Name the group genusers for "General users"
-    Click ou=people > Click Create a child entry > Click Generic: User Account > Name the user fill in the relevant fields. Be sure to assign user to genusers GID.
+    	Click Create new entry here > Click Generic: Organization Unit > Name the unit people > Commit
+    	Click Create new entry here > Click Generic: Organization Unit > Name the unit groups > Commit
+    	Click ou=groups > Click Create a child entry > Click Generic: Posix Group > Name the group genusers for "General users"
+    	Click ou=people > Click Create a child entry > Click Generic: User Account > Name the user fill in the relevant fields. Be sure to assign user to genusers GID.
 
 #SSL/TLS for OpenLDAP. 
 
@@ -132,15 +132,15 @@
 
 #Make OpenLDAP listen on SSL port
 
-    * Modify /etc/default/slapd. Find the line that says:
+* Modify /etc/default/slapd. Find the line that says:
     SLAPD_SERVICES="ldap:/// ldapi:///"
     Modify it to say
     SLAPD_SERVICES="ldap://ip_ldap/ ldapi://ip_ldap/ ldaps://ip_ldap/"   (Change ip_ldap with your ldap server IP)
 ```bash
     service slapd restart
 ```
-    * To verify the new configuration ```bash netstat -nap|grep slapd ```
-    * Should see something like this:
+* To verify the new configuration ```bash netstat -nap|grep slapd ```
+* Should see something like this:
 
             tcp        0      0 ip_ldap:636          0.0.0.0:*               LISTEN      28879/slapd
             tcp        0      0 ip_ldap:389          0.0.0.0:*               LISTEN      28879/slapd
@@ -149,7 +149,7 @@
             unix  2      [ ]         DGRAM                    106779   28879/slapd
 
 #Fix untrusted certificate problem
-    * Uncomment lines in /etc/ldap/ldap.conf
+* Uncomment lines in /etc/ldap/ldap.conf
         #
         # LDAP Defaults
         #
@@ -174,5 +174,6 @@
 
 #Configuring cas.properties file in etc/cas/cas.properties
 
-    The ldap.trustedCert parameter line should have this sintaxis:
-        ldap.trustedCert=file:path_to_cacert.pem
+The ldap.trustedCert parameter line should have this sintaxis:
+        
+	ldap.trustedCert=file:path_to_cacert.pem
