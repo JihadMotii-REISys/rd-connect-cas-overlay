@@ -137,7 +137,6 @@
                             <excludes>
                                 <exclude>WEB-INF/cas.properties</exclude>
                                 <exclude>WEB-INF/classes/log4j2.xml</exclude>
-                                <exclude>WEB-INF/classes/services/HTTPSandIMAPS-10000001.json</exclude>
                                 <!--
                                 <exclude>WEB-INF/lib/hibernate-*.jar</exclude>
                                 -->

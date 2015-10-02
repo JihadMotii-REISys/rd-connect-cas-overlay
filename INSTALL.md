@@ -58,7 +58,7 @@
 * Clone git project with the simple overlay template here
 * Execute inside the project folder:  mvn clean package
 * Copy simple-cas-overlay-template/target/cas.war to $CATALINA_HOME/webapps/
-* Copy etc/* directory to ${HOME}/etc/cas , but tomcat-deployment.properties.template
+* Copy etc/* directory (including directory services) to ${HOME}/etc/cas , but tomcat-deployment.properties.template
 * Copy etc/tomcat-deployment.properties.template to etc/tomcat-deployment.properties , and set it up properly.
 * Remember to set up a Tomcat user with `manager-script` and `manager-gui` roles.
 
