@@ -6,7 +6,7 @@
     <groupId>eu.rd-connect</groupId>
     <artifactId>rdconnect-cas4-overlay</artifactId>
     <packaging>war</packaging>
-    <version>0.6</version>
+    <version>0.7</version>
 
     <dependencies>
         <dependency>
@@ -16,7 +16,8 @@
             <type>war</type>
             <scope>runtime</scope>
         </dependency>
-
+	
+	<!-- This should not be explicitly needed any more
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
@@ -33,16 +34,19 @@
             <artifactId>hibernate-validator</artifactId>
             <version>${hibernate.validator.version}</version>
         </dependency>
+        -->
 	<dependency>
 	    <groupId>org.jasig.cas</groupId>
 	    <artifactId>cas-server-core</artifactId>
 	    <version>${cas.version}</version>
+	    <!-- This should not be explicitly needed any more
             <exclusions>
                 <exclusion>
                     <groupId>org.hibernate</groupId>
                     <artifactId>hibernate-core</artifactId>
                 </exclusion>
             </exclusions>
+            -->
 	</dependency>
 
 	<dependency>
@@ -50,7 +54,14 @@
 	    <artifactId>cas-server-integration-restlet</artifactId>
 	    <version>${cas.version}</version>
 	</dependency>
-
+	
+        <dependency>
+            <groupId>org.jasig.cas</groupId>
+            <artifactId>cas-server-support-ldap</artifactId>
+            <version>${cas.version}</version>
+        </dependency>
+	
+	<!-- These dependencies are only needed using SQLite as user accounts backend
         <dependency>
             <groupId>org.jasig.cas</groupId>
             <artifactId>cas-server-support-jdbc</artifactId>
@@ -68,12 +79,6 @@
             <artifactId>sqlite-jdbc</artifactId>
             <version>${sqlite.jdbc.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.jasig.cas</groupId>
-            <artifactId>cas-server-support-ldap</artifactId>
-            <version>${cas.version}</version>
-        </dependency>
         
         <dependency>
             <groupId>commons-dbcp</groupId>
@@ -81,6 +86,7 @@
             <version>${commons.dbcp.version}</version>
             <scope>runtime</scope>
         </dependency>
+        
         <dependency>
 	    <groupId>com.github.AlanKrueger</groupId>
 	    <artifactId>hibernate-sqlite-dialect</artifactId>
@@ -92,6 +98,8 @@
                 </exclusion>
             </exclusions>
 	</dependency>
+	-->
+	
 	<!--
         <dependency>
             <groupId>org.hibernate.dialect</groupId>
@@ -105,6 +113,13 @@
             </exclusions>
         </dependency>
         -->
+        
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -121,7 +136,7 @@
                             <artifactId>cas-server-webapp</artifactId>
                             <excludes>
                                 <exclude>WEB-INF/cas.properties</exclude>
-                                <exclude>WEB-INF/classes/log4j.xml</exclude>
+                                <exclude>WEB-INF/classes/log4j2.xml</exclude>
                                 <exclude>WEB-INF/lib/hibernate-*.jar</exclude>
                             </excludes>
                         </overlay>
@@ -131,7 +146,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.2</version>
+                <version>3.3</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
             </plugin>
             <!--
             <plugin>
@@ -155,7 +174,7 @@
     </build>
 
     <properties>
-        <cas.version>4.0.1</cas.version>
+        <cas.version>4.1.0</cas.version>
         <commons.dbcp.version>1.4</commons.dbcp.version>
         <hibernate.entitymgmr.version>4.1.12.Final</hibernate.entitymgmr.version>
         <hibernate.validator.version>4.2.0.Final</hibernate.validator.version>

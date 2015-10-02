@@ -146,8 +146,11 @@
 		p:pruneStrategy-ref="pruneStrategy"
 		p:connectionFactory-ref="connectionFactory" />
 
+	<bean id="unboundidLdapProvider" class="org.ldaptive.provider.unboundid.UnboundIDProvider" />
+	
 	<bean id="connectionFactory" class="org.ldaptive.DefaultConnectionFactory"
-		p:connectionConfig-ref="connectionConfig" />
+		p:connectionConfig-ref="connectionConfig"
+		p:provider-ref="unboundidLdapProvider" />
 
 	<!--
 	   | NOTE:
