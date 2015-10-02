@@ -1,9 +1,9 @@
 <%--
 
-    Licensed to Jasig under one or more contributor license
+    Licensed to Apereo under one or more contributor license
     agreements. See the NOTICE file distributed with this work
     for additional information regarding copyright ownership.
-    Jasig licenses this file to you under the Apache License,
+    Apereo licenses this file to you under the Apache License,
     Version 2.0 (the "License"); you may not use this file
     except in compliance with the License.  You may obtain a
     copy of the License at the following location:
@@ -30,13 +30,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
   <title>RD-Connect Central Authentication Service</title>
-
+  
   <spring:theme code="standard.custom.css.file" var="customCssFile" />
   <link rel="stylesheet" href="<c:url value="${customCssFile}" />" />
   <link rel="icon" href="<c:url value="/favicon.ico" />" type="image/x-icon" />
-
+  
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.1/html5shiv.js" type="text/javascript"></script>
   <![endif]-->
