@@ -1,0 +1,40 @@
+# This schema is a subset from the one here
+# https://github.com/Jasig/cas/blob/4.1.x/cas-server-support-ldap/src/test/resources/schema/standard-ldap.schema
+# containing only the attributes and objects it needs
+
+# include this schema in your OpenLDAP deployment, or uncomment here
+#include /usr/lib/openldap/schema/core.schema
+
+# These common definitions ease creation of custom schemas
+objectIdentifier RDConnectOIDRoot 2.25.43403101489198369939828723099835007064
+objectIdentifier RDConnectSNMP RDConnectOIDRoot:1
+objectIdentifier RDConnectLDAP RDConnectOIDRoot:2
+
+# These ones are specific of the CAS management properties
+objectIdentifier CASManagement RDConnectLDAP:2
+objectIdentifier CASMAttributeType CASManagement:1
+objectIdentifier CASMObjectClass CASManagement:2
+
+##############################
+# Registered Service Schema
+##############################
+objectClasses: ( CASMObjectClass:1
+  NAME 'casRegisteredService'
+  SUP top
+  STRUCTURAL
+  MUST ( uid $
+         description )
+  X-ORIGIN 'RFC 3112' )
+##############################
+# User Service Details Schema
+##############################
+objectClasses: ( CASMObjectClass:2
+  NAME 'casServiceUserDetails'
+  SUP top
+  STRUCTURAL
+  MUST (  uid $
+          contactPerson $
+          member $
+          creationDate $
+          uugid )
+  X-ORIGIN 'RFC 3112' )
