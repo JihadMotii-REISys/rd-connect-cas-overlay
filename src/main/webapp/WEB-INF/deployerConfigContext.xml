@@ -69,7 +69,6 @@
                 -->
                 <!--	Comment active line and uncomment this one for LDAP authentication -->
                 <entry key-ref="ldapAuthenticationHandler" value-ref="primaryPrincipalResolver" />
-                <entry />
             </map>
         </constructor-arg>
 
@@ -309,7 +308,7 @@
 		p:ldapServiceMapper-ref="ldapMapper" />
 	
 	<bean id="ldapMapper"
-		class="org.jasig.cas.adaptors.ldap.services.DefaultLdapServiceMapper"/>
+		class="org.jasig.cas.adaptors.ldap.services.DefaultLdapRegisteredServiceMapper"/>
 
 
     <bean id="auditTrailManager" class="org.jasig.inspektr.audit.support.Slf4jLoggingAuditTrailManager" />

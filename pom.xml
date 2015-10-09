@@ -60,6 +60,12 @@
             <artifactId>cas-server-support-ldap</artifactId>
             <version>${cas.version}</version>
         </dependency>
+        
+        <dependency>
+			<groupId>org.ldaptive</groupId>
+			<artifactId>ldaptive-unboundid</artifactId>
+			<version>1.0.6</version>
+        </dependency>
 	
 	<!-- These dependencies are only needed using SQLite as user accounts backend
         <dependency>

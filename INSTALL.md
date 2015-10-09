@@ -56,11 +56,23 @@
     
 # Maven Overlay Installation
 * Clone git project with the simple overlay template here
+```bash
+	git clone --recurse-submodules https://github.com/inab/ldap-rest-cas4-overlay.git
+```	
 * Execute inside the project folder:  mvn clean package
 * Copy simple-cas-overlay-template/target/cas.war to $CATALINA_HOME/webapps/
 * Copy etc/* directory (including directory services) to ${HOME}/etc/cas , but tomcat-deployment.properties.template
 * Copy etc/tomcat-deployment.properties.template to etc/tomcat-deployment.properties , and set it up properly.
 * Remember to set up a Tomcat user with `manager-script` and `manager-gui` roles.
+* Configure parameters tgc.encryption.key and tgc.signing.key at ${HOME}/etc/cas/cas.properties. In order to generate this keys you need to go to json-web-key-generator folder and deploy by
+```bash
+	mvn clean package
+	cd json-web-key-generator
+	java -jar target/json-web-key-generator-0.2-SNAPSHOT-jar-with-dependencies.jar -t oct -s 512 -S
+	java -jar target/json-web-key-generator-0.2-SNAPSHOT-jar-with-dependencies.jar -t oct -s 256 -S
+```	
+* First key generated goes to tgc.signing.key parameter and second one to tgc.encryption.key
+
 
 * If you don’t have any applications running in the 8080 port, you can comment out the lines inside $CATALINA_BASE/conf/server.xml:
 ```xml
