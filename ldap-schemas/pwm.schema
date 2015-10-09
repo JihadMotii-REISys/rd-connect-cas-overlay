@@ -35,6 +35,7 @@ attributetype ( 1.3.6.1.4.1.35015.1.2.6
 
 objectclass ( 1.3.6.1.4.1.35015.1.1.1
         NAME 'pwmUser'
+	SUP top
         AUXILIARY
         MAY ( pwmLastPwdUpdate $ pwmEventLog $ pwmResponseSet $
                 pwmOtpSecret $ pwmGUID ) )

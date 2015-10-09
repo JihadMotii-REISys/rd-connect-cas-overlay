@@ -5,5 +5,3 @@
 objectIdentifier RDConnectOIDRoot 2.25.43403101489198369939828723099835007064
 objectIdentifier RDConnectSNMP RDConnectOIDRoot:1
 objectIdentifier RDConnectLDAP RDConnectOIDRoot:2
-objectIdentifier RDAttributeType RDConnectLDAP:1
-objectIdentifier RDObjectClass RDConnectLDAP:2

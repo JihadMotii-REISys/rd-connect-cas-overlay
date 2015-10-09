@@ -177,3 +177,35 @@
 The ldap.trustedCert parameter line should have this sintaxis:
         
 	ldap.trustedCert=file:path_to_cacert.pem
+
+#Install RDConnect schemas:
+First of all we need to convert .schema files inside ldap-schemas directory to .ldif files. We generate a configuration file with the includes of the schemas that we want to use inside the "schemas.conf" file
+```bash
+    vi schemas.config
+```
+	include /etc/ldap/schema/core.schema 
+	include /etc/ldap/schema/cosine.schema 
+	include /etc/ldap/schema/nis.schema 
+	include /etc/ldap/schema/inetorgperson.schema 
+	include /home/acanada/ldap-schemas/rd-connect-common.schema 
+	include /home/acanada/ldap-schemas/basicRDproperties.schema 
+	include /home/acanada/ldap-schemas/cas-management.schema 
+	include /home/acanada/ldap-schemas/pwm.schema 
+
+Then we execute:
+```bash
+	mkdir /tmp/ldap/
+    	slaptest -f whole.conf -F /tmp/ldap/cn\=config/cn\=schema
+```
+Now we just need to move the ldif of the new schemas to its place (/etc/ldap/schemas in Ubuntu server)
+```bash
+     mv /tmp/ldap/cn\=config/cn\=schema/cn=\{4\}rd-connect-common.ldif /etc/ldap/schema/ 
+	 mv /tmp/ldap/cn\=config/cn\=schema/cn=\{5\}basicrdproperties.ldif /etc/ldap/schema/ 
+	 mv /tmp/ldap/cn\=config/cn\=schema/cn=\{6\}cas-management.ldif /etc/ldap/schema/ 
+	 mv /tmp/ldap/cn\=config/cn\=schema/cn=\{7\}pwm.ldif /etc/ldap/schema/
+```
+
+
+
+Move the content of the directory ldap-schemas to the location of the schemas (~/etc/ldap/schemas/ in Ubuntu server)
+Restart ldap server

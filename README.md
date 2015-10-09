@@ -14,11 +14,12 @@ CAS maven war overlay with LDAP and database authentication, and connection thro
 * Servlet container supporting Servlet 3+ spec (e.g. Apache Tomcat 7+)
 
 # Configuration
-The `etc` directory contains the sample configuration files that would need to be copied to an external file system location (`${user.home}/etc/cas` by default)
+The `etc` directory contains the sample configuration files and "service" directory that would need to be copied to an external file system location (`${user.home}/etc/cas` by default)
 and configured to satisfy local CAS installation needs. Current files are:
 
 * `cas.properties`
 * `log4j.xml`
+* `service` (directory)
 
 # Deployment
 
