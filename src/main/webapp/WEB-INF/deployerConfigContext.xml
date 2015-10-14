@@ -106,10 +106,11 @@
 				   | This facility can be used instead or in addition to PrincipalResolver
 				   | components.
 				   --> 
-				<entry key="member" value="memberOf" />
-				<entry key="eduPersonAffiliation" value="affiliation" />
-				<entry key="mail" value="mail" />
-				<entry key="displayName" value="displayName" />
+				<entry key="uid" value="username" />
+				<entry key="memberOf" value="memberOf" />
+				<entry key="email" value="mail" />
+				<entry key="displayName" value="fullname" />
+				<entry key="disabledAccount" value="isDisabled" />
 			</map>
 		</property>
 	</bean>
