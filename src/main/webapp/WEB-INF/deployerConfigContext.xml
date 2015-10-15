@@ -122,14 +122,14 @@
 	<bean id="authenticator" class="org.ldaptive.auth.Authenticator"
 		c:resolver-ref="pooledSearchDnResolver"
 		c:handler-ref="pooledBindHandler" />
-
+	
 	<!--
 	   | Contrast with org.ldaptive.auth.FormatDnResolver, which constructs bind DN
 	   | based on a format string using the username as input.
 	   | FormatDnResolver is preferable for directories that support it, such as Active Directory.
 	   -->
 	<bean id="pooledSearchDnResolver" class="org.ldaptive.auth.PooledSearchDnResolver"
-		p:baseDn="${ldap.authn.baseDn}"
+			p:baseDn="${ldap.authn.baseDn}"
 		p:subtreeSearch="true"
 		p:allowMultipleDns="false"
 		p:connectionFactory-ref="pooledLdapConnectionFactory"
@@ -146,11 +146,16 @@
 		p:pruneStrategy-ref="pruneStrategy"
 		p:connectionFactory-ref="connectionFactory" />
 
+	<bean id="connectionFactory" class="org.ldaptive.DefaultConnectionFactory"
+		p:connectionConfig-ref="connectionConfig" />
+	
+	<!-- Alternate LDAP provider
 	<bean id="unboundidLdapProvider" class="org.ldaptive.provider.unboundid.UnboundIDProvider" />
 	
 	<bean id="connectionFactory" class="org.ldaptive.DefaultConnectionFactory"
 		p:connectionConfig-ref="connectionConfig"
 		p:provider-ref="unboundidLdapProvider" />
+	-->
 
 	<!--
 	   | NOTE:
@@ -218,7 +223,7 @@
 
 	<!-- A scheduler that drives all configured triggers is provided by default in applicationContext.xml. -->
 	<bean id="loginThrottleTrigger"
-		class="org.springframework.scheduling.quartz.SimpleTriggerBean"
+		class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean"
 		p:jobDetail-ref="loginThrottleJobDetail"
 		p:startDelay="1000"
 		p:repeatInterval="1000"/>
