@@ -35,16 +35,21 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:c="http://www.springframework.org/schema/c"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:util="http://www.springframework.org/schema/util"
        xmlns:sec="http://www.springframework.org/schema/security"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
-
+       
+	<context:component-scan base-package="org.jasig.cas" />
+	<context:annotation-config/>
+	
     <!--
        | The authentication manager defines security policy for authentication by specifying at a minimum
        | the authentication handlers that will be used to authenticate credential. While the AuthenticationManager
@@ -106,7 +111,6 @@
 				   | This facility can be used instead or in addition to PrincipalResolver
 				   | components.
 				   --> 
-				<entry key="uid" value="username" />
 				<entry key="memberOf" value="memberOf" />
 				<entry key="email" value="mail" />
 				<entry key="displayName" value="fullname" />
@@ -129,7 +133,7 @@
 	   | FormatDnResolver is preferable for directories that support it, such as Active Directory.
 	   -->
 	<bean id="pooledSearchDnResolver" class="org.ldaptive.auth.PooledSearchDnResolver"
-			p:baseDn="${ldap.authn.baseDn}"
+		p:baseDn="${ldap.authn.baseDn}"
 		p:subtreeSearch="true"
 		p:allowMultipleDns="false"
 		p:connectionFactory-ref="pooledLdapConnectionFactory"
@@ -140,6 +144,7 @@
 
 	<bean id="connectionPool" class="org.ldaptive.pool.BlockingConnectionPool"
 		init-method="initialize"
+		destroy-method="close"
 		p:poolConfig-ref="ldapPoolConfig"
 		p:blockWaitTime="${ldap.pool.blockWaitTime}"
 		p:validator-ref="searchValidator"
