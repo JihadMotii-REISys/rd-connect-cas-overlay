@@ -30,7 +30,7 @@
             <PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n"/>
             -->
         </Console>
-        <RollingFile name="file" fileName="${sys:user.home}/cas-log/cas.log" append="true"
+        <RollingFile name="casfile" fileName="${sys:user.home}/cas-log/cas.log" append="true"
                      filePattern="${sys:user.home}/cas-log/cas-%d{yyyy-MM-dd-HH}-%i.log">
             <!--
             <PatternLayout pattern="%d %p [%c] - %m%n"/>
@@ -42,8 +42,20 @@
                 <TimeBasedTriggeringPolicy />
             </Policies>
         </RollingFile>
-        <RollingFile name="file" fileName="${sys:user.home}/cas-log/spring.log" append="true"
+        <RollingFile name="springfile" fileName="${sys:user.home}/cas-log/spring.log" append="true"
                      filePattern="${sys:user.home}/cas-log/spring-%d{yyyy-MM-dd-HH}-%i.log">
+            <!--
+            <PatternLayout pattern="%d %p [%c] - %m%n"/>
+            -->
+            <PatternLayout pattern="%d{yyyy-MM-dd'T'HH:mm:ss.SSSZZZZ}&#9;%p&#9;%c&#9;%m%n"/>
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="inspektrfile" fileName="${sys:user.home}/cas-log/inspektr.log" append="true"
+                     filePattern="${sys:user.home}/cas-log/inspektr-%d{yyyy-MM-dd-HH}-%i.log">
             <!--
             <PatternLayout pattern="%d %p [%c] - %m%n"/>
             -->
@@ -67,7 +79,7 @@
     <Loggers>
         <Logger name="org.jasig" level="info" additivity="false">
             <AppenderRef ref="console"/>
-            <AppenderRef ref="file"/>
+            <AppenderRef ref="casfile"/>
         </Logger>
         <!--
             WARNING: Setting the org.springframework logger to DEBUG displays debug information about
@@ -75,20 +87,28 @@
             password in the log file.  If you are sharing your log files, it is recommend you selectively
             apply DEBUG level logging on a an org.springframework.* package level (i.e. org.springframework.dao)
         -->
-        <Logger name="org.springframework" level="warn" />
-        <Logger name="org.springframework.webflow" level="warn" />
-        <Logger name="org.springframework.web" level="warn" />
-        <Logger name="org.springframework.security" level="warn" />
+        <Logger name="org.springframework" level="warn">
+		<AppenderRef ref="springfile"/>
+	</Logger>
+        <Logger name="org.springframework.webflow" level="warn">
+		<AppenderRef ref="springfile"/>
+	</Logger>
+        <Logger name="org.springframework.web" level="warn">
+		<AppenderRef ref="springfile"/>
+	</Logger>
+        <Logger name="org.springframework.security" level="warn">
+		<AppenderRef ref="springfile"/>
+	</Logger>
 
         <Logger name="perfStatsLogger" level="info" additivity="false">
             <AppenderRef ref="perfFileAppender"/>
         </Logger>
 
         <Logger name="org.jasig.cas.web.flow" level="info" additivity="true">
-            <AppenderRef ref="file"/>
+            <AppenderRef ref="casfile"/>
         </Logger>
         <Logger name="org.jasig.inspektr.audit.support.Slf4jLoggingAuditTrailManager" level="info">
-            <AppenderRef ref="file"/>
+            <AppenderRef ref="inspektrfile"/>
         </Logger>
         <Root level="error">
             <AppenderRef ref="console"/>
