@@ -26,7 +26,7 @@ systemctl start slapd
 systemctl enable slapd
 ```
 
-* In CentOS, setting the password is easy in this way (substituting the CHANGEIT by your password):
+* Setting the password for openldap administrator is easy (substituting `CHANGEIT` by a real password):
   
 
 ```bash
@@ -83,7 +83,7 @@ ldapadd -Y EXTERNAL -H ldapi:/// -f "$f"
 done
 ```
 
-* In order to create the domain
+* In order to create the domain, you must run next sentence. You must change `OTHERCHANGEIT` by a real password for the rd-connect.eu LDAP domain administrator, and `LASTCHANGEIT` by a real password for the 'root' user, usable under CAS and other services which rely on OpenLDAP settings.
 
 ```bash
 domainHashPass="$(slappasswd -s 'OTHERCHANGEIT')"
@@ -169,6 +169,7 @@ disabledAccount: FALSE
 userPassword: $rootHashPass
 cn: root
 sn: root
+mail: platform@rd-connect.eu
 description: A user named root
 
 dn: cn=admin,ou=groups,$domainDN
@@ -197,17 +198,13 @@ EOF
 ldapmodify -x -D "$adminDN" -W -f /tmp/memberOfModify.ldif
 ```
 
-* As root, open /etc/ldap/ldap.conf (if you are using Ubuntu) or /etc/openldap/ldap.conf (if you are using CentOS) and change `BASE` declaration to the one shown below:
+* As root, open /etc/ldap/ldap.conf (if you are using Ubuntu) or /etc/openldap/ldap.conf (if you are using CentOS) and change `BASE` declaration to `BASE    dc=rd-connect,dc=eu` (this only affects OpenLDAP clients).
 
-```
-BASE    dc=rd-connect,dc=eu
-```
-
-    In the case of CentOS, you may have to restart the service running `systemctl start slapd`.
+    In the case of CentOS, you may have to restart the service running `systemctl restart slapd`.
     
-    In the case of Ubuntu you may need either to restart the service or to run `dpkg-reconfigure slapd`, selecting NO and following the guide, typing in your domain, e.g. example.com, choose recommend settings.
+    In the case of Ubuntu you may need either to restart the service running `service slapd restart`.
 
-#SSL/TLS for OpenLDAP. 
+#SSL/TLS for OpenLDAP.
 
 * First, we are going to generate a key pair for ldaps:// protocol. GnuTLS executables are going to be used, and they were installed at the beginning. We will use the Certificate Authority created following [this procedure](INSTALL_CA.md)
 
@@ -220,6 +217,7 @@ certtool --generate-certificate --load-privkey "${HOME}"/ldap-certs/ldap-server-
 ```
 
     Be sure the common name matches the hostname of the OpenLDAP server
+
 ```
 Common name: ldap.rd-connect.eu
 UID: 
@@ -252,7 +250,7 @@ Will the certificate be used for signing (DHE and RSA-EXPORT ciphersuites)? (Y/n
 Will the certificate be used for encryption (RSA ciphersuites)? (Y/n): 
 ```
 
-* (CentOS) Install the certificatess on LDAP server
+* (CentOS) Install the certificates on LDAP server
 
 ```bash
 mkdir -p /etc/openldap/certs
@@ -277,6 +275,7 @@ ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/mod_ldap_ssl_centos.ldif
 ```
 
 * (Ubuntu) Install the certificates on LDAP server
+
 ```bash
 mkdir -p /etc/ldap/certs
 install -D -o openldap -g openldap -m 644 "${HOME}"/ldap-certs/ldap-server-crt.pem /etc/ldap/certs/ldap-server-crt.pem
@@ -302,10 +301,6 @@ EOF
 ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/mod_ldap_ssl_ubuntu.ldif
 ```
 
-    By default, slapd runs as user/group openldap, so it can't read the key file. On Debian Lenny, the preferred solution to this dilemma seems to be to chown the key to root:ssl-cert, set permissions to 640 and add the user openldap to group ssl-cert:
-```bash
-        usermod -a -G ssl-cert openldap
-```
 * (Ubuntu) If starting slapd, we get in /var/log/syslog [...] main: TLS init def ctx failed: -1  We have to uncomment line TLSCipherSuite NORMAL like this:
 
         dn: cn=config
@@ -340,7 +335,7 @@ ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/mod_ldap_ssl_ubuntu.ldif
 SLAPD_URLS="ldapi:/// ldap:/// ldaps:///"
 ```
 
-    Also, open /etc/openldap/ldap.conf and change `URI`, `TLS_REQCERT` and `TLS_CACERT` declarations to the ones shown below (needed by LDAP client):
+  Also, open /etc/openldap/ldap.conf and change `URI`, `TLS_REQCERT` and `TLS_CACERT` declarations to the ones shown below (needed by LDAP client):
 
 ```
 URI	ldap:// ldaps:// ldapi://
@@ -348,11 +343,16 @@ TLS_REQCERT allow
 TLS_CACERT     /etc/openldap/certs/cacert.pem
 ```
 
-    Finally, restart the service with `systemctl restart slapd`.
+  Finally, restart the service with `systemctl restart slapd`.
     
-    * If you are using nslcd, you will have to run `echo "tls_reqcert allow" >> /etc/nslcd.conf`, and restart nslcd service.
+  * If you are using SELinux (most probably), you will need to run next commands in order to allow LDAP and LDAP TLS:
     
-    * If you are using SELinux, you will need to run `authconfig --enableldaptls --update` in order to allow LDAP TLS.
+  * If you are using nslcd, you will have to run `echo "tls_reqcert allow" >> /etc/nslcd.conf`, and restart nslcd service.
+
+```bash
+authconfig --enableldaptls --update
+setsebool -P httpd_can_connect_ldap 1
+```
 
 * (Ubuntu) Modify /etc/default/slapd. Find the line which defines `SLAPD_SERVICES`, and rewrite it like this:
 
@@ -360,7 +360,7 @@ TLS_CACERT     /etc/openldap/certs/cacert.pem
 SLAPD_SERVICES="ldapi:/// ldap:/// ldaps:///"
 ```
 
-    Also, open /etc/ldap/ldap.conf and change `URI`, `TLS_REQCERT` and `TLS_CACERT`declarations to the ones shown below (needed by LDAP client):
+  Also, open /etc/ldap/ldap.conf and change `URI`, `TLS_REQCERT` and `TLS_CACERT`declarations to the ones shown below (needed by LDAP client):
 
 ```
 URI	ldap:// ldaps:// ldapi://
@@ -368,7 +368,7 @@ TLS_REQCERT allow
 TLS_CACERT     /etc/ldap/certs/cacert.pem
 ```
 
-    Finally, restart the service with `service slapd restart`
+  Finally, restart the service with `service slapd restart`
 
 * To verify the new configuration `netstat -nap|grep slapd `. Should see something like this:
 
@@ -389,6 +389,68 @@ TLS_REQCERT     never
 CA_CERTREQ      never
 ```
 
+# (CentOS) Install phpldapadmin (and a web server)
+
+```bash
+yum -y install httpd
+# Remove welcome page
+rm -f /etc/httpd/conf.d/welcome.conf
+yum -y install epel-release
+yum repolist
+yum --enablerepo=epel -y install phpldapadmin
+```
+
+* (Optional) Edit /etc/httpd/conf/httpd.conf and apply next changes:
+
+```apache
+# line 86: change to admin's email address
+
+ServerAdmin root@ldap.rd-connect.eu
+# line 95: change to your server's name
+
+ServerName ldap.rd-connect.eu:80
+# line 151: change
+
+AllowOverride All
+# line 164: add file name that it can access only with directory's name
+
+DirectoryIndex index.html index.cgi index.php
+# add follows to the end
+
+# server's response header
+
+ServerTokens Prod
+# keepalive is ON
+
+KeepAlive On
+```
+
+  and start the service
+
+```bash
+systemctl start httpd
+systemctl enable httpd
+```
+
+* Configure phpldapadmin, by editing /etc/phpldapadmin/config.php
+
+```
+# line 291: set connection parameters
+$servers->setValue('server','name','RD-Connect LDAP Server');
+$servers->setValue('server','host','ldap.rd-connect.eu');
+$servers->setValue('server','port',389);
+$servers->setValue('server','base',array('dc=rd-connect,dc=eu'));
+$servers->setValue('login','bind_id','cn=admin,dc=rd-connect,dc=eu');
+
+# line 397: uncomment, line 398: comment out
+
+$servers->setValue('login','attr','dn');
+// $servers->setValue('login','attr','uid'); 
+
+```
+
+
+
 #Setup secure configuration for phpldapadmin 
 * Following this link (https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-openldap-and-phpldapadmin-on-an-ubuntu-14-04-server) and starting from "Create an SSL Certificate".
 * If you get an error "Error trying to get a non-existant value (appearance,password_hash)" when adding a new user, you should change password_hashen in file /usr/share/phpldapadmin/lib/TemplateRender.php to password_hash_custom (line 2469)
@@ -398,38 +460,6 @@ CA_CERTREQ      never
 The ldap.trustedCert parameter line should have this sintaxis:
         
 	ldap.trustedCert=file:path_to_cacert.pem
-
-#Install RDConnect schemas:
-First of all we need to convert .schema files inside ldap-schemas directory to .ldif files. We generate a configuration file with the includes of the schemas that we want to use inside the "schemas.conf" file
-```bash
-    vi schemas.config
-```
-	include /etc/ldap/schema/core.schema 
-	include /etc/ldap/schema/cosine.schema 
-	include /etc/ldap/schema/nis.schema 
-	include /etc/ldap/schema/inetorgperson.schema 
-	include /home/acanada/ldap-schemas/rd-connect-common.schema 
-	include /home/acanada/ldap-schemas/basicRDproperties.schema 
-	include /home/acanada/ldap-schemas/cas-management.schema 
-	include /home/acanada/ldap-schemas/pwm.schema 
-
-Then we execute:
-```bash
-	mkdir /tmp/ldap/
-    	slaptest -f whole.conf -F /tmp/ldap/cn\=config/cn\=schema
-```
-Now we just need to move the ldif of the new schemas to its place (/etc/ldap/schemas in Ubuntu server)
-```bash
-     mv /tmp/ldap/cn\=config/cn\=schema/cn=\{4\}rd-connect-common.ldif /etc/ldap/schema/ 
-	 mv /tmp/ldap/cn\=config/cn\=schema/cn=\{5\}basicrdproperties.ldif /etc/ldap/schema/ 
-	 mv /tmp/ldap/cn\=config/cn\=schema/cn=\{6\}cas-management.ldif /etc/ldap/schema/ 
-	 mv /tmp/ldap/cn\=config/cn\=schema/cn=\{7\}pwm.ldif /etc/ldap/schema/
-```
-
-
-
-Move the content of the directory ldap-schemas to the location of the schemas (~/etc/ldap/schemas/ in Ubuntu server)
-Restart ldap server
 
 #Installing and configuring phpldapadmin and SSL/TLS
 
