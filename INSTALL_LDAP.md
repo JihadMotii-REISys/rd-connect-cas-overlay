@@ -440,7 +440,9 @@ $servers->setValue('server','name','RD-Connect LDAP Server');
 $servers->setValue('server','host','ldap.rd-connect.eu');
 $servers->setValue('server','port',389);
 $servers->setValue('server','base',array('dc=rd-connect,dc=eu'));
-$servers->setValue('login','bind_id','cn=admin,dc=rd-connect,dc=eu');
+$servers->setValue('login','bind_id','');
+$servers->setValue('login','bind_pass','');
+$servers->setValue('server','tls',true);
 
 # line 397: uncomment, line 398: comment out
 
