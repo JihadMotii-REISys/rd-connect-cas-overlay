@@ -1,8 +1,8 @@
-* Install Java >= 1.7
-* export JAVA_HOME, JAVA_JRE
-* Install tomcat7, creating an user tomcat-deployer in conf/tomcat-users.xml with the `manager-script` and `manager-gui` roles
-* export CATALINA_HOME
-* Install Apache Maven >=3.0
+# Prerequisites needed before installing CAS
+* Install Java >= 1.7 and Apache Maven >= 3.0
+* Check `JAVA_HOME` and `JAVA_JRE` variables are exported
+* Install Tomcat 7.x, creating a user `tomcat-deployer` in conf/tomcat-users.xml with the `manager-script` and `manager-gui` roles.
+* (optional) export CATALINA_HOME
 * Config DNS giving server a name (rdconnectcas.rd-connect.eu). In our case server hostname is rdconnectcas. In client machine we added an entry for rdconnectcas.rd-connect.eu in /etc/hosts
 
 
@@ -57,13 +57,13 @@
 # Maven Overlay Installation
 * Clone git project with the simple overlay template here
 ```bash
-	git clone --recurse-submodules https://github.com/inab/ldap-rest-cas4-overlay.git
+	git clone -b cas.4.1.x --recurse-submodules https://github.com/inab/ldap-rest-cas4-overlay.git
 ```	
-* Execute inside the project folder:  mvn clean package
+* Execute inside the project folder:  `mvn clean package`
 * Copy simple-cas-overlay-template/target/cas.war to $CATALINA_HOME/webapps/
 * Copy etc/* directory (including directory services) to ${HOME}/etc/cas , but tomcat-deployment.properties.template
 * Copy etc/tomcat-deployment.properties.template to etc/tomcat-deployment.properties , and set it up properly.
-* Remember to set up a Tomcat user with `manager-script` and `manager-gui` roles.
+  * The `tomcat-deployer` Tomcat user is put on this file.
 * Configure parameters tgc.encryption.key and tgc.signing.key at ${HOME}/etc/cas/cas.properties. In order to generate this keys you need to go to json-web-key-generator folder and deploy by
 ```bash
 	mvn clean package
@@ -71,8 +71,12 @@
 	java -jar target/json-web-key-generator-0.2-SNAPSHOT-jar-with-dependencies.jar -t oct -s 512 -S
 	java -jar target/json-web-key-generator-0.2-SNAPSHOT-jar-with-dependencies.jar -t oct -s 256 -S
 ```	
-* First key generated goes to tgc.signing.key parameter and second one to tgc.encryption.key
+* The result contains a couple of keys which are needed to update your cas.properties at next parameters:
 
+```
+tgc.signing.key=<First key generated>
+tgc.encryption.key=<Second key generated>
+```
 
 * If you don’t have any applications running in the 8080 port, you can comment out the lines inside $CATALINA_BASE/conf/server.xml:
 ```xml
@@ -83,24 +87,3 @@
 
 ```
 (In order to restrict the traffic only to secure ports)
-
-# User management
-* Create the SQLite3 database at `$HOME/etc/cas/cas-users.sqlite` with next schema:
-```sql
-CREATE TABLE users (
-    username varchar(50) not null,
-    password varchar(50) not null,
-    fullname varchar(4096) not null,
-    email varchar(64) not null,
-    active boolean not null,
-    primary key(username)
-);
-```
-CAS has been setup to expect SHA-1 password hashing. But as SQLite3 does not have embedded hashing functions, the password must be prehashed prior the user creation:
-```bash
-echo -n 1234.abcd | sha1sum
-```
-and this insertion sentence is needed, where the third value of the tuple is the hashed password:
-```sql
-INSERT INTO users VALUES('rdconnect-test','7cfe1e7b7fb35079d81ea5de7a4f958044b53aaa','RD-Connect User for tests','rdconnect-test@rd-connect.eu',1);
-```
