@@ -206,7 +206,7 @@ ldapmodify -x -D "$adminDN" -W -f /tmp/memberOfModify.ldif
 
 #SSL/TLS for OpenLDAP.
 
-* First, we are going to generate a key pair for ldaps:// protocol. GnuTLS executables are going to be used, and they were installed at the beginning. We will use the Certificate Authority created following [this procedure](INSTALL_CA.md)
+* First, we are going to generate a key pair for ldaps:// protocol. GnuTLS executables are going to be used, and they were installed at the beginning. We will use the public and private keys from a Certificate Authority (in this example, `/etc/pki/CA/cacert.pem` and `/etc/pki/CA/private/cakey.pem`. You can create one following [this procedure](INSTALL_CA.md)
 
 ```bash
 mkdir -p "${HOME}"/ldap-certs
@@ -450,17 +450,27 @@ $servers->setValue('login','attr','dn');
 
 ```
 
+#Configuring cas.properties file in etc/cas/cas.properties
+
+The `ldap.trustedCert` parameter points to the LDAP public key certificate.
+
+So, it should have this content in CentOS:
+        
+```
+ldap.trustedCert=file:/etc/openldap/certs/ldap-server-crt.pem
+```
+
+and this content in Ubuntu
+
+```
+ldap.trustedCert=file:/etc/ldap/certs/ldap-server-crt.pem
+```
+
 #Beware!!! Outdated instructions!!! Don't follow them!!!
 
 ##Setup secure configuration for phpldapadmin 
 * Following this link (https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-openldap-and-phpldapadmin-on-an-ubuntu-14-04-server) and starting from "Create an SSL Certificate".
 * If you get an error "Error trying to get a non-existant value (appearance,password_hash)" when adding a new user, you should change password_hashen in file /usr/share/phpldapadmin/lib/TemplateRender.php to password_hash_custom (line 2469)
-
-##Configuring cas.properties file in etc/cas/cas.properties
-
-The ldap.trustedCert parameter line should have this sintaxis:
-        
-	ldap.trustedCert=file:path_to_cacert.pem
 
 ##Installing and configuring phpldapadmin and SSL/TLS
 
@@ -475,11 +485,3 @@ The ldap.trustedCert parameter line should have this sintaxis:
         $servers->setValue('server','port',389);
         $servers->setValue('server','base',array('dc=rd-connect,dc=eu'));
         $servers->setValue('login','bind_id','cn=admin,dc=rd-connect,dc=eu');
-
-* Adding objects People / Groups
-
-    	Click Create new entry here > Click Generic: Organization Unit > Name the unit people > Commit
-    	Click Create new entry here > Click Generic: Organization Unit > Name the unit groups > Commit
-    	Click ou=groups > Click Create a child entry > Click Generic: Posix Group > Name the group genusers for "General users"
-    	Click ou=people > Click Create a child entry > Click Generic: User Account > Name the user fill in the relevant fields. Be sure to assign user to genusers GID.
-
