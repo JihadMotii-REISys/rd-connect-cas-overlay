@@ -216,7 +216,7 @@ certtool --generate-privkey --outfile "${HOME}"/ldap-certs/ldap-server-key.pem
 certtool --generate-certificate --load-privkey "${HOME}"/ldap-certs/ldap-server-key.pem --outfile "${HOME}"/ldap-certs/ldap-server-crt.pem --load-ca-certificate /etc/pki/CA/cacert.pem --load-ca-privkey /etc/pki/CA/private/cakey.pem
 ```
 
-    Be sure the common name matches the hostname of the OpenLDAP server
+  Be sure the common name matches the hostname of the OpenLDAP server
 
 ```
 Common name: ldap.rd-connect.eu
@@ -450,19 +450,19 @@ $servers->setValue('login','attr','dn');
 
 ```
 
+#Beware!!! Outdated instructions!!! Don't follow them!!!
 
-
-#Setup secure configuration for phpldapadmin 
+##Setup secure configuration for phpldapadmin 
 * Following this link (https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-openldap-and-phpldapadmin-on-an-ubuntu-14-04-server) and starting from "Create an SSL Certificate".
 * If you get an error "Error trying to get a non-existant value (appearance,password_hash)" when adding a new user, you should change password_hashen in file /usr/share/phpldapadmin/lib/TemplateRender.php to password_hash_custom (line 2469)
 
-#Configuring cas.properties file in etc/cas/cas.properties
+##Configuring cas.properties file in etc/cas/cas.properties
 
 The ldap.trustedCert parameter line should have this sintaxis:
         
 	ldap.trustedCert=file:path_to_cacert.pem
 
-#Installing and configuring phpldapadmin and SSL/TLS
+##Installing and configuring phpldapadmin and SSL/TLS
 
 ```bash
     apt-get install phpldapadmin
