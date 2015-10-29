@@ -347,12 +347,11 @@ TLS_CACERT     /etc/openldap/certs/cacert.pem
     
   * If you are using SELinux (most probably), you will need to run next commands in order to allow LDAP and LDAP TLS:
     
-  * If you are using nslcd, you will have to run `echo "tls_reqcert allow" >> /etc/nslcd.conf`, and restart nslcd service.
-
 ```bash
 authconfig --enableldaptls --update
 setsebool -P httpd_can_connect_ldap 1
 ```
+  * If you are using nslcd, you will have to run `echo "tls_reqcert allow" >> /etc/nslcd.conf`, and restart nslcd service.
 
 * (Ubuntu) Modify /etc/default/slapd. Find the line which defines `SLAPD_SERVICES`, and rewrite it like this:
 
