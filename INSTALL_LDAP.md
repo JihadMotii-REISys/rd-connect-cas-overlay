@@ -403,28 +403,28 @@ yum --enablerepo=epel -y install phpldapadmin
 
 ```apache
 # line 86: change to admin's email address
-
 ServerAdmin root@ldap.rd-connect.eu
+
 # line 95: change to your server's name
-
 ServerName ldap.rd-connect.eu:80
+
 # line 151: change
-
 AllowOverride All
+
 # line 164: add file name that it can access only with directory's name
-
 DirectoryIndex index.html index.cgi index.php
-# add follows to the end
 
+#####
+# Add next lines to the end before the include sentences
+####
 # server's response header
-
 ServerTokens Prod
-# keepalive is ON
 
+# keepalive is ON
 KeepAlive On
 ```
 
-  and start the service
+  and start the http service
 
 ```bash
 systemctl start httpd
