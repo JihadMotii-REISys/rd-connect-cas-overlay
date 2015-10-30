@@ -1,6 +1,6 @@
 #Installing and configuring OpenLDAP
 
-* First, the LDAP server host must have its official name, either through the name server or using a new /etc/hosts entry.
+* First, the LDAP server host must have its official name, either through the name server or using a new /etc/hosts entry. We are assuming along this document that the name is `ldap.rd-connect.eu`.
 * Then, this branch must be in the /tmp directory of the host, as next steps assume it:
 
 ```bash
