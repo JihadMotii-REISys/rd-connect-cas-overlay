@@ -4,3 +4,4 @@ deploy.host=localhost
 deploy.tomcat.protocol=https
 deploy.tomcat.port=9443
 deploy.tomcat.user=tomcat-deployer
+deploy.tomcat.pass=ChangeThisPassword!!!

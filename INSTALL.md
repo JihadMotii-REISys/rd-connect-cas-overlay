@@ -1,8 +1,21 @@
-# Prerequisites needed before installing CAS
-* Install Java >= 1.7 and Apache Maven >= 3.0
-* Check `JAVA_HOME` and `JAVA_JRE` variables are exported
-* Install Tomcat 7.x, creating a user `tomcat-deployer` in conf/tomcat-users.xml with the `manager-script` and `manager-gui` roles.
-* (optional) export CATALINA_HOME
+# Setup needed before installing CAS
+* Install Java >= 1.7, Ant, Apache Maven >= 3.0 and Tomcat 7.x. For CentOS would be:
+
+```bash
+yum -y install java-devel ant maven tomcat tomcat-admin-webapps
+```
+* Edit /etc/tomcat/tomcat-users.xml (CentOS) or conf/tomcat-users.xml, creating a user `tomcat-deployer` with a unique password, and the `manager-script` and `manager-gui` roles.
+
+```xml
+<role rolename="manager-gui" />
+<role rolename="manager-script" />
+<user name="tomcat-deployer" password="ChangeThisPassword!!!" roles="manager-gui, manager-script"/>
+```
+
+* In standard installations (i.e. using system packages), like in CentOS or Ubuntu, it is not needed to export environment variables.
+  * Otherwise, you have to check that `JAVA_HOME` and `JAVA_JRE` variables are exported, so your tomcat deployment uses the right version of Java.
+  * The same is applied to `CATALINA_HOME` environment variable.
+
 * Config DNS giving server a name (rdconnectcas.rd-connect.eu). In our case server hostname is rdconnectcas. In client machine we added an entry for rdconnectcas.rd-connect.eu in /etc/hosts
 
 
