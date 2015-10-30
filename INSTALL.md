@@ -104,6 +104,20 @@ install -D -o tomcat -g tomcat -m 600 "${HOME}"/cas-server-certs/cas-tomcat-serv
 
 ```
 
+* Last, start the Tomcat server and add it to the startup sequence:
+
+```bash
+systemctl start tomcat
+systemctl enable tomcat
+```
+
+# CAS Maven Overlay Installation
+* Clone git project with the simple overlay template here
+```bash
+cd "${HOME}"
+git clone -b cas-4.1.x --recurse-submodules https://github.com/inab/ldap-rest-cas4-overlay.git
+```	
+* Inside the checked-out directory, run `mvn clean package` in order to generate the war
 
 # Certificates (Ubuntu):
 
