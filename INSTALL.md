@@ -1,10 +1,19 @@
 # Setup needed before installing CAS
 * First, the CAS server host must have its official name, either through the name server or using a new /etc/hosts entry. We are assuming along this document that the name is `rdconnectcas.rd-connect.eu`.
-* Install git, Java >= 1.7, Ant, Apache Maven >= 3.0 and Tomcat 7.x. For CentOS 7 would be:
+* Install git, Java >= 1.7, Ant, Apache Maven >= 3.0 and Tomcat 7.x (avoid from Tomcat 7.0.54 to Tomcat 7.0.57, they have a deployment bug). For CentOS 7 would be:
 
 ```bash
 yum -y install git java-devel ant ant-contrib maven tomcat tomcat-admin-webapps
 ```
+
+  * Due an installation bug in Tomcat version available in CentOS, ant Tomcat deployment tasks will not work without some additional symlinks:
+  ```bash
+  cd /usr/share/tomcat/lib
+  ln -s tomcat-el-2.2-api.jar el-api.jar
+  ln -s tomcat-jsp-2.2-api.jar jsp-api.jar
+  ln -s tomcat-servlet-3.0-api.jar servlet-api.jar
+  ```
+
 * Edit /etc/tomcat/tomcat-users.xml (CentOS) or $CATALINA_BASE/conf/tomcat-users.xml, creating a user `cas-tomcat-deployer` with a unique password, and the `manager-script` and `manager-gui` roles.
 
 ```xml
@@ -179,8 +188,8 @@ mvn clean package
   cp etc/tomcat-deployment.properties.template etc/tomcat-deployment.properties
   # Apply the needed changes to etc/tomcat-deployment.properties
   
-  # Now deploy the application
-  ant deploy
+  # Now deploy the application, using the keystore previously generated
+  ANT_OPTS="-Djavax.net.ssl.trustStore=/etc/tomcat/cas-tomcat-server.jks" ant deploy
   ```
 
 # Certificates (Ubuntu):
