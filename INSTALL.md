@@ -3,7 +3,7 @@
 * Install git, Java >= 1.7, Ant, Apache Maven >= 3.0 and Tomcat 7.x. For CentOS 7 would be:
 
 ```bash
-yum -y install git java-devel ant maven tomcat tomcat-admin-webapps
+yum -y install git java-devel ant ant-contrib maven tomcat tomcat-admin-webapps
 ```
 * Edit /etc/tomcat/tomcat-users.xml (CentOS) or $CATALINA_BASE/conf/tomcat-users.xml, creating a user `cas-tomcat-deployer` with a unique password, and the `manager-script` and `manager-gui` roles.
 
