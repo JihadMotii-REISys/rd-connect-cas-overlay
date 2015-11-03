@@ -63,6 +63,10 @@
 	<available file="${catalina.home}" type="dir" property="catalina.home.exists" />
 	<fail unless="catalina.home.exists" message="Tomcat directory ${catalina.home} does not exist" />
 	
+	<!-- Tomcat deployment task -->
+	<!-- This taskdef is needed to use the power of ant deployments! -->
+	<import file="${catalina.home}/bin/catalina-tasks.xml"/>
+	
 	<property name="application.context" value="${cas.context}" />
 	<property name="application.war" location="${basedir}/target/${ant.project.name}.war"/>
 	
@@ -114,22 +118,6 @@
 	</condition>
 	<property name="tomcatShutDown" value="${catalina.home}\bin\${tomcatShutDownFile}" />
 
-	<!-- Tomcat deployment task -->
-	<!-- This taskdef is needed to use the power of ant deployments! -->
-	<taskdef resource="org/apache/catalina/ant/catalina.tasks">
-		<classpath>
-			<fileset dir="${catalina.home}/bin">
-				<include name="tomcat-juli.jar" />
-			</fileset>
-			<fileset dir="${catalina.home}/lib">
-				<include name="jasper.jar" />
-				<include name="tomcat-coyote.jar"/>
-				<include name="tomcat-util.jar"/>
-				<include name="catalina-ant.jar" />
-			</fileset>
-		</classpath>
-	</taskdef>
-	
 	<!-- ********************* TARGETS *************************** -->
 	<target name="cleanTomcatLogs" description="Clean tomcat log files">
 		<delete failonerror="false">
