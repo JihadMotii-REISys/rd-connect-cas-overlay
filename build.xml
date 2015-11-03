@@ -27,13 +27,23 @@
 	
 	<property name="tomcat.log.patterns" value="**/*.log, **/*.txt" />
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties" />
-	<property file="${user.home}/etc/cas/cas.properties" />
 	
 	<available file="${basedir}/etc/tomcat-deployment.properties"  type="file" property="tomcat.config.exists" />
 	<fail unless="tomcat.config.exists" message="Tomcat configuration file ${basedir}/etc/tomcat-deployment.properties does not exist"/>
 	
 	<property file="${basedir}/etc/tomcat-deployment.properties" />
 	
+	<available file="${user.home}/etc/cas/cas.properties" type="file" property="user.tomcat.install" />
+	<if>
+		<istrue value="${user.tomcat.install}"/>
+		<then>
+			<property file="${user.home}/etc/cas/cas.properties" />
+		</then>
+		<else>
+			<property file="/etc/cas/cas.properties" />
+		</else>
+	</if>
+
 	<if>
 		<not>
 			<isset property="catalina.home"/>

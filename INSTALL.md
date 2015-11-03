@@ -136,12 +136,13 @@ mvn clean package
   * (SYSTEM) Create directories /etc/cas and /var/log/cas as the `tomcat` user, and copy cas-managers.properties, cas.properties.template, log4j2-system.xml, cacert.pem and services to /etc/cas , renaming wherever it is needed:
   ```bash
   install -o tomcat -g tomcat -m 755 -d /etc/cas
+  install -o tomcat -g tomcat -m 755 -d /etc/cas/services
   install -o tomcat -g tomcat -m 755 -d /var/log/cas
   install -D -o tomcat -g tomcat -m 600 /tmp/ldap-cas-4.1.x/etc/cas.properties.template /etc/cas/cas.properties
   install -D -o tomcat -g tomcat -m 600 /tmp/ldap-cas-4.1.x/etc/cas-managers.properties /etc/cas/cas-managers.properties
   install -D -o tomcat -g tomcat -m 644 /tmp/ldap-cas-4.1.x/etc/log4j2-system.xml /etc/cas/log4j2.xml
   install -D -o tomcat -g tomcat -m 644 /etc/pki/CA/cacert.pem /etc/cas/cacert.pem
-  install -D -o tomcat -g tomcat -m 600 /tmp/ldap-cas-4.1.x/etc/services /etc/cas/services
+  install -D -o tomcat -g tomcat -m 600 -t /etc/cas/services /tmp/ldap-cas-4.1.x/etc/services/*
   ```
   
   * (USER) Create directories ${HOME}/etc/cas and ${HOME}/cas-log, and copy cas-managers.properties, cas.properties.template, log4j2-user.xml, cacert.pem and services to "${HOME}"/etc/cas , renaming wherever it is needed:
@@ -157,7 +158,7 @@ mvn clean package
   
   * (SYSTEM, USER) Edit cas.properties file, and apply next changes:
     * Uncomment `cas.resources.dir` according your installation environment.
-    * Change `ldap.managerPassword` by the password needed to bind the LDAP directory.
+    * Change `ldap.managerPassword` by the password needed to bind to the LDAP directory using the user declared at `ldap.managerDn`.
     * Fill-in parameters `tgc.encryption.key` and `tgc.signing.key`. In order to generate these keys you need to go to json-web-key-generator folder and deploy by
     ```bash
     cd /tmp/ldap-cas-4.1.x/json-web-key-generator
@@ -174,6 +175,7 @@ mvn clean package
   * (SYSTEM, USER) Last, deploy it using the provided ant script. You have to copy `etc/tomcat-deployment.properties.template` to `etc/tomcat-deployment.properties`, and put there the password you assigned to the Tomcat user `cas-tomcat-deployer`:
 
   ```bash
+  cd /tmp/ldap-cas-4.1.x
   cp etc/tomcat-deployment.properties.template etc/tomcat-deployment.properties
   # Apply the needed changes to etc/tomcat-deployment.properties
   
