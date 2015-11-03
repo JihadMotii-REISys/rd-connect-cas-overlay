@@ -17,8 +17,13 @@
 # under the License.
 #
 
-cas.resources.dir=${user.home}/etc/cas
-cas.log.dir=${user.home}/cas-log
+# Uncomment this block if you are going to use a system-wide Tomcat
+#cas.resources.dir=/etc/cas
+#cas.log.dir=/var/log/cas
+
+# Uncomment this block if you are going to use your own Tomcat
+#cas.resources.dir=${user.home}/etc/cas
+#cas.log.dir=${user.home}/cas-log
 
 ##
 # Unique CAS node name
@@ -156,51 +161,6 @@ password.policy.url=https://rdconnectcas.rd-connect.eu:9443/password/change
 
 
 
-# == Basic database connection pool configuration ==
-database.driverClass=org.sqlite.JDBC
-database.url=jdbc:sqlite:${cas.resources.dir}/cas-users.sqlite
-database.user=somebody
-database.password=meaningless
-database.pool.minSize=6
-database.pool.maxSize=18
- 
-# Maximum amount of time to wait in ms for a connection to become
-# available when the pool is exhausted
-database.pool.maxWait=10000
- 
-# Amount of time in seconds after which idle connections
-# in excess of minimum size are pruned.
-database.pool.maxIdleTime=120
- 
-# Number of connections to obtain on pool exhaustion condition.
-# The maximum pool size is always respected when acquiring
-# new connections.
-database.pool.acquireIncrement=6
- 
-# == Connection testing settings ==
- 
-# Period in s at which a health query will be issued on idle
-# connections to determine connection liveliness.
-database.pool.idleConnectionTestPeriod=30
- 
-# Query executed periodically to test health
-database.pool.connectionHealthQuery=select 1
- 
-# == Database recovery settings ==
- 
-# Number of times to retry acquiring a _new_ connection
-# when an error is encountered during acquisition.
-database.pool.acquireRetryAttempts=5
- 
-# Amount of time in ms to wait between successive aquire retry attempts.
-database.pool.acquireRetryDelay=2000
-
-
-# These properties are needed to setup JPA (used by service management)
-database.hibernate.dialect=org.hibernate.dialect.SQLiteDialect
-database.hibernate.batchSize=30
-
-
 # == General LDAP connection settings ==
 
 # Search filter when using a search-and-bind strategy.
@@ -218,7 +178,7 @@ ldap.authn.format=uid=%s,${ldap.authn.baseDn}
 # single virtual host is the only reasonable solution.
 
 
-ldap.url=ldap://ldap.rd-connect.eu
+ldap.url=ldaps://ldap.rd-connect.eu
 ldap.useSSL=true
 ldap.useStartTLS=false
 
@@ -265,7 +225,7 @@ ldap.authentication.pool.evictionPeriod=600000
 ldap.pool.idleTime=1200000
 
 # Change this file and path according to your setup
-ldap.trustedCert=file:/etc/ssl/certs/cacert.pem
+ldap.trustedCert=file:${cas.resources.dir}/cacert.pem
 
 
 # Service registry directory

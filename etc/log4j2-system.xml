@@ -23,6 +23,9 @@
 
 <!-- Specify the refresh internal in seconds. -->
 <Configuration monitorInterval="60">
+	<Properties>
+		<Property name="log.dir">/var/log/cas</Property>
+	</Properties>
     <Appenders>
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{yyyy-MM-dd'T'HH:mm:ss.SSSZZZZ} %p [%c] - &lt;%m&gt;%n"/>
@@ -30,8 +33,8 @@
             <PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n"/>
             -->
         </Console>
-        <RollingFile name="casfile" fileName="${sys:user.home}/cas-log/cas.log" append="true"
-                     filePattern="${sys:user.home}/cas-log/cas-%d{yyyy-MM-dd-HH}-%i.log">
+        <RollingFile name="casfile" fileName="${log.dir}/cas.log" append="true"
+                     filePattern="${log.dir}/cas-%d{yyyy-MM-dd-HH}-%i.log">
             <!--
             <PatternLayout pattern="%d %p [%c] - %m%n"/>
             -->
@@ -42,8 +45,8 @@
                 <TimeBasedTriggeringPolicy />
             </Policies>
         </RollingFile>
-        <RollingFile name="springfile" fileName="${sys:user.home}/cas-log/spring.log" append="true"
-                     filePattern="${sys:user.home}/cas-log/spring-%d{yyyy-MM-dd-HH}-%i.log">
+        <RollingFile name="springfile" fileName="${log.dir}/spring.log" append="true"
+                     filePattern="${log.dir}/spring-%d{yyyy-MM-dd-HH}-%i.log">
             <!--
             <PatternLayout pattern="%d %p [%c] - %m%n"/>
             -->
@@ -54,8 +57,8 @@
                 <TimeBasedTriggeringPolicy />
             </Policies>
         </RollingFile>
-        <RollingFile name="inspektrfile" fileName="${sys:user.home}/cas-log/inspektr.log" append="true"
-                     filePattern="${sys:user.home}/cas-log/inspektr-%d{yyyy-MM-dd-HH}-%i.log">
+        <RollingFile name="inspektrfile" fileName="${log.dir}/inspektr.log" append="true"
+                     filePattern="${log.dir}/inspektr-%d{yyyy-MM-dd-HH}-%i.log">
             <!--
             <PatternLayout pattern="%d %p [%c] - %m%n"/>
             -->
@@ -66,8 +69,8 @@
                 <TimeBasedTriggeringPolicy />
             </Policies>
         </RollingFile>
-        <RollingFile name="perfFileAppender" fileName="${sys:user.home}/cas-log/perfStats.log" append="true"
-                     filePattern="${sys:user.home}/cas-log/perfStats-%d{yyyy-MM-dd-HH}-%i.log">
+        <RollingFile name="perfFileAppender" fileName="${log.dir}/perfStats.log" append="true"
+                     filePattern="${log.dir}/perfStats-%d{yyyy-MM-dd-HH}-%i.log">
             <PatternLayout pattern="%m%n"/>
             <Policies>
                 <OnStartupTriggeringPolicy />
