@@ -5,7 +5,7 @@
 ```bash
 yum -y install git java-devel ant maven tomcat tomcat-admin-webapps
 ```
-* Edit /etc/tomcat/tomcat-users.xml (CentOS) or conf/tomcat-users.xml, creating a user `cas-tomcat-deployer` with a unique password, and the `manager-script` and `manager-gui` roles.
+* Edit /etc/tomcat/tomcat-users.xml (CentOS) or $CATALINA_BASE/conf/tomcat-users.xml, creating a user `cas-tomcat-deployer` with a unique password, and the `manager-script` and `manager-gui` roles.
 
 ```xml
 <role rolename="manager-gui" />
@@ -89,7 +89,7 @@ keytool -list -v -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -sto
 install -D -o tomcat -g tomcat -m 600 "${HOME}"/cas-server-certs/cas-tomcat-server.jks /etc/tomcat/cas-tomcat-server.jks
 ```
 
-* Then, edit /etc/tomcat/server.xml , adding next connector:
+* Then, edit /etc/tomcat/server.xml (or $CATALINA_BASE/conf/server.xml), adding next connector:
 ```xml
 <Connector port="9443" protocol="HTTP/1.1"
         connectionTimeout="20000"
@@ -104,6 +104,14 @@ install -D -o tomcat -g tomcat -m 600 "${HOME}"/cas-server-certs/cas-tomcat-serv
 
 ```
 
+* If you don’t have any applications running in the 8080 port, you can comment out the lines inside /etc/tomcat/server.xml (or $CATALINA_BASE/conf/server.xml):
+```xml
+<!-- <Connector port="8080" protocol="HTTP/1.1"
+connectionTimeout="20000"
+    redirectPort="9443" />
+-->
+```
+
 * Last, start the Tomcat server and add it to the startup sequence:
 
 ```bash
@@ -114,10 +122,64 @@ systemctl enable tomcat
 # CAS Maven Overlay Installation
 * Clone git project with the simple overlay template here
 ```bash
-cd "${HOME}"
-git clone -b cas-4.1.x --recurse-submodules https://github.com/inab/ldap-rest-cas4-overlay.git
+git clone -b cas-4.1.x --recurse-submodules https://github.com/inab/ldap-rest-cas4-overlay.git /tmp/ldap-cas-4.1.x
 ```	
-* Inside the checked-out directory, run `mvn clean package` in order to generate the war
+
+* Inside the checked-out directory, run `mvn clean package` in order to generate the war:
+```bash
+cd /tmp/ldap-cas-4.1.x
+mvn clean package
+```
+
+* Now, depending on whether you are using a system or an user Tomcat, you have to slightly change your installation procedure.
+
+  * (SYSTEM) Create directories /etc/cas and /var/log/cas as the `tomcat` user, and copy cas-managers.properties, cas.properties.template, log4j2-system.xml, cacert.pem and services to /etc/cas , renaming wherever it is needed:
+  ```bash
+  install -o tomcat -g tomcat -m 755 -d /etc/cas
+  install -o tomcat -g tomcat -m 755 -d /var/log/cas
+  install -D -o tomcat -g tomcat -m 600 /tmp/ldap-cas-4.1.x/etc/cas.properties.template /etc/cas/cas.properties
+  install -D -o tomcat -g tomcat -m 600 /tmp/ldap-cas-4.1.x/etc/cas-managers.properties /etc/cas/cas-managers.properties
+  install -D -o tomcat -g tomcat -m 644 /tmp/ldap-cas-4.1.x/etc/log4j2-system.xml /etc/cas/log4j2.xml
+  install -D -o tomcat -g tomcat -m 644 /etc/pki/CA/cacert.pem /etc/cas/cacert.pem
+  install -D -o tomcat -g tomcat -m 600 /tmp/ldap-cas-4.1.x/etc/services /etc/cas/services
+  ```
+  
+  * (USER) Create directories ${HOME}/etc/cas and ${HOME}/cas-log, and copy cas-managers.properties, cas.properties.template, log4j2-user.xml, cacert.pem and services to "${HOME}"/etc/cas , renaming wherever it is needed:
+  ```bash
+  mkdir -p "${HOME}"/etc/cas "${HOME}"/cas-log
+  cp -p /tmp/ldap-cas-4.1.x/etc/cas.properties.template "${HOME}"/etc/cas/cas.properties
+  cp -p /tmp/ldap-cas-4.1.x/etc/log4j2-user.xml "${HOME}"/etc/cas/log4j2.xml
+  cp -p /etc/pki/CA/cacert.pem "${HOME}"/etc/cas/cacert.pem
+  cp -p /tmp/ldap-cas-4.1.x/etc/cas-managers.properties /tmp/ldap-cas-4.1.x/etc/services "${HOME}"/etc/cas
+  chmod go-r "${HOME}"/etc/cas/cas.properties "${HOME}"/etc/cas-managers.properties 
+  chmod go-rx "${HOME}"/etc/cas/services
+  ```
+  
+  * (SYSTEM, USER) Edit cas.properties file, and apply next changes:
+    * Uncomment `cas.resources.dir` according your installation environment.
+    * Change `ldap.managerPassword` by the password needed to bind the LDAP directory.
+    * Fill-in parameters `tgc.encryption.key` and `tgc.signing.key`. In order to generate these keys you need to go to json-web-key-generator folder and deploy by
+    ```bash
+    cd /tmp/ldap-cas-4.1.x/json-web-key-generator
+    mvn clean package
+    java -jar target/json-web-key-generator-0.2-SNAPSHOT-jar-with-dependencies.jar -t oct -s 512 -S
+    java -jar target/json-web-key-generator-0.2-SNAPSHOT-jar-with-dependencies.jar -t oct -s 256 -S
+    ```	
+    The result contains a couple of keys which are needed to update your cas.properties at next parameters:
+    ```
+    tgc.signing.key=<First key generated>
+    tgc.encryption.key=<Second key generated>
+    ```
+
+  * (SYSTEM, USER) Last, deploy it using the provided ant script. You have to copy `etc/tomcat-deployment.properties.template` to `etc/tomcat-deployment.properties`, and put there the password you assigned to the Tomcat user `cas-tomcat-deployer`:
+
+  ```bash
+  cp etc/tomcat-deployment.properties.template etc/tomcat-deployment.properties
+  # Apply the needed changes to etc/tomcat-deployment.properties
+  
+  # Now deploy the application
+  ant deploy
+  ```
 
 # Certificates (Ubuntu):
 
