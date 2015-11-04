@@ -196,6 +196,15 @@ memberOf: cn=admin,ou=groups,$domainDN
 memberOf: cn=pwmAdmin,ou=groups,$domainDN
 EOF
 ldapmodify -x -D "$adminDN" -W -f /tmp/memberOfModify.ldif
+
+cat > /tmp/defaultservice.ldif <<EOF
+# The default service
+dn: uid=10000001,ou=services,dc=rd-connect,dc=eu
+objectClass: casRegisteredService
+uid: 10000001
+EOF
+base64 /tmp/ldap-cas-4.1.x/etc/services/HTTPS-10000001.json | sed 's#^# #;1 s#^#description::#;' >> /tmp/defaultservice.ldif
+ldapadd -x -D "$adminDN" -W -f /tmp/defaultservice.ldif
 ```
 
 * As root, open /etc/ldap/ldap.conf (if you are using Ubuntu) or /etc/openldap/ldap.conf (if you are using CentOS) and change `BASE` declaration to `BASE    dc=rd-connect,dc=eu` (this only affects OpenLDAP clients).
