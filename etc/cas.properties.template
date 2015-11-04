@@ -242,8 +242,8 @@ cas.securityContext.ticketValidator.casServerUrlPrefix=${cas.prefix}
 cas-management.host=${server.name}
 cas-management.context=/cas-management
 cas-management.prefix=${cas-management.host}${cas-management.context}
-cas-management.securityContext.serviceProperties.service=${cas-management.prefix}/j_spring_cas_security_check
-cas-management.securityContext.serviceProperties.adminRoles=ROLE_ADMIN
+cas-management.securityContext.serviceProperties.service=${cas-management.prefix}/login/cas
+cas-management.securityContext.serviceProperties.adminRoles=hasRole('ROLE_ADMIN')
 
 # views
 cas-management.viewResolver.basename=default_views
