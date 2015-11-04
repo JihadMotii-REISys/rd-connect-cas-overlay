@@ -1,20 +1,36 @@
 # Setup needed before installing CAS
 * First, the CAS server host must have its official name, either through the name server or using a new /etc/hosts entry. We are assuming along this document that the name is `rdconnectcas.rd-connect.eu`.
-* Install git, Java >= 1.7, Ant, Apache Maven >= 3.0 and Tomcat 7.x (avoid from Tomcat 7.0.54 to Tomcat 7.0.57, they have a deployment bug). For CentOS 7 would be:
-
+* Install git, Java >= 1.7, Ant and Apache Maven >= 3.0.
 ```bash
-yum -y install git java-devel ant ant-contrib maven tomcat tomcat-admin-webapps
+yum -y install git java-devel ant ant-contrib maven
 ```
 
-  * Due an installation bug in Tomcat version available in CentOS, ant Tomcat deployment tasks will not work without some additional symlinks:
+* Install Tomcat 7.x. Avoid versions from Tomcat 7.0.54 to Tomcat 7.0.57, as they have a deployment bug which breaks CAS deployment.
+  * You can generate the needed RPMs for Tomcat just following the instructions in [/inab/rpm-tomcat7](this repository). Once generated, RPMs are available at `~/rpmbuild/RPMS/noarch`, and you have to install only the needed RPMs:
   ```bash
-  cd /usr/share/tomcat/lib
-  ln -s tomcat-el-2.2-api.jar el-api.jar
-  ln -s tomcat-jsp-2.2-api.jar jsp-api.jar
-  ln -s tomcat-servlet-3.0-api.jar servlet-api.jar
+  cd "${HOME}"/rpmbuild/RPMS/noarch
+  # Supposing it is Tomcat 7.0.65
+  sudo yum install tomcat7-7.0.65-1.noarch.rpm tomcat7-admin-webapps-7.0.65-1.noarch.rpm tomcat7-lib-7.0.65-1.noarch.rpm tomcat7-root-webapp-7.0.65-1.noarch.rpm
+  # Now, creating a symlink from tomcat7 to tomcat in /etc and /usr/share
+  # so next instructions are coherent
+  sudo ln -s /etc/tomcat7 /etc/tomcat
+  sudo ln -s /usr/share/tomcat7 /usr/share/tomcat
+  ```
+  
+  * As current Tomcat version available in CentOS 7 is 7.0.54, it has the deployment bug which breaks CAS deployment. When there is an updated one, the installation steps would be:
+  ```bash
+  yum -y install tomcat tomcat-admin-webapps
   ```
 
-* Edit /etc/tomcat/tomcat-users.xml (CentOS) or $CATALINA_BASE/conf/tomcat-users.xml, creating a user `cas-tomcat-deployer` with a unique password, and the `manager-script` and `manager-gui` roles.
+    * Due an installation bug in Tomcat version available in CentOS 7, Tomcat deployment tasks for ant will not work without some additional symlinks:
+    ```bash
+    cd /usr/share/tomcat/lib
+    ln -s tomcat-el-2.2-api.jar el-api.jar
+    ln -s tomcat-jsp-2.2-api.jar jsp-api.jar
+    ln -s tomcat-servlet-3.0-api.jar servlet-api.jar
+    ```
+
+* Edit /etc/tomcat/tomcat-users.xml (CentOS, RPM) or $CATALINA_BASE/conf/tomcat-users.xml, creating a user `cas-tomcat-deployer` with a unique password, and the `manager-script` and `manager-gui` roles.
 
 ```xml
 <role rolename="manager-gui" />
@@ -26,7 +42,7 @@ yum -y install git java-devel ant ant-contrib maven tomcat tomcat-admin-webapps
   * Otherwise, you have to check that `JAVA_HOME` and `JAVA_JRE` variables are exported, so your Tomcat servlet container uses the right version of Java.
   * The same is applied to `CATALINA_HOME` environment variable.
 
-# SSL/TLS for Tomcat (CentOS, Ubuntu)
+# SSL/TLS for Tomcat (CentOS, RPM, Ubuntu)
 * First, we are going to generate a key pair for https:// protocol, as CAS server is going to run in secured mode. Java `keytool` executable is going to be used, and it was installed at the beginning. We will use the public and private keys from a Certificate Authority (in this example, `/etc/pki/CA/cacert.pem` and `/etc/pki/CA/private/cakey.pem`. You can create one following [this procedure](INSTALL_CA.md)
 
 * Now, we are going to create the Java keystore which is going to be used by Tomcat:
@@ -90,7 +106,7 @@ keytool -import -trustcacerts -alias rdconnectcas.rd-connect.eu -file "${HOME}"/
 keytool -list -v -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass changeit
 ```
 
-# Configure Tomcat to use the prepared keystore (CentOS)
+# Configure Tomcat to use the prepared keystore (CentOS, RPM)
 
 * First, we are going to put the keystore in a place where it can be read only by Tomcat user:
 
@@ -122,11 +138,16 @@ connectionTimeout="20000"
 ```
 
 * Last, start the Tomcat server and add it to the startup sequence:
-
-```bash
-systemctl start tomcat
-systemctl enable tomcat
-```
+  * If you generated the RPMs
+  ```bash
+  systemctl start tomcat7
+  systemctl enable tomcat7
+  ```
+  * If you are using CentOS 7 RPMs
+  ```bash
+  systemctl start tomcat
+  systemctl enable tomcat
+  ```
 
 # CAS Maven Overlay Installation
 * Clone git project with the simple overlay template here
