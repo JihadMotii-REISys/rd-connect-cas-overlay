@@ -173,6 +173,12 @@ ldap.authn.baseDn=ou=people,dc=rd-connect,dc=eu
 #ldap.authn.format=uid=%s,ou=Users,dc=example,dc=org
 ldap.authn.format=uid=%s,${ldap.authn.baseDn}
 
+# Base DN for service lookups.
+ldap.service.baseDn=ou=services,dc=rd-connect,dc=eu
+
+# Search filter when using a search-and-bind strategy.
+ldap.service.searchFilter=(uid=*)
+
 # Directory URL. Only one URL should be supplied.
 # For deployments that need HA directory connections, hardware load balancing with a
 # single virtual host is the only reasonable solution.

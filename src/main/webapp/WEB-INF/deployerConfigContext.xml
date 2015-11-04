@@ -308,14 +308,19 @@
 
 
 	<!-- LDAP service registry -->
-	<!-- See http://jasig.github.io/cas/4.0.x/installation/Service-Management.html#ldapserviceregistrydao -->
+	<!-- See http://jasig.github.io/cas/4.1.x/installation/Service-Management.html#ldapserviceregistrydao -->
 	<!-- See https://www.mail-archive.com/cas-user@lists.jasig.org/msg17287.html -->
 	<!-- We don't have to redefine the pooledLdapConnectionFactory here, as it is shared with the definitions above -->
+	<bean id="searchServiceRequest"
+		class="org.ldaptive.SearchRequest"
+		p:baseDn="${ldap.service.baseDn}"
+		p:searchFilter="${ldap.service.searchFilter}" />
+	
 	<bean id="serviceRegistryDaoLDAP"
 		class="org.jasig.cas.adaptors.ldap.services.LdapServiceRegistryDao"
 		init-method="init"
 		p:connectionFactory-ref="pooledLdapConnectionFactory"
-		p:searchRequest-ref="searchRequest"
+		p:searchRequest-ref="searchServiceRequest"
 		p:ldapServiceMapper-ref="ldapMapper" />
 	
 	<bean id="ldapMapper"
