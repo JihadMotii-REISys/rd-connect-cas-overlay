@@ -39,16 +39,11 @@
     <!--
     <util:properties id="casProperties" location="${cas.properties.filepath:/WEB-INF/cas.properties}"/>
     -->
-    <bean id="casProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="ignoreResourceNotFound" value="true" />
-		<property name="locations">
-			<list>
-				<value>/WEB-INF/cas.properties</value>
-				<value>file:/etc/cas/cas.properties</value>
-				<value>${cas.properties.filepath:file:${user.home}/etc/cas/cas.properties}</value>
-			</list>
-		</property>
-    </bean>
+    <util:properties
+		id="casProperties"
+		location="/WEB-INF/cas.properties,file:/etc/cas/cas.properties,${cas.properties.filepath:file:${user.home}/etc/cas/cas.properties}"
+		ignore-resource-not-found="true"
+		/>
 
     <context:property-placeholder properties-ref="casProperties"/>
 
