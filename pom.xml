@@ -182,7 +182,7 @@
     </build>
 
     <properties>
-        <cas.version>4.1.0</cas.version>
+        <cas.version>4.1.1</cas.version>
         <commons.dbcp.version>1.4</commons.dbcp.version>
         <hibernate.entitymgmr.version>4.1.12.Final</hibernate.entitymgmr.version>
         <hibernate.validator.version>4.2.0.Final</hibernate.validator.version>
