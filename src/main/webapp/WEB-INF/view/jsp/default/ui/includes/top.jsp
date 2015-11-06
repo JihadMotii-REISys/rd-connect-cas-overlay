@@ -37,7 +37,7 @@
   <spring:theme code="standard.custom.css.file" var="customCssFile" />
   <link rel="stylesheet" href="<c:url value="${customCssFile}" />" />
   <link rel="icon" href="<c:url value="/favicon.ico" />" type="image/x-icon" />
-  
+  <link rel="stylesheet" id="catalyst_enqueued_google_fonts-css" href="http://fonts.googleapis.com/css?family=Open+Sans%3Alight%2Clightitalic%2Cregular%2Cregularitalic%2C600%2C600italic%2Cbold%2Cbolditalic%2C800%2C800italic%7COswald%7CPT+Serif%3Aregular%2Citalic%2Cbold%2Cbolditalic%7C&amp;ver=3.7.11" type="text/css" media="all" />
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.1/html5shiv.js" type="text/javascript"></script>
   <![endif]-->
@@ -45,7 +45,6 @@
 <body id="cas">
   <div id="container">
       <header>
-        <a id="logo" href="http://rd-connect.eu/" title="<spring:message code="logo.title" />">RD-Connect</a>
-        <h1>RD-Connect Central Authentication Service</h1>
+        <h1 class="toptitle"><a href="http://rd-connect.eu/" title="<spring:message code="logo.title" />"><img src="images/rdconnect-logo.jpg"></a><span>RD-Connect Central Authentication Service</span></h1>
       </header>
       <div id="content">

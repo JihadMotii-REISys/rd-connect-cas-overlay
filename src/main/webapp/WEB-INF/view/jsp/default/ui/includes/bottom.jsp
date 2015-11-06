@@ -24,8 +24,13 @@
 
 <footer>
     <div id="copyright">
-        <p>Powered by <a href="http://www.apereo.org/cas">Apereo Central Authentication Service <%=org.jasig.cas.CasVersion.getVersion()%></a></p>
-        <p><spring:message code="copyright" /></p>
+		<div class="copyleftright">
+			<p>Powered by <a href="http://www.apereo.org/cas">Apereo Central Authentication Service <%=org.jasig.cas.CasVersion.getVersion()%></a></p>
+			<p><spring:message code="copyright" /></p>
+		</div>
+		<div class="copyleftright">
+			<p>CAS setup, infrastructure and deployment: <a href="RD-Connect CNIO team" target="_blank">RD-Connect CNIO team</a></p>
+		</div>
     </div>
 </footer>
 

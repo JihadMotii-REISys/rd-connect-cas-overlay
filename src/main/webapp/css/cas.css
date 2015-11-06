@@ -237,6 +237,33 @@ footer a:link, footer a:visited {
     color: white;
 }
 
+.toptitle {
+	float: none;
+	width: 100%;
+	height: auto;
+	text-indent: inherit;
+	background-image: none;
+	color: white;
+	text-align: left;
+	font-family: "PT Serif",serif;
+	font-weight: normal;
+	font-size: 2em;
+	border-radius: 0.5em;
+}
+
+.toptitle img {
+	padding: 1em;
+}
+
+.toptitle img , .toptitle span {
+	vertical-align: middle;
+}
+
+.copyleftright {
+	float: left;
+	width: 50%;
+}
+
 @media only screen and (max-width: 960px) {
     header { padding: 20px; }
     #container { width: 100%; }
