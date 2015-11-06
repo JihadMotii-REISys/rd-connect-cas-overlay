@@ -166,9 +166,12 @@ password.policy.url=https://rdconnectcas.rd-connect.eu:9443/password/change
 
 # Search filter when using a search-and-bind strategy.
 ldap.authn.searchFilter=(&(uid={user})(disabledAccount=FALSE))
+ldap.authn.userSearchFilter=(&(uid={0})(disabledAccount=FALSE))
+ldap.authn.groupSearchFilter=(&(cn=admin)(member={0}))
 
 # Base DN for directory searches.
 ldap.authn.baseDn=ou=people,dc=rd-connect,dc=eu
+ldap.authn.groupDn=ou=groups,dc=rd-connect,dc=eu
 
 # Search filter used for configurations that require searching for DNs
 #ldap.authn.format=uid=%s,ou=Users,dc=example,dc=org
