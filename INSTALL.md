@@ -96,7 +96,7 @@ Will the certificate be used for encryption (RSA ciphersuites)? (Y/n):
 ```bash
 keytool -import -alias rdconnect-ca-root -file /etc/pki/CA/cacert.pem -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass changeit
 ```
-* At last, import generated certificate (public key) into the keystore:
+* At last, import generated certificate (public key) into the keystore, as well as the public Java keystore:
 ```bash
 keytool -import -trustcacerts -alias rdconnectcas.rd-connect.eu -file "${HOME}"/cas-server-certs/cas-server-crt.pem -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass changeit
 ```
@@ -112,6 +112,15 @@ keytool -list -v -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -sto
 
 ```bash
 install -D -o tomcat -g tomcat -m 600 "${HOME}"/cas-server-certs/cas-tomcat-server.jks /etc/tomcat/cas-tomcat-server.jks
+```
+* Now, we augment it importing the existing certificates from the used JVM into the CAS keystore, so third party certificates are agreed:
+```bash
+# Next sentence only works in CentOS
+keytool -importkeystore -srckeystore /etc/pki/java/cacerts -srcstorepass changeit -destkeystore /etc/tomcat/cas-tomcat-server.jks -deststorepass changeit
+```
+```bash
+# Next sentence is for custom JVMs
+keytool -importkeystore -srckeystore "${JAVA_HOME}"/jre/lib/security/cacerts -srcstorepass changeit -destkeystore /etc/tomcat/cas-tomcat-server.jks -deststorepass changeit
 ```
 
 * Then, edit /etc/tomcat/server.xml (or $CATALINA_BASE/conf/server.xml), adding next connector:
@@ -136,6 +145,13 @@ connectionTimeout="20000"
     redirectPort="9443" />
 -->
 ```
+
+* Now, tell java instance used to run Tomcat which keystore must be used.
+  * If your Tomcat is installed at system level, then add next line to the end of file `/etc/sysconfig/tomcat7` or `/etc/sysconfig/tomcat`:
+  ```bash
+  export JAVA_OPTS=" -Djavax.net.ssl.keyStore=/etc/tomcat/cas-tomcat-server.jks -Djavax.net.ssl.keyStorePassword=changeit -Djavax.net.ssl.trustStore=/etc/tomcat/cas-tomcat-server.jks -Djavax.net.ssl.trustStorePassword=changeit"
+  ```
+  * If you are running your own Tomcat instance, then follow [the instructions](http://jasig.github.io/cas/4.1.x/installation/Troubleshooting-Guide.html#when-all-else-fails) on subsection ["When All Else Fails"](http://jasig.github.io/cas/4.1.x/installation/Troubleshooting-Guide.html#when-all-else-fails), putting on `KEYSTORE`and `TRUSTSTORE` variables the full path to the CAS Tomcat JKS.
 
 * Last, start the Tomcat server and add it to the startup sequence:
   * If you generated the RPMs
