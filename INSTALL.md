@@ -218,16 +218,16 @@ mvn clean package
     tgc.encryption.key=<Second key generated>
     ```
 
-  * (SYSTEM, USER) Last, deploy it using the provided ant script. You have to copy `etc/tomcat-deployment.properties.template` to `etc/tomcat-deployment.properties`, and put there the password you assigned to the Tomcat user `cas-tomcat-deployer`:
+* (SYSTEM, USER) Last, deploy it using the provided ant script. You have to copy `etc/tomcat-deployment.properties.template` to `etc/tomcat-deployment.properties`, and put there the password you assigned to the Tomcat user `cas-tomcat-deployer`:
 
-  ```bash
-  cd /tmp/ldap-cas-4.1.x
-  cp etc/tomcat-deployment.properties.template etc/tomcat-deployment.properties
-  # Apply the needed changes to etc/tomcat-deployment.properties
-  
-  # Now deploy the application, using the keystore previously generated
-  ANT_OPTS="-Djavax.net.ssl.trustStore=/etc/tomcat/cas-tomcat-server.jks" ant deploy
-  ```
+```bash
+cd /tmp/ldap-cas-4.1.x
+cp etc/tomcat-deployment.properties.template etc/tomcat-deployment.properties
+# Apply the needed changes to etc/tomcat-deployment.properties
+
+# Now deploy the application, using the keystore previously generated
+ANT_OPTS="-Djavax.net.ssl.trustStore=/etc/tomcat/cas-tomcat-server.jks" ant deploy
+```
 
 # Certificates (Ubuntu):
 
