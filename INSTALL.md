@@ -45,16 +45,16 @@ yum -y install git java-devel ant ant-contrib maven
 # SSL/TLS for Tomcat (CentOS, RPM, Ubuntu)
 * First, we are going to generate a key pair for https:// protocol, as CAS server is going to run in secured mode. Java `keytool` executable is going to be used, and it was installed at the beginning. We will use the public and private keys from a Certificate Authority (in this example, `/etc/pki/CA/cacert.pem` and `/etc/pki/CA/private/cakey.pem`. You can create one following [this procedure](INSTALL_CA.md)
 
-* Now, we are going to create the Java keystore which is going to be used by Tomcat:
+* Now, we are going to create the Java keystore which is going to be used by Tomcat, with the password we want to use, for instance `cas.Keystore.Pass`, and the private key encrypted with another password (for instance `pass,Key,CAS`):
 
 ```bash
 mkdir -p "${HOME}"/cas-server-certs
-keytool -genkey -alias rdconnectcas.rd-connect.eu -keyalg RSA -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass changeit -keypass changeit -dname "CN=rdconnectcas.rd-connect.eu, OU=Spanish Bioinformatics Institute, O=INB at CNIO, L=Madrid, S=Madrid, C=CN"
+keytool -genkey -alias rdconnectcas.rd-connect.eu -keyalg RSA -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass cas.Keystore.Pass -keypass pass,Key,CAS -dname "CN=rdconnectcas.rd-connect.eu, OU=Spanish Bioinformatics Institute, O=INB at CNIO, L=Madrid, S=Madrid, C=CN"
 ```
   and then, the certificate request (which contains the private key) for the server:
 
 ```bash
-keytool -certreq -keyalg RSA -alias rdconnectcas.rd-connect.eu -file "${HOME}"/cas-server-certs/cas-server.csr -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass changeit
+keytool -certreq -keyalg RSA -alias rdconnectcas.rd-connect.eu -file "${HOME}"/cas-server-certs/cas-server.csr -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass cas.Keystore.Pass
 ```
 
 * Now, as we are the certification authority, with the certificate request we are going to get the matching signed, public key, agreed for 1451 days (4 years, one of them a leap year):
@@ -64,7 +64,7 @@ keytool -certreq -keyalg RSA -alias rdconnectcas.rd-connect.eu -file "${HOME}"/c
 certtool --generate-certificate --load-request "${HOME}"/cas-server-certs/cas-server.csr --load-ca-certificate /etc/pki/CA/cacert.pem --load-ca-privkey /etc/pki/CA/private/cakey.pem --outfile "${HOME}"/cas-server-certs/cas-server-crt.pem
 ```
 
-  Be sure the common name matches the hostname of the CAS server
+  Be sure the common name matches the hostname of the CAS server, and use the private key password
   
 ```
 Generating a signed certificate...
@@ -94,16 +94,16 @@ Will the certificate be used for encryption (RSA ciphersuites)? (Y/n):
 
 * Now, we are importing the CA certificate (public key):
 ```bash
-keytool -import -alias rdconnect-ca-root -file /etc/pki/CA/cacert.pem -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass changeit
+keytool -import -alias rdconnect-ca-root -file /etc/pki/CA/cacert.pem -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass cas.Keystore.Pass
 ```
 * At last, import generated certificate (public key) into the keystore, as well as the public Java keystore:
 ```bash
-keytool -import -trustcacerts -alias rdconnectcas.rd-connect.eu -file "${HOME}"/cas-server-certs/cas-server-crt.pem -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass changeit
+keytool -import -trustcacerts -alias rdconnectcas.rd-connect.eu -file "${HOME}"/cas-server-certs/cas-server-crt.pem -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass cas.Keystore.Pass
 ```
   It is possible to check that the certificates are in place just using next sentence:
 
 ```bash
-keytool -list -v -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass changeit
+keytool -list -v -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass cas.Keystore.Pass
 ```
 
 # Configure Tomcat to use the prepared keystore (CentOS, RPM)
@@ -116,11 +116,11 @@ install -D -o tomcat -g tomcat -m 600 "${HOME}"/cas-server-certs/cas-tomcat-serv
 * Now, we augment it importing the existing certificates from the used JVM into the CAS keystore, so third party certificates are agreed:
 ```bash
 # Next sentence only works in CentOS
-keytool -importkeystore -srckeystore /etc/pki/java/cacerts -srcstorepass changeit -destkeystore /etc/tomcat/cas-tomcat-server.jks -deststorepass changeit
+keytool -importkeystore -srckeystore /etc/pki/java/cacerts -srcstorepass changeit -destkeystore /etc/tomcat/cas-tomcat-server.jks -deststorepass cas.Keystore.Pass
 ```
 ```bash
 # Next sentence is for custom JVMs
-keytool -importkeystore -srckeystore "${JAVA_HOME}"/jre/lib/security/cacerts -srcstorepass changeit -destkeystore /etc/tomcat/cas-tomcat-server.jks -deststorepass changeit
+keytool -importkeystore -srckeystore "${JAVA_HOME}"/jre/lib/security/cacerts -srcstorepass changeit -destkeystore /etc/tomcat/cas-tomcat-server.jks -deststorepass cas.Keystore.Pass
 ```
 
 * Then, edit /etc/tomcat/server.xml (or $CATALINA_BASE/conf/server.xml), adding next connector:
@@ -132,9 +132,12 @@ keytool -importkeystore -srckeystore "${JAVA_HOME}"/jre/lib/security/cacerts -sr
         scheme="https"
         secure="true"
         sslProtocol="TLS"
+        keyAlias="rdconnectcas.rd-connect.eu"
+        keyPass="pass,Key,CAS"
         keystoreFile="/etc/tomcat/cas-tomcat-server.jks"
+        keystorePass="cas.Keystore.Pass"
         truststoreFile="/etc/tomcat/cas-tomcat-server.jks"
-        keystorePass="changeit" />
+        truststorePass="cas.Keystore.Pass" />
 
 ```
 
@@ -149,7 +152,7 @@ connectionTimeout="20000"
 * Now, tell java instance used to run Tomcat which keystore must be used.
   * If your Tomcat is installed at system level, then add next line to the end of file `/etc/sysconfig/tomcat7` or `/etc/sysconfig/tomcat`:
   ```bash
-  export JAVA_OPTS=" -Djavax.net.ssl.keyStore=/etc/tomcat/cas-tomcat-server.jks -Djavax.net.ssl.keyStorePassword=changeit -Djavax.net.ssl.trustStore=/etc/tomcat/cas-tomcat-server.jks -Djavax.net.ssl.trustStorePassword=changeit"
+  export JAVA_OPTS=" -Djavax.net.ssl.keyStore=/etc/tomcat/cas-tomcat-server.jks -Djavax.net.ssl.keyStorePassword=cas.Keystore.Pass -Djavax.net.ssl.trustStore=/etc/tomcat/cas-tomcat-server.jks -Djavax.net.ssl.trustStorePassword=cas.Keystore.Pass"
   ```
   * If you are running your own Tomcat instance, then follow [the instructions](http://jasig.github.io/cas/4.1.x/installation/Troubleshooting-Guide.html#when-all-else-fails) on subsection ["When All Else Fails"](http://jasig.github.io/cas/4.1.x/installation/Troubleshooting-Guide.html#when-all-else-fails), putting on `KEYSTORE`and `TRUSTSTORE` variables the full path to the CAS Tomcat JKS.
 
@@ -226,7 +229,7 @@ cp etc/tomcat-deployment.properties.template etc/tomcat-deployment.properties
 # Apply the needed changes to etc/tomcat-deployment.properties
 
 # Now deploy the application, using the keystore previously generated
-ANT_OPTS="-Djavax.net.ssl.trustStore=/etc/tomcat/cas-tomcat-server.jks" ant deploy
+ANT_OPTS="-Djavax.net.ssl.trustStore=/etc/tomcat/cas-tomcat-server.jks -Djavax.net.ssl.trustStorePassword=cas.Keystore.Pass" ant deploy
 ```
 
 # Certificates (Ubuntu):
@@ -271,9 +274,12 @@ ANT_OPTS="-Djavax.net.ssl.trustStore=/etc/tomcat/cas-tomcat-server.jks" ant depl
                 scheme="https"
                 secure="true"
                 sslProtocol="TLS"
+                keyAlias="tomcat-server"
                 keystoreFile="${user.home}/etc/ssl/rdconnect_demo_CA/tomcat-server.jks"
                 truststoreFile="${user.home}/etc/ssl/rdconnect_demo_CA/tomcat-server.jks"
-                keystorePass="changeit" />
+                keyPass="changeit"
+                keystorePass="changeit"
+                truststorePass="changeit" />
 
 ```
     
