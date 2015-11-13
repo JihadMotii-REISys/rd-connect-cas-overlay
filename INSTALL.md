@@ -92,7 +92,7 @@ Will the certificate be used for signing (DHE and RSA-EXPORT ciphersuites)? (Y/n
 Will the certificate be used for encryption (RSA ciphersuites)? (Y/n): 
 ```
 
-* Now, we are importing the CA certificate (public key):
+* Now, we are importing the CA certificate (public key) used for LDAP and CAS. If you have used different CAs, then you have to repeat this step for each one of them, changing the alias and the path to the public key:
 ```bash
 keytool -import -alias rdconnect-ca-root -file /etc/pki/CA/cacert.pem -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass cas.Keystore.Pass
 ```
