@@ -16,7 +16,7 @@ git clone -b cas-4.1.x https://github.com/inab/ldap-rest-cas4-overlay.git /tmp/l
     apt-get install gnutls-bin
 ```
 
-* If you are using Centos 7 (or compatible), install next packages (see also [http://www.server-world.info/en/note?os=CentOS_7&p=openldap&f=1](this))
+* If you are using Centos 7 (or compatible), install next packages (see also [this](http://www.server-world.info/en/note?os=CentOS_7&p=openldap&f=1))
 
 ```bash
 yum -y install openldap-servers openldap-clients gnutls-utils
@@ -477,7 +477,7 @@ ldap.trustedCert=file:/etc/ldap/certs/ldap-server-crt.pem
 
 # OpenLDAP backup and restore procedures
 
-Instructions at [http://blog.panek.work/2015/08/29/openldap_backup_restore.html](this link)
+Instructions at [this link](http://blog.panek.work/2015/08/29/openldap_backup_restore.html)
 
 
 #Beware!!! Outdated instructions!!! Don't follow them!!!
