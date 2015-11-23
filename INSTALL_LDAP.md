@@ -102,6 +102,11 @@ olcAccess: {0}to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,c
 
 dn: olcDatabase={2}hdb,cn=config
 changetype: modify
+add: olcDbIndex
+olcDbIndex: uid pres,eq
+
+dn: olcDatabase={2}hdb,cn=config
+changetype: modify
 replace: olcSuffix
 olcSuffix: $domainDN
 
