@@ -475,6 +475,11 @@ and this content in Ubuntu
 ldap.trustedCert=file:/etc/ldap/certs/ldap-server-crt.pem
 ```
 
+# OpenLDAP backup and restore procedures
+
+Instructions at [http://blog.panek.work/2015/08/29/openldap_backup_restore.html](this link)
+
+
 #Beware!!! Outdated instructions!!! Don't follow them!!!
 
 ##Setup secure configuration for phpldapadmin 
