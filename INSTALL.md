@@ -233,7 +233,9 @@ cp etc/tomcat-deployment.properties.template etc/tomcat-deployment.properties
 ANT_OPTS="-Djavax.net.ssl.trustStore=/etc/tomcat/cas-tomcat-server.jks -Djavax.net.ssl.trustStorePassword=cas.Keystore.Pass" ant deploy
 ```
 
-# Certificates (Ubuntu):
+# Outdated instructions (do not follow them!!!!)
+
+## Certificates (Ubuntu):
 
 * Create CA following instructions in INSTALL_CA file
 * Move .TinyCA/rdconnect_demo_CA to /etc/ssl or ${HOME}/etc/ssl (depending on your privileges)
@@ -265,7 +267,7 @@ ANT_OPTS="-Djavax.net.ssl.trustStore=/etc/tomcat/cas-tomcat-server.jks -Djavax.n
 	keytool -list -v -keystore tomcat-server.jks -storepass changeit
 ```
 
-# Configure Tomcat to use certificate:
+## Configure Tomcat to use certificate:
 * Edit conf/server.xml adding:
 ```xml
 	<Connector port="9443" protocol="HTTP/1.1"
@@ -284,7 +286,7 @@ ANT_OPTS="-Djavax.net.ssl.trustStore=/etc/tomcat/cas-tomcat-server.jks -Djavax.n
 
 ```
     
-# Maven Overlay Installation
+## Maven Overlay Installation
 * Clone git project with the simple overlay template here
 ```bash
 	git clone -b cas-4.1.x --recurse-submodules https://github.com/inab/ldap-rest-cas4-overlay.git
