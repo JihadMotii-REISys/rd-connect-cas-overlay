@@ -100,6 +100,7 @@ replace: olcAccess
 olcAccess: {0}to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"
   read by dn.base="$adminDN" read by * none
 
+# We declare an index on uid
 dn: olcDatabase={2}hdb,cn=config
 changetype: modify
 add: olcDbIndex
@@ -129,6 +130,11 @@ olcAccess: {1}to dn.base="" by * read
 olcAccess: {2}to * by dn="$adminDN" write by * read
 EOF
 ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/chdomain.ldif
+
+# Now, a re-index is issued, as we declared new indexes on uid
+systemctl stop sladp
+slapindex -b "$domainDN"
+systemctl start slapd
 
 rootHashPass="$(slappasswd -s 'LASTCHANGEIT')"
 cat > /tmp/basedomain.ldif <<EOF
