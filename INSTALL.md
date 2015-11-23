@@ -1,12 +1,13 @@
 # Setup needed before installing CAS
-* First, the CAS server host must have its official name, either through the name server or using a new /etc/hosts entry. We are assuming along this document that the name is `rdconnectcas.rd-connect.eu`.
+* A LDAP server must be setup and working, according [INSTALL_LDAP.md](INSTALL_LDAP.md). We are assuming along this document that its name is `ldap.rd-connect.eu`.
+* The CAS server host must have its official name, either through the name server or using a new /etc/hosts entry. We are assuming along this document that the name is `rdconnectcas.rd-connect.eu`.
 * Install git, Java >= 1.7, Ant and Apache Maven >= 3.0.
 ```bash
 yum -y install git java-devel ant ant-contrib maven
 ```
 
 * Install Tomcat 7.x. Avoid versions from Tomcat 7.0.54 to Tomcat 7.0.57, as they have a deployment bug which breaks CAS deployment.
-  * You can generate the needed RPMs for Tomcat just following the instructions in [/inab/rpm-tomcat7](this repository). Once generated, RPMs are available at `~/rpmbuild/RPMS/noarch`, and you have to install only the needed RPMs:
+  * You can generate the needed RPMs for Tomcat just following the instructions in [this repository](//github.com/inab/rpm-tomcat7). Once generated, RPMs are available at `~/rpmbuild/RPMS/noarch`, and you have to install only the needed RPMs:
   ```bash
   cd "${HOME}"/rpmbuild/RPMS/noarch
   # Supposing it is Tomcat 7.0.65
@@ -43,7 +44,7 @@ yum -y install git java-devel ant ant-contrib maven
   * The same is applied to `CATALINA_HOME` environment variable.
 
 # SSL/TLS for Tomcat (CentOS, RPM, Ubuntu)
-* First, we are going to generate a key pair for https:// protocol, as CAS server is going to run in secured mode. Java `keytool` executable is going to be used, and it was installed at the beginning. We will use the public and private keys from a Certificate Authority (in this example, `/etc/pki/CA/cacert.pem` and `/etc/pki/CA/private/cakey.pem`. You can create one following [this procedure](INSTALL_CA.md)
+* First, we are going to generate a key pair for https:// protocol, as CAS server is going to run in secured mode. Java `keytool` executable is going to be used, and it was installed at the beginning. We will use the public and private keys from a Certificate Authority (in this guide, `/etc/pki/CA/cacert.pem` and `/etc/pki/CA/private/cakey.pem`). In case you need it, you can create your own CA following [this procedure](INSTALL_CA.md)
 
 * Now, we are going to create the Java keystore which is going to be used by Tomcat, with the password we want to use, for instance `cas.Keystore.Pass`, and the private key encrypted with another password (for instance `pass,Key,CAS`):
 
