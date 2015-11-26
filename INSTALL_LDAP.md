@@ -96,6 +96,7 @@ domainHashPass="$(slappasswd -s 'OTHERCHANGEIT')"
 domainDN='dc=rd-connect,dc=eu'
 adminName='admin'
 adminDN="cn=$adminName,$domainDN"
+adminGroupDN="cn=admin,ou=groups,$domainDN"
 cat > /tmp/chdomain.ldif <<EOF
 # Disallow anonymous binds
 dn: cn=config
@@ -144,19 +145,32 @@ changetype: modify
 add: olcRootPW
 olcRootPW: $domainHashPass
 
+# These rules grant write access to LDAP topology parts
+# based on admin group
 dn: olcDatabase={2}hdb,cn=config
 changetype: modify
 add: olcAccess
 olcAccess: to attrs=userPassword,shadowLastChange
   by dn="$adminDN" write
+  by group.exact="$adminGroupDN" write
   by anonymous auth
   by self write
   by * none
 olcAccess: to dn.children="ou=people,$domainDN"
   attrs=pwmLastPwdUpdate,pwmEventLog,pwmResponseSet,pwmOtpSecret,pwmGUID
   by dn="$adminDN" manage
+  by group.exact="$adminGroupDN" manage
+  by group.exact="cn=pwmAdmin,ou=groups,$domainDN" manage
   by self manage
   by * none
+olcAccess: to dn.children="ou=people,$domainDN"
+  by dn="$adminDN" write
+  by group.exact="$adminGroupDN" write
+  by * read
+olcAccess: to dn.children="ou=groups,$domainDN"
+  by dn="$adminDN" write
+  by group.exact="$adminGroupDN" write
+  by * read
 olcAccess: to dn.base="" by * read
 olcAccess: to * by dn="$adminDN" write by * read
 EOF
@@ -214,7 +228,7 @@ sn: root
 mail: platform@rd-connect.eu
 description: A user named root
 
-dn: cn=admin,ou=groups,$domainDN
+dn: $adminGroupDN
 objectClass: groupOfNames
 cn: admin
 member: cn=root,ou=admins,ou=people,$domainDN
@@ -234,7 +248,7 @@ cat > /tmp/memberOfModify.ldif <<EOF
 dn: cn=root,ou=admins,ou=people,$domainDN
 changetype: modify
 add: memberOf
-memberOf: cn=admin,ou=groups,$domainDN
+memberOf: $adminGroupDN
 memberOf: cn=pwmAdmin,ou=groups,$domainDN
 EOF
 ldapmodify -x -D "$adminDN" -W -f /tmp/memberOfModify.ldif
