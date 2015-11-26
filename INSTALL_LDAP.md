@@ -19,9 +19,15 @@ git clone -b cas-4.1.x https://github.com/inab/ldap-rest-cas4-overlay.git /tmp/l
 * If you are using Centos 7 (or compatible), install next packages (see also [this](http://www.server-world.info/en/note?os=CentOS_7&p=openldap&f=1))
 
 ```bash
-yum -y install openldap-servers openldap-clients gnutls-utils
+yum -y install openldap-servers openldap-clients gnutls-utils patch
 cp /usr/share/openldap-servers/DB_CONFIG.example /var/lib/ldap/DB_CONFIG
 chown ldap. /var/lib/ldap/DB_CONFIG
+```
+  Due [a bug](https://bugs.centos.org/view.php?id=8631) in OpenLDAP CentOS package, which would stop restores from a [OpenLDAP backup](http://blog.panek.work/2015/08/29/openldap_backup_restore.html), it is needed to patch the buggy configuration file before first start:
+
+```bash
+wget -O /tmp/openldap-centos.patch 'https://bugs.centos.org/file_download.php?file_id=3559&type=bug'
+patch -d / -p 0 -N -t --dry-run < /tmp/openldap-centos.patch && patch -d / -p 0 -N -t < /tmp/openldap-centos.patch
 systemctl start slapd
 systemctl enable slapd
 ```
@@ -91,6 +97,23 @@ domainDN='dc=rd-connect,dc=eu'
 adminName='admin'
 adminDN="cn=$adminName,$domainDN"
 cat > /tmp/chdomain.ldif <<EOF
+# Disallow anonymous binds
+dn: cn=config
+changetype: modify
+add: olcDisallows
+olcDisallows: bind_anon
+
+# Allow authenticated binds
+dn: cn=config
+changetype: modify
+add: olcRequires
+olcRequires: authc
+
+dn: olcDatabase={-1}frontend,cn=config
+changetype: modify
+add: olcRequires
+olcRequires: authc
+
 # replace to your own domain name for "dc=***,dc=***" section
 # specify the password generated above for "olcRootPW" section
 
@@ -124,10 +147,18 @@ olcRootPW: $domainHashPass
 dn: olcDatabase={2}hdb,cn=config
 changetype: modify
 add: olcAccess
-olcAccess: {0}to attrs=userPassword,shadowLastChange by
-  dn="$adminDN" write by anonymous auth by self write by * none
-olcAccess: {1}to dn.base="" by * read
-olcAccess: {2}to * by dn="$adminDN" write by * read
+olcAccess: to attrs=userPassword,shadowLastChange
+  by dn="$adminDN" write
+  by anonymous auth
+  by self write
+  by * none
+olcAccess: to dn.children="ou=people,$domainDN"
+  attrs=pwmLastPwdUpdate,pwmEventLog,pwmResponseSet,pwmOtpSecret,pwmGUID
+  by dn="$adminDN" manage
+  by self manage
+  by * none
+olcAccess: to dn.base="" by * read
+olcAccess: to * by dn="$adminDN" write by * read
 EOF
 ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/chdomain.ldif
 
