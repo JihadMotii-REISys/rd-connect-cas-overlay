@@ -4,7 +4,7 @@
 * Then, this branch must be in the /tmp directory of the host, as next steps assume it:
 
 ```bash
-git clone -b cas-4.1.x https://github.com/inab/ldap-rest-cas4-overlay.git /tmp/ldap-cas-4.1.x
+git clone https://github.com/inab/ldap-rest-cas4-overlay.git /tmp/ldap-cas-4.1.x
 ```
 
 * If you are using Ubuntu 14.04 (or compatible), install next packages

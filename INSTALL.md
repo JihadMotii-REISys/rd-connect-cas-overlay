@@ -172,7 +172,7 @@ connectionTimeout="20000"
 # CAS Maven Overlay Installation
 * Clone git project with the simple overlay template here
 ```bash
-git clone -b cas-4.1.x --recurse-submodules https://github.com/inab/ldap-rest-cas4-overlay.git /tmp/ldap-cas-4.1.x
+git clone --recurse-submodules https://github.com/inab/ldap-rest-cas4-overlay.git /tmp/ldap-cas-4.1.x
 ```	
 
 * Inside the checked-out directory, run `mvn clean package` in order to generate the war:
@@ -294,7 +294,7 @@ ANT_OPTS="-Djavax.net.ssl.trustStore=/etc/tomcat/cas-tomcat-server.jks -Djavax.n
 ## Maven Overlay Installation
 * Clone git project with the simple overlay template here
 ```bash
-	git clone -b cas-4.1.x --recurse-submodules https://github.com/inab/ldap-rest-cas4-overlay.git
+	git clone --recurse-submodules https://github.com/inab/ldap-rest-cas4-overlay.git
 ```	
 * Execute inside the project folder:  `mvn clean package`
 * Copy simple-cas-overlay-template/target/cas.war to $CATALINA_HOME/webapps/
