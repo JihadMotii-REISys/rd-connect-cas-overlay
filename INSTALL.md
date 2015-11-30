@@ -236,7 +236,7 @@ ANT_OPTS="-Djavax.net.ssl.trustStore=/etc/tomcat/cas-tomcat-server.jks -Djavax.n
 # Further steps:
 
 * Install CAS Management webapp, following [these instructions](//github.com/inab/cas4-management-overlay/blob/master/INSTALL.md).
-* Install PWM, following [these instructions](//github.com/inab/pwm/blob/master/INSTALL_RDConnect.md).
+* Install PWM, following [these instructions](//github.com/inab/pwm/blob/master/rdconnect_deployment/INSTALL_RDConnect.md).
 
 # Outdated instructions (do not follow them!!!!)
 
