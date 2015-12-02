@@ -320,7 +320,7 @@
 		p:connectionFactory-ref="attributeConnectionFactory"
 		p:baseDN="${ldap.authn.baseDn}"
 		p:searchControls-ref="attributeSearchControls"
-		p:requireAllQueryAttributes="true"
+		p:requireAllQueryAttributes="false"
 		p:searchFilter="${ldap.authn.userSearchFilter}"
 		>
 		<property name="resultAttributeMapping">
