@@ -13,7 +13,7 @@
   },
   "logoutType" : "BACK_CHANNEL",
   "attributeReleasePolicy" : {
-    "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
+    "@class" : "org.jasig.cas.services.ReturnAllAttributeReleasePolicy",
     "principalAttributesRepository" : {
       "@class" : "org.jasig.cas.authentication.principal.DefaultPrincipalAttributesRepository"
     },
@@ -23,6 +23,7 @@
   "accessStrategy" : {
     "@class" : "org.jasig.cas.services.DefaultRegisteredServiceAccessStrategy",
     "enabled" : true,
-    "ssoEnabled" : true
+    "ssoEnabled" : true,
+    "requireAllAttributes" : true
   }
 }
