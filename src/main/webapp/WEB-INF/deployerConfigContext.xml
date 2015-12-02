@@ -112,8 +112,7 @@
 				   | components.
 				   --> 
 				<entry key="memberOf" value="memberOf" />
-				<entry key="email" value="mail" />
-				<entry key="displayName" value="fullname" />
+				<entry key="mail" value="email" />
 				<entry key="disabledAccount" value="isDisabled" />
 			</map>
 		</property>
@@ -298,7 +297,6 @@
 	   --> 
 	<entry key="memberOf" value="memberOf" />
 	<entry key="email" value="mail" />
-	<entry key="displayName" value="fullname" />
 	<entry key="disabledAccount" value="isDisabled" />
     </util:map>
 
@@ -325,9 +323,13 @@
 		>
 		<property name="resultAttributeMapping">
 			<map>
+				<entry key="uid" value="uid" />
 				<entry key="memberOf" value="memberOf" />
-				<entry key="email" value="mail" />
-				<entry key="displayName" value="fullname" />
+				<entry key="dn" value="distinguishedName" />
+				<entry key="mail" value="email" />
+				<entry key="cn" value="fullname" />
+				<entry key="givenName" value="givename" />
+				<entry key="sn" value="surname" />
 				<entry key="disabledAccount" value="isDisabled" />
 			</map>
 		</property>
