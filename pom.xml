@@ -6,16 +6,51 @@
     <groupId>eu.rd-connect</groupId>
     <artifactId>rdconnect-cas4-overlay</artifactId>
     <packaging>war</packaging>
-    <version>0.7</version>
-
+    <version>0.7.1</version>
+	
+	<dependencyManagement>
+		<dependencies>
+			<!-- These dependencies are needed to avoid conflicts -->
+			<dependency>
+				<groupId>commons-logging</groupId>
+				<artifactId>commons-logging</artifactId>
+				<version>${commons-logging.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>xml-apis</groupId>
+				<artifactId>xml-apis</artifactId>
+				<version>${xml-apis.version}</version>
+			</dependency>
+			<!--
+				These two dependencies were added due
+				https://groups.google.com/forum/#!topic/jasig-cas-user/WsxxUHahrM8
+				Basically, with default version in CAS 4.1.1, LDAP attribute
+				names with capital letters are not recognized, being skipped
+			-->
+			<dependency>
+				<groupId>org.jasig.service.persondir</groupId>
+				<artifactId>person-directory-api</artifactId>
+				<version>${cas.person.directory.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.jasig.service.persondir</groupId>
+				<artifactId>person-directory-impl</artifactId>
+				<version>${cas.person.directory.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
     <dependencies>
-        <dependency>
-            <groupId>org.jasig.cas</groupId>
-            <artifactId>cas-server-webapp</artifactId>
-            <version>${cas.version}</version>
-            <type>war</type>
-            <scope>runtime</scope>
-        </dependency>
+	
+	<!-- These are the real dependencies -->
+	<dependency>
+	<groupId>org.jasig.cas</groupId>
+	<artifactId>cas-server-webapp</artifactId>
+	<version>${cas.version}</version>
+	<type>war</type>
+	<scope>runtime</scope>
+	</dependency>
 	
 	<!-- This should not be explicitly needed any more
         <dependency>
@@ -65,24 +100,6 @@
 		<groupId>org.ldaptive</groupId>
 		<artifactId>ldaptive-unboundid</artifactId>
 		<version>1.0.6</version>
-        </dependency>
-        
-        <!--
-		These two dependencies were added due
-		https://groups.google.com/forum/#!topic/jasig-cas-user/WsxxUHahrM8
-		Basically, with default version in CAS 4.1.1, LDAP attribute
-		names with capital letters are not recognized, being skipped
-	-->
-        <dependency>
-		<groupId>org.jasig.service.persondir</groupId>
-		<artifactId>person-directory-api</artifactId>
-		<version>${cas.person.directory.version}</version>
-        </dependency>
-	
-        <dependency>
-		<groupId>org.jasig.service.persondir</groupId>
-		<artifactId>person-directory-impl</artifactId>
-		<version>${cas.person.directory.version}</version>
         </dependency>
         
 	<!-- These dependencies are only needed using SQLite as user accounts backend
@@ -201,7 +218,7 @@
     </build>
 
     <properties>
-        <cas.version>4.1.1</cas.version>
+        <cas.version>4.1.2</cas.version>
         <cas.person.directory.version>1.7.1-M3</cas.person.directory.version>
         <commons.dbcp.version>1.4</commons.dbcp.version>
         <hibernate.entitymgmr.version>4.1.12.Final</hibernate.entitymgmr.version>
@@ -212,6 +229,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sqlite.hibernate.dialect.version>0.1.0</sqlite.hibernate.dialect.version>
         <sqlite.jdbc.version>3.8.11.1</sqlite.jdbc.version>
+        <!-- These come from CAS dependencies -->
+        <commons-logging.version>1.2</commons-logging.version>
+        <xml-apis.version>1.4.01</xml-apis.version>
     </properties>
 
     <repositories>

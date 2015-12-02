@@ -5,7 +5,7 @@ CAS maven war overlay with LDAP and database authentication, and connection thro
 
 # Versions
 ```xml
-<cas.version>4.1.1</cas.version>
+<cas.version>4.1.2</cas.version>
 ```
 
 # Recommended Requirements
