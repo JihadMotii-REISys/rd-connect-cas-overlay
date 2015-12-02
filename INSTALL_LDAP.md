@@ -225,6 +225,7 @@ disabledAccount: FALSE
 userPassword: $rootHashPass
 cn: root
 sn: root
+displayName: root
 mail: platform@rd-connect.eu
 description: A user named root
 
