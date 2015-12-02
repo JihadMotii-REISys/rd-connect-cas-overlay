@@ -309,12 +309,15 @@
 		p:derefLinkFlag="true"
 		/>
 
+	<bean id="attributeConnectionFactory" class="org.ldaptive.DefaultConnectionFactory"
+		p:connectionConfig-ref="connectionConfig" />
+	
 		<!--
 		p:connectionFactory-ref="connectionFactory"
 		-->
 	<bean id="ldapAttributeRepository"
 		class="org.jasig.services.persondir.support.ldap.LdaptivePersonAttributeDao"
-		p:connectionFactory-ref="connectionFactory"
+		p:connectionFactory-ref="attributeConnectionFactory"
 		p:baseDN="${ldap.authn.baseDn}"
 		p:searchControls-ref="attributeSearchControls"
 		p:requireAllQueryAttributes="true"
