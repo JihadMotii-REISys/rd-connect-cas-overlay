@@ -103,7 +103,7 @@
 		<AppenderRef ref="springfile"/>
 	</Logger>
 
-        <Logger name="perfStatsLogger" level="info" additivity="false">
+        <Logger name="perfStatsLogger" level="warn" additivity="false">
             <AppenderRef ref="perfFileAppender"/>
         </Logger>
 
