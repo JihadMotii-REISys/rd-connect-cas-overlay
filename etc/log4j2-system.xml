@@ -34,7 +34,7 @@
             -->
         </Console>
         <RollingFile name="casfile" fileName="${log.dir}/cas.log" append="true"
-                     filePattern="${log.dir}/cas-%d{yyyy-MM-dd-HH}-%i.log">
+                     filePattern="${log.dir}/cas-%d{yyyy-MM-dd}-%i.log.gz">
             <!--
             <PatternLayout pattern="%d %p [%c] - %m%n"/>
             -->
@@ -46,7 +46,7 @@
             </Policies>
         </RollingFile>
         <RollingFile name="springfile" fileName="${log.dir}/spring.log" append="true"
-                     filePattern="${log.dir}/spring-%d{yyyy-MM-dd-HH}-%i.log">
+                     filePattern="${log.dir}/spring-%d{yyyy-MM-dd}-%i.log.gz">
             <!--
             <PatternLayout pattern="%d %p [%c] - %m%n"/>
             -->
@@ -58,7 +58,7 @@
             </Policies>
         </RollingFile>
         <RollingFile name="inspektrfile" fileName="${log.dir}/inspektr.log" append="true"
-                     filePattern="${log.dir}/inspektr-%d{yyyy-MM-dd-HH}-%i.log">
+                     filePattern="${log.dir}/inspektr-%d{yyyy-MM-dd}-%i.log.gz">
             <!--
             <PatternLayout pattern="%d %p [%c] - %m%n"/>
             -->
@@ -70,8 +70,8 @@
             </Policies>
         </RollingFile>
         <RollingFile name="perfFileAppender" fileName="${log.dir}/perfStats.log" append="true"
-                     filePattern="${log.dir}/perfStats-%d{yyyy-MM-dd-HH}-%i.log">
-            <PatternLayout pattern="%m%n"/>
+                     filePattern="${log.dir}/perfStats-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd'T'HH:mm:ss.SSSZZZZ}&#9;%p&#9;%c&#9;%m%n"/>
             <Policies>
                 <OnStartupTriggeringPolicy />
                 <SizeBasedTriggeringPolicy size="10 MB"/>
