@@ -73,7 +73,7 @@
                 <entry key-ref="dbAuthHandler" value-ref="primaryPrincipalResolver" />
                 -->
                 <!--	Comment active line and uncomment this one for LDAP authentication -->
-                <entry key-ref="ldapAuthenticationHandler" value-ref="primaryPrincipalResolver" />
+                <entry key-ref="ldapAuthenticationHandler" value="#{null}" />
             </map>
         </constructor-arg>
 
@@ -111,8 +111,13 @@
 				   | This facility can be used instead or in addition to PrincipalResolver
 				   | components.
 				   --> 
+				<entry key="uid" value="uid" />
 				<entry key="memberOf" value="memberOf" />
+				<entry key="dn" value="distinguishedName" />
 				<entry key="mail" value="email" />
+				<entry key="cn" value="fullname" />
+				<entry key="givenName" value="givename" />
+				<entry key="sn" value="surname" />
 				<entry key="disabledAccount" value="isDisabled" />
 			</map>
 		</property>
@@ -319,8 +324,13 @@
 	   | This facility can be used instead or in addition to PrincipalResolver
 	   | components.
 	   --> 
+	<entry key="uid" value="uid" />
 	<entry key="memberOf" value="memberOf" />
-	<entry key="email" value="mail" />
+	<entry key="dn" value="distinguishedName" />
+	<entry key="mail" value="email" />
+	<entry key="cn" value="fullname" />
+	<entry key="givenName" value="givename" />
+	<entry key="sn" value="surname" />
 	<entry key="disabledAccount" value="isDisabled" />
     </util:map>
 
