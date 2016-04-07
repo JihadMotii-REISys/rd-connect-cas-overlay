@@ -41,10 +41,24 @@
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.1/html5shiv.js" type="text/javascript"></script>
   <![endif]-->
+  <style>
+	.toptitle {
+		background-color: white;
+		border-style: solid;
+		border-color: #5F9758;
+		border-width: 5px;
+		box-sizing: border-box;
+	}
+	
+	.rdtext {
+		color: #21759B;
+		font-size: 1.4em;
+	}
+  </style>
 </head>
 <body id="cas">
   <div id="container">
       <header>
-        <h1 class="toptitle"><a href="http://rd-connect.eu/" title="<spring:message code="logo.title" />"><img src="images/rdconnect-logo.jpg"></a><span>RD-Connect Central Authentication Service</span></h1>
+        <h1 class="toptitle"><a href="http://rd-connect.eu/" title="<spring:message code="logo.title" />"><img src="images/rdconnect-logo.jpg" alt="RD-Connect"></a><span class="rdtext"> Central&nbsp;Authentication&nbsp;Service</span></h1>
       </header>
       <div id="content">
