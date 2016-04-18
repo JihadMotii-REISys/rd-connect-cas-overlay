@@ -23,7 +23,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
-    <display-name>Central Authentication System (CAS) 4.1.0-SNAPSHOT</display-name>
+    <display-name>Central Authentication System (CAS) 4.1.7 for RD-Connect</display-name>
 
     <context-param>
         <param-name>isLog4jAutoInitializationDisabled</param-name>
@@ -74,7 +74,7 @@
     </filter>
     <filter-mapping>
         <filter-name>springSecurityFilterChain</filter-name>
-        <url-pattern>/status</url-pattern>
+        <url-pattern>/status/*</url-pattern>
     </filter-mapping>
     <filter-mapping>
         <filter-name>springSecurityFilterChain</filter-name>
@@ -91,6 +91,17 @@
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 	-->
+	<filter>
+		<filter-name>CorsFilter</filter-name>
+		<filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+		
+		<init-param>cors.allowed.origins</init-param>
+		<param-value>http://platform.rd-connect.eu , https://platform.rd-connect.eu , http://172.16.20.56:80:8081</param-value>
+	</filter>
+	<filter-mapping>
+		<filter-name>CorsFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
     <!--
       - Loads the CAS ApplicationContext.
