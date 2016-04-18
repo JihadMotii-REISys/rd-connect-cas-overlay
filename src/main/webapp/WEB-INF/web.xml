@@ -95,8 +95,10 @@
 		<filter-name>CorsFilter</filter-name>
 		<filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
 		
-		<init-param>cors.allowed.origins</init-param>
-		<param-value>http://platform.rd-connect.eu , https://platform.rd-connect.eu , http://172.16.20.56:80:8081</param-value>
+		<init-param>
+			<param-name>cors.allowed.origins</param-name>
+			<param-value>http://platform.rd-connect.eu , https://platform.rd-connect.eu , http://172.16.20.56:80:8081</param-value>
+		</init-param>
 	</filter>
 	<filter-mapping>
 		<filter-name>CorsFilter</filter-name>
