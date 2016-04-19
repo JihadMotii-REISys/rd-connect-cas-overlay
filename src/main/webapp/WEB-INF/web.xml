@@ -99,6 +99,11 @@
 			<param-name>cors.allowed.origins</param-name>
 			<param-value>http://platform.rd-connect.eu , https://platform.rd-connect.eu , http://172.16.20.56:8081 , https://172.16.20.56:8081 , http://172.16.20.56 , https://172.16.20.56</param-value>
 		</init-param>
+		
+		<init-param>
+			<param-name>cors.exposed.headers</param-name>
+			<param-value>Access-Control-Allow-Origin,Access-Control-Allow-Credentials</param-value>
+		</init-param>
 	</filter>
 	<filter-mapping>
 		<filter-name>CorsFilter</filter-name>
