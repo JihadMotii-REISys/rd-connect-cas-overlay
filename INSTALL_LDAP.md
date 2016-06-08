@@ -272,48 +272,14 @@ ldapadd -x -D "$adminDN" -W -f /tmp/defaultservice.ldif
 
 #SSL/TLS for OpenLDAP.
 
-* First, we are going to generate a key pair for ldaps:// protocol. GnuTLS executables are going to be used, and they were installed at the beginning. We will use the public and private keys from a Certificate Authority (in this example, `/etc/pki/CA/cacert.pem` and `/etc/pki/CA/private/cakey.pem`. You can create one following [this procedure](INSTALL_CA.md)
+* First, we need a pair of public / private keys for the for ldaps:// protocol. They should be at `"${HOME}"/ldap-certs/ldap-server-crt.pem` and `"${HOME}"/ldap-certs/ldap-server-key.pem`. If they are not already available, they have to be obtained from a CA. GnuTLS executables are going to be used, and they were installed at the beginning. We will use the public and private keys from a Certificate Authority (in this example, `/etc/pki/CA/cacert.pem` and `/etc/pki/CA/private/cakey.pem`. You can create one following [this procedure](INSTALL_CA.md)
 
 ```bash
 mkdir -p "${HOME}"/ldap-certs
 certtool --generate-privkey --outfile "${HOME}"/ldap-certs/ldap-server-key.pem
 
-# See below what you have to answer
-certtool --generate-certificate --load-privkey "${HOME}"/ldap-certs/ldap-server-key.pem --outfile "${HOME}"/ldap-certs/ldap-server-crt.pem --load-ca-certificate /etc/pki/CA/cacert.pem --load-ca-privkey /etc/pki/CA/private/cakey.pem
-```
-
-  Be sure the common name matches the hostname of the OpenLDAP server
-
-```
-Common name: ldap.rd-connect.eu
-UID: 
-Organizational unit name: 
-Organization name: 
-Locality name: 
-State or province name: Madrid
-Country name (2 chars): ES
-Enter the subject's domain component (DC): 
-This field should not be used in new certificates.
-E-mail: 
-Enter the certificate's serial number in decimal (default: 6208555100061008756): 
-
-
-Activation/Expiration time.
-The certificate will expire in (days): 50000
-
-
-Extensions.
-Does the certificate belong to an authority? (y/N): 
-Is this a TLS web client certificate? (y/N): 
-Will the certificate be used for IPsec IKE operations? (y/N): 
-Is this a TLS web server certificate? (y/N): Y
-Enter a dnsName of the subject of the certificate: ldap.rd-connect.eu
-Enter a dnsName of the subject of the certificate: 
-Enter a URI of the subject of the certificate: ldaps://ldap.rd-connect.eu/
-Enter a URI of the subject of the certificate: 
-Enter the IP address of the subject of the certificate: 
-Will the certificate be used for signing (DHE and RSA-EXPORT ciphersuites)? (Y/n): 
-Will the certificate be used for encryption (RSA ciphersuites)? (Y/n): 
+# The template automates the answers. Beware encrypted CA private key!
+certtool --generate-certificate --load-privkey "${HOME}"/ldap-certs/ldap-server-key.pem --template /tmp/ldap-cas-4.1.x/ldap-schemas/certtool-ldap-template.cfg --outfile "${HOME}"/ldap-certs/ldap-server-crt.pem --load-ca-certificate /etc/pki/CA/cacert.pem --load-ca-privkey /etc/pki/CA/private/cakey.pem
 ```
 
 * (CentOS) Install the certificates on LDAP server
