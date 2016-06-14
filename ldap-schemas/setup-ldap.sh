@@ -15,6 +15,13 @@ esac
 # Which directory contains the certificates?
 if [ $# -gt 0 ] ; then
 	ldapCerts="$1"
+	if [ $# -gt 2 ] ; then
+		openLdapStartCommand="$1"
+		openLdapStopCommand="$2"
+	else
+		openLdapStartCommand="systemctl start sladp"
+		openLdapStopCommand="systemctl stop sladp"
+	fi
 else
 	ldapCerts=/tmp/rd-connect_cas_ldap_certs
 fi
@@ -24,6 +31,9 @@ alreadyGen=/etc/openldap/for_sysadmin.txt
 if [ ! -f "${alreadyGen}" ] ; then
 	# We want it to exit on first error
 	set -e
+	
+	# Now, first slapd start
+	eval "$openLdapStartCommand"
 	
 	if type apg >/dev/null 2>&1 ; then
 		adminPass="$(apg -n 1 -m 12 -x 16 -M ncl)"
@@ -161,9 +171,9 @@ EOF
 	ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/chdomain.ldif
 
 	# Now, a re-index is issued, as we declared new indexes on uid
-	systemctl stop sladp
+	eval "$openLdapStopCommand"
 	slapindex -b "$domainDN"
-	systemctl start slapd
+	eval "$openLdapStartCommand"
 
 	cat > /tmp/basedomain.ldif <<EOF
 # replace to your own domain name for "dc=***,dc=***" section
@@ -308,7 +318,9 @@ TLS_REQCERT allow
 TLS_CACERT     /etc/openldap/certs/cacert.pem
 EOF
 
-	systemctl restart slapd
+	# Restart it
+	eval "$openLdapStopCommand"
+	eval "$openLdapStartCommand"
 
 	# If you are using SELinux, then these steps are needed
 	if type authconfig >/dev/null 2>&1 ; then
