@@ -207,7 +207,7 @@ mvn clean package
   ```
   
   * (SYSTEM, USER) Edit cas.properties file, and apply next changes:
-    * Uncomment `cas.resources.dir` according your installation environment.
+    * Uncomment `cas.resources.dir` and `cas.log.dir` according your installation environment.
     * Change `ldap.managerPassword` by the password needed to bind to the LDAP directory using the user declared at `ldap.managerDn`.
     * Fill-in parameters `tgc.encryption.key` and `tgc.signing.key`. In order to generate these keys you need to go to json-web-key-generator folder and deploy by
     ```bash
