@@ -236,7 +236,7 @@ member: cn=root,ou=admins,ou=people,$domainDN
 owner: cn=root,ou=admins,ou=people,$domainDN
 description: Users with administration privileges on PWM
 EOF
-	ldapadd -x -D "$adminDN" -w "$domainPass"-f /tmp/basedomain.ldif
+	ldapadd -x -D "$adminDN" -w "$domainPass" -f /tmp/basedomain.ldif
 
 	cat > /tmp/memberOfModify.ldif <<EOF
 dn: cn=root,ou=admins,ou=people,$domainDN
