@@ -236,7 +236,7 @@ member: cn=root,ou=admins,ou=people,$domainDN
 owner: cn=root,ou=admins,ou=people,$domainDN
 description: Users with administration privileges on PWM
 EOF
-	ldapadd -x -D "$adminDN" -W -f /tmp/basedomain.ldif
+	ldapadd -x -D "$adminDN" -w "$domainPass"-f /tmp/basedomain.ldif
 
 	cat > /tmp/memberOfModify.ldif <<EOF
 dn: cn=root,ou=admins,ou=people,$domainDN
@@ -245,7 +245,7 @@ add: memberOf
 memberOf: $adminGroupDN
 memberOf: cn=pwmAdmin,ou=groups,$domainDN
 EOF
-	ldapmodify -x -D "$adminDN" -W -f /tmp/memberOfModify.ldif
+	ldapmodify -x -D "$adminDN" -w "$domainPass" -f /tmp/memberOfModify.ldif
 
 	# Adding the default service
 	cat > /tmp/defaultservice.ldif <<EOF
@@ -255,7 +255,7 @@ objectClass: casRegisteredService
 uid: 10000001
 EOF
 	base64 "${ldapcasdir}"/../etc/services/HTTPS-10000001.json | sed 's#^# #;1 s#^#description::#;' >> /tmp/defaultservice.ldif
-	ldapadd -x -D "$adminDN" -W -f /tmp/defaultservice.ldif
+	ldapadd -x -D "$adminDN" -w "$domainPass" -f /tmp/defaultservice.ldif
 
 
 	# SSL/TLS for OpenLDAP
