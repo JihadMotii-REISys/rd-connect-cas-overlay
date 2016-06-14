@@ -83,7 +83,7 @@ EOF
 	done
 	# It rejects duplicates
 	for f in /tmp/ldap-ldifs/fixed/*.ldif ; do
-		ldapadd -Y EXTERNAL -H ldapi:/// -f "$f"
+		ldapadd -Y EXTERNAL -H ldapi:/// -f "$f" || echo "[NOTICE] File '$f' was skipped"
 	done
 
 	# Domain creation
