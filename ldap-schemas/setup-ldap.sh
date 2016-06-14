@@ -22,6 +22,9 @@ fi
 alreadyGen=/etc/openldap/for_sysadmin.txt
 
 if [ ! -f "${alreadyGen}" ] ; then
+	# We want it to exit on first error
+	set -e
+	
 	if type apg >/dev/null 2>&1 ; then
 		adminPass="$(apg -n 1 -m 12 -x 16 -M ncl)"
 		domainPass="$(apg -n 1 -m 12 -x 16 -M ncl)"
