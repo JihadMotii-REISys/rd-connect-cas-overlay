@@ -16,8 +16,8 @@ esac
 if [ $# -gt 0 ] ; then
 	ldapCerts="$1"
 	if [ $# -gt 2 ] ; then
-		openLdapStartCommand="$1"
-		openLdapStopCommand="$2"
+		openLdapStartCommand="$2"
+		openLdapStopCommand="$3"
 	else
 		openLdapStartCommand="systemctl start sladp"
 		openLdapStopCommand="systemctl stop sladp"
