@@ -70,16 +70,16 @@ include /etc/openldap/schema/core.schema
 include /etc/openldap/schema/cosine.schema
 include /etc/openldap/schema/nis.schema
 include /etc/openldap/schema/inetorgperson.schema
-include ${ldapcasdir}/ldap-schemas/rd-connect-common.schema
-include ${ldapcasdir}/ldap-schemas/basicRDproperties.schema
-include ${ldapcasdir}/ldap-schemas/cas-management.schema
-include ${ldapcasdir}/ldap-schemas/pwm.schema
+include ${ldapcasdir}/rd-connect-common.schema
+include ${ldapcasdir}/basicRDproperties.schema
+include ${ldapcasdir}/cas-management.schema
+include ${ldapcasdir}/pwm.schema
 EOF
 
 	mkdir -p /tmp/ldap-ldifs/fixed
 	slaptest -f /tmp/all-schemas.conf -F /tmp/ldap-ldifs
 	for f in /tmp/ldap-ldifs/cn\=config/cn\=schema/*ldif ; do
-		sed -rf "${ldapcasdir}"/ldap-schemas/fix-ldifs.sed "$f" > /tmp/ldap-ldifs/fixed/"$(basename "$f")"
+		sed -rf "${ldapcasdir}"/fix-ldifs.sed "$f" > /tmp/ldap-ldifs/fixed/"$(basename "$f")"
 	done
 	# It rejects duplicates
 	for f in /tmp/ldap-ldifs/fixed/*.ldif ; do
@@ -254,7 +254,7 @@ dn: uid=10000001,ou=services,dc=rd-connect,dc=eu
 objectClass: casRegisteredService
 uid: 10000001
 EOF
-	base64 "${ldapcasdir}"/etc/services/HTTPS-10000001.json | sed 's#^# #;1 s#^#description::#;' >> /tmp/defaultservice.ldif
+	base64 "${ldapcasdir}"/../etc/services/HTTPS-10000001.json | sed 's#^# #;1 s#^#description::#;' >> /tmp/defaultservice.ldif
 	ldapadd -x -D "$adminDN" -W -f /tmp/defaultservice.ldif
 
 
