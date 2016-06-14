@@ -12,25 +12,35 @@ case "${ldapcasdir}" in
 		;;
 esac
 
-if type apg >/dev/null 2>&1 ; then
-	adminPass="$(apg -n 1 -m 12 -x 16 -M ncl)"
-	domainPass="$(apg -n 1 -m 12 -x 16 -M ncl)"
-	rootPass="$(apg -n 1 -m 12 -x 16 -M ncl)"
+# Which directory contains the certificates?
+if [ $# -gt 0 ] ; then
+	ldapCerts="$1"
 else
-	adminPass='CHANGEIT'
-	domainPass='OTHERCHANGEIT'
-	rootPass='LASTCHANGEIT'
+	ldapCerts=/tmp/rd-connect_cas_ldap_certs
 fi
-# OpenLDAP administrator password
-adminHashPass="$(slappasswd -s "$adminPass")"
-# RD-Connect domain administrator password
-domainHashPass="$(slappasswd -s "$domainPass")"
-# root user (user with administration privileges) password
-rootHashPass="$(slappasswd -s "$rootPass")"
+
+alreadyGen=/etc/openldap/for_sysadmin.txt
+
+if [ ! -f "${alreadyGen}" ] ; then
+	if type apg >/dev/null 2>&1 ; then
+		adminPass="$(apg -n 1 -m 12 -x 16 -M ncl)"
+		domainPass="$(apg -n 1 -m 12 -x 16 -M ncl)"
+		rootPass="$(apg -n 1 -m 12 -x 16 -M ncl)"
+	else
+		adminPass='CHANGEIT'
+		domainPass='OTHERCHANGEIT'
+		rootPass='LASTCHANGEIT'
+	fi
+	# OpenLDAP administrator password
+	adminHashPass="$(slappasswd -s "$adminPass")"
+	# RD-Connect domain administrator password
+	domainHashPass="$(slappasswd -s "$domainPass")"
+	# root user (user with administration privileges) password
+	rootHashPass="$(slappasswd -s "$rootPass")"
 
 
-# Setting up the OpenLDAP administrator password
-cat > /tmp/chrootpw.ldif <<EOF
+	# Setting up the OpenLDAP administrator password
+	cat > /tmp/chrootpw.ldif <<EOF
 # specify the password generated above for "olcRootPW" section
 
 dn: olcDatabase={0}config,cn=config
@@ -39,10 +49,10 @@ add: olcRootPW
 olcRootPW: $adminHashPass
 
 EOF
-ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/chrootpw.ldif
+	ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/chrootpw.ldif
 
-# Let's add the needed schemas
-cat > /tmp/all-schemas.conf <<EOF
+	# Let's add the needed schemas
+	cat > /tmp/all-schemas.conf <<EOF
 include /etc/openldap/schema/core.schema
 include /etc/openldap/schema/cosine.schema
 include /etc/openldap/schema/nis.schema
@@ -53,22 +63,22 @@ include ${ldapcasdir}/ldap-schemas/cas-management.schema
 include ${ldapcasdir}/ldap-schemas/pwm.schema
 EOF
 
-mkdir -p /tmp/ldap-ldifs/fixed
-slaptest -f /tmp/all-schemas.conf -F /tmp/ldap-ldifs
-for f in /tmp/ldap-ldifs/cn\=config/cn\=schema/*ldif ; do
-sed -rf "${ldapcasdir}"/ldap-schemas/fix-ldifs.sed "$f" > /tmp/ldap-ldifs/fixed/"$(basename "$f")"
-done
-# It rejects duplicates
-for f in /tmp/ldap-ldifs/fixed/*.ldif ; do
-ldapadd -Y EXTERNAL -H ldapi:/// -f "$f"
-done
+	mkdir -p /tmp/ldap-ldifs/fixed
+	slaptest -f /tmp/all-schemas.conf -F /tmp/ldap-ldifs
+	for f in /tmp/ldap-ldifs/cn\=config/cn\=schema/*ldif ; do
+		sed -rf "${ldapcasdir}"/ldap-schemas/fix-ldifs.sed "$f" > /tmp/ldap-ldifs/fixed/"$(basename "$f")"
+	done
+	# It rejects duplicates
+	for f in /tmp/ldap-ldifs/fixed/*.ldif ; do
+		ldapadd -Y EXTERNAL -H ldapi:/// -f "$f"
+	done
 
-# Domain creation
-domainDN='dc=rd-connect,dc=eu'
-adminName='admin'
-adminDN="cn=$adminName,$domainDN"
-adminGroupDN="cn=admin,ou=groups,$domainDN"
-cat > /tmp/chdomain.ldif <<EOF
+	# Domain creation
+	domainDN='dc=rd-connect,dc=eu'
+	adminName='admin'
+	adminDN="cn=$adminName,$domainDN"
+	adminGroupDN="cn=admin,ou=groups,$domainDN"
+	cat > /tmp/chdomain.ldif <<EOF
 # Disallow anonymous binds
 dn: cn=config
 changetype: modify
@@ -145,14 +155,14 @@ olcAccess: to dn.children="ou=groups,$domainDN"
 olcAccess: to dn.base="" by * read
 olcAccess: to * by dn="$adminDN" write by * read
 EOF
-ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/chdomain.ldif
+	ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/chdomain.ldif
 
-# Now, a re-index is issued, as we declared new indexes on uid
-systemctl stop sladp
-slapindex -b "$domainDN"
-systemctl start slapd
+	# Now, a re-index is issued, as we declared new indexes on uid
+	systemctl stop sladp
+	slapindex -b "$domainDN"
+	systemctl start slapd
 
-cat > /tmp/basedomain.ldif <<EOF
+	cat > /tmp/basedomain.ldif <<EOF
 # replace to your own domain name for "dc=***,dc=***" section
 
 dn: $domainDN
@@ -213,54 +223,62 @@ member: cn=root,ou=admins,ou=people,$domainDN
 owner: cn=root,ou=admins,ou=people,$domainDN
 description: Users with administration privileges on PWM
 EOF
-ldapadd -x -D "$adminDN" -W -f /tmp/basedomain.ldif
+	ldapadd -x -D "$adminDN" -W -f /tmp/basedomain.ldif
 
-cat > /tmp/memberOfModify.ldif <<EOF
+	cat > /tmp/memberOfModify.ldif <<EOF
 dn: cn=root,ou=admins,ou=people,$domainDN
 changetype: modify
 add: memberOf
 memberOf: $adminGroupDN
 memberOf: cn=pwmAdmin,ou=groups,$domainDN
 EOF
-ldapmodify -x -D "$adminDN" -W -f /tmp/memberOfModify.ldif
+	ldapmodify -x -D "$adminDN" -W -f /tmp/memberOfModify.ldif
 
-# Adding the default service
-cat > /tmp/defaultservice.ldif <<EOF
+	# Adding the default service
+	cat > /tmp/defaultservice.ldif <<EOF
 # The default service
 dn: uid=10000001,ou=services,dc=rd-connect,dc=eu
 objectClass: casRegisteredService
 uid: 10000001
 EOF
-base64 "${ldapcasdir}"/etc/services/HTTPS-10000001.json | sed 's#^# #;1 s#^#description::#;' >> /tmp/defaultservice.ldif
-ldapadd -x -D "$adminDN" -W -f /tmp/defaultservice.ldif
+	base64 "${ldapcasdir}"/etc/services/HTTPS-10000001.json | sed 's#^# #;1 s#^#description::#;' >> /tmp/defaultservice.ldif
+	ldapadd -x -D "$adminDN" -W -f /tmp/defaultservice.ldif
 
 
-# SSL/TLS for OpenLDAP
-# It assumes that the public and private keys from the Certificate Authority are
-# at /etc/pki/CA/cacert.pem and /etc/pki/CA/private/cakey.pem
+	# SSL/TLS for OpenLDAP
+	# It assumes that the public and private keys from the Certificate Authority are
+	# at /etc/pki/CA/cacert.pem and /etc/pki/CA/private/cakey.pem
 
-if [ ! -f /etc/openldap/certs/ldap-server-crt.pem ] ; then
-	if [ ! -f "${HOME}"/ldap-certs/ldap-server-crt.pem ] ; then
-		if [ ! -f /etc/pki/CA/cacert.pem ] ; then
-			(umask 277 && certtool --generate-privkey --outfile /etc/pki/CA/private/cakey.pem)
-			certtool --generate-self-signed \
-				--template "${ldapcasdir}"/catemplate.cfg \
-				--load-privkey /etc/pki/CA/private/cakey.pem \
-				--outfile /etc/pki/CA/cacert.pem
-		fi
-
+	if [ ! -f /etc/openldap/certs/ldap-server-crt.pem ] ; then
 		mkdir -p "${HOME}"/ldap-certs
-		certtool --generate-privkey --outfile "${HOME}"/ldap-certs/ldap-server-key.pem
+		if [ -f "${ldapCerts}"/cas-ldap/cert.pem ] ;then
+			ln -s "${ldapCerts}"/cas-ldap/cert.pem "${HOME}"/ldap-certs/ldap-server-crt.pem
+			ln -s "${ldapCerts}"/cas-ldap/key.pem "${HOME}"/ldap-certs/ldap-server-key.pem
+			ln -s "${ldapCerts}"/cacert.pem "${HOME}"/ldap-certs/cacert.pem
+		else
+			if [ ! -f "${HOME}"/ldap-certs/ldap-server-crt.pem ] ; then
+				if [ ! -f /etc/pki/CA/cacert.pem ] ; then
+					(umask 277 && certtool --generate-privkey --outfile /etc/pki/CA/private/cakey.pem)
+					certtool --generate-self-signed \
+						--template "${ldapcasdir}"/catemplate.cfg \
+						--load-privkey /etc/pki/CA/private/cakey.pem \
+						--outfile /etc/pki/CA/cacert.pem
+				fi
 
-		# See below what you have to answer
-		certtool --generate-certificate --load-privkey "${HOME}"/ldap-certs/ldap-server-key.pem --outfile "${HOME}"/ldap-certs/ldap-server-crt.pem --load-ca-certificate /etc/pki/CA/cacert.pem --load-ca-privkey /etc/pki/CA/private/cakey.pem
+				certtool --generate-privkey --outfile "${HOME}"/ldap-certs/ldap-server-key.pem
+
+				# See below what you have to answer
+				certtool --generate-certificate --load-privkey "${HOME}"/ldap-certs/ldap-server-key.pem --outfile "${HOME}"/ldap-certs/ldap-server-crt.pem --load-ca-certificate /etc/pki/CA/cacert.pem --load-ca-privkey /etc/pki/CA/private/cakey.pem
+			fi
+			ln -s /etc/pki/CA/cacert.pem "${HOME}"/ldap-certs/cacert.pem
+		fi
+		mkdir -p /etc/openldap/certs
+		install -D -o ldap -g ldap -m 644 "${HOME}"/ldap-certs/ldap-server-crt.pem /etc/openldap/certs/ldap-server-crt.pem
+		install -D -o ldap -g ldap -m 600 "${HOME}"/ldap-certs/ldap-server-key.pem /etc/openldap/certs/ldap-server-key.pem
+		install -D -o ldap -g ldap -m 644 "${HOME}"/ldap-certs/cacert.pem /etc/openldap/certs/cacert.pem
 	fi
-	mkdir -p /etc/openldap/certs
-	install -D -o ldap -g ldap -m 644 "${HOME}"/ldap-certs/ldap-server-crt.pem /etc/openldap/certs/ldap-server-crt.pem
-	install -D -o ldap -g ldap -m 600 "${HOME}"/ldap-certs/ldap-server-key.pem /etc/openldap/certs/ldap-server-key.pem
-	install -D -o ldap -g ldap -m 644 /etc/pki/CA/cacert.pem /etc/openldap/certs/cacert.pem
-fi
-cat > /tmp/mod_ldap_ssl_centos.ldif <<EOF
+
+	cat > /tmp/mod_ldap_ssl_centos.ldif <<EOF
 # create new
 
 dn: cn=config
@@ -274,32 +292,40 @@ olcTLSCertificateFile: /etc/openldap/certs/ldap-server-crt.pem
 replace: olcTLSCertificateKeyFile
 olcTLSCertificateKeyFile: /etc/openldap/certs/ldap-server-key.pem
 EOF
-ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/mod_ldap_ssl_centos.ldif
+	ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/mod_ldap_ssl_centos.ldif
 
-# Now, make openLDAP listen on SSL port
-sed -i 's/^\(SLAPD_URLS=.*\)/#\1/' /etc/sysconfig/slapd
-echo 'SLAPD_URLS="ldapi:/// ldap:/// ldaps:///"' >> /etc/sysconfig/slapd
+	# Now, make openLDAP listen on SSL port
+	sed -i 's/^\(SLAPD_URLS=.*\)/#\1/' /etc/sysconfig/slapd
+	echo 'SLAPD_URLS="ldapi:/// ldap:/// ldaps:///"' >> /etc/sysconfig/slapd
 
-sed -i 's/^\(URI\|TLS_REQCERT\|TLS_CACERT\)\([ \t].*\)/#\1\2/' /etc/openldap/ldap.conf
-cat >> /etc/openldap/ldap.conf <<EOF
+	sed -i 's/^\(URI\|TLS_REQCERT\|TLS_CACERT\)\([ \t].*\)/#\1\2/' /etc/openldap/ldap.conf
+	cat >> /etc/openldap/ldap.conf <<EOF
 URI ldap:// ldaps:// ldapi://
 TLS_REQCERT allow
 TLS_CACERT     /etc/openldap/certs/cacert.pem
 EOF
 
-systemctl restart slapd
+	systemctl restart slapd
 
-# If you are using SELinux, then these steps are needed
-if type authconfig >/dev/null 2>&1 ; then
-	authconfig --enableldaptls --update
-fi
-if type setsebool >/dev/null 2>&1 ; then
-	setsebool -P httpd_can_connect_ldap 1
-fi
+	# If you are using SELinux, then these steps are needed
+	if type authconfig >/dev/null 2>&1 ; then
+		authconfig --enableldaptls --update
+	fi
+	if type setsebool >/dev/null 2>&1 ; then
+		setsebool -P httpd_can_connect_ldap 1
+	fi
 
-# If you are using nslcd, then this step is needed
-if [ -f /etc/nslcd.conf ] ; then
-	echo "tls_reqcert allow" >> /etc/nslcd.conf
-	systemctl restart nslcd
-fi
+	# If you are using nslcd, then this step is needed
+	if [ -f /etc/nslcd.conf ] ; then
+		echo "tls_reqcert allow" >> /etc/nslcd.conf
+		systemctl restart nslcd
+	fi
 
+	# This last step is needed to save the passwords in clear somewhere
+	cat > "${alreadyGen}" <<EOF
+adminPass=${adminPass}
+domainPass=${domainPass}
+rootPass=${rootPass}
+EOF
+	chmod go= "${alreadyGen}"
+fi
