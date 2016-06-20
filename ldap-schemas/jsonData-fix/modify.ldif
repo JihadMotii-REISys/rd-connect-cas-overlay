@@ -1,0 +1,6 @@
+dn: cn={5}basicrdproperties,cn=schema,cn=config
+changetype: modify
+add: olcAttributeTypes
+olcAttributeTypes: {2}( RDAttributeType:5 NAME 'jsonData' DESC 'This attribu
+ te contains a JSON-encoded data entry' EQUALITY caseIgnoreMatch SUBSTR case
+ IgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )

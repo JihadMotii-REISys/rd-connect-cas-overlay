@@ -16,11 +16,21 @@ attributeType ( RDAttributeType:3
 attributeType ( RDAttributeType:4
 	NAME 'disabledAccount'
 	DESC 'This attribute disables login'
+	SINGLE-VALUE
 	EQUALITY booleanMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 )
+
+# A JSON-encoded data entry
+attributeType ( RDAttributeType:5
+	NAME 'jsonData'
+	DESC 'This attribute contains a JSON-encoded data entry'
+	SINGLE-VALUE
+	EQUALITY caseIgnoreMatch
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 
 objectClass ( RDObjectClass:1
 	NAME 'basicRDproperties'
 	DESC 'Basic RD-Connect LDAP user properties, not covered outside'
 	AUXILIARY
-	MAY ( memberOf $ disabledAccount ) )
+	MAY ( memberOf $ disabledAccount $ jsonData ) )
