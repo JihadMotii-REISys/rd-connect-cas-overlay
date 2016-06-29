@@ -70,16 +70,16 @@ include /etc/openldap/schema/core.schema
 include /etc/openldap/schema/cosine.schema
 include /etc/openldap/schema/nis.schema
 include /etc/openldap/schema/inetorgperson.schema
-include ${ldapcasdir}/rd-connect-common.schema
-include ${ldapcasdir}/basicRDproperties.schema
-include ${ldapcasdir}/cas-management.schema
-include ${ldapcasdir}/pwm.schema
 EOF
+	for schema in "${ldapcasdir}"/*.schema ; do
+		echo "include ${schema}" >> /tmp/all-schemas.conf
+	done
 
 	mkdir -p /tmp/ldap-ldifs/fixed
 	slaptest -f /tmp/all-schemas.conf -F /tmp/ldap-ldifs
 	for f in /tmp/ldap-ldifs/cn\=config/cn\=schema/*ldif ; do
-		sed -rf "${ldapcasdir}"/fix-ldifs.sed "$f" > /tmp/ldap-ldifs/fixed/"$(basename "$f")"
+		fixedName="$(basename "$f" | sed 's/[0-9]\+_//')"
+		sed -rf "${ldapcasdir}"/fix-ldifs.sed "$f" > /tmp/ldap-ldifs/fixed/"${fixedName}"
 	done
 	# It rejects duplicates
 	for f in /tmp/ldap-ldifs/fixed/*.ldif ; do

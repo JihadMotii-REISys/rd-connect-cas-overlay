@@ -1,3 +1,3 @@
-s~dn: cn=\{([0-9]+)\}(.*)$~dn: cn=\2,cn=schema,cn=config~g
-s~cn: \{([0-9]+)\}(.*)$~cn: \2~g
+s~dn: cn=\{([0-9]+)\}([0-9]*_)?(.*)$~dn: cn=\3,cn=schema,cn=config~g
+s~cn: \{([0-9]+)\}([0-9]*_)?(.*)$~cn: \3~g
 s~^(structuralObjectClass|entryUUID|creatorsName|createTimestamp|entryCSN|modifiersName|modifyTimestamp):.*$~~g

@@ -49,30 +49,32 @@ EOF
 ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/chrootpw.ldif
 ```
 
-* Now, let's add the needed LDAP schemas, so we are going to regenerate them. We need to create a file /tmp/all-schemas.conf, which points to all of the schemas just in use. This is the content of the file for for Ubuntu:
+* Now, let's add the needed LDAP schemas, so we are going to regenerate them. We need to create a file /tmp/all-schemas.conf, which points to all of the schemas just in use. You have to run this in order to generate it for Ubuntu:
 
-```
-include /etc/ldap/schema/core.schema
-include /etc/ldap/schema/cosine.schema
-include /etc/ldap/schema/nis.schema
-include /etc/ldap/schema/inetorgperson.schema
-include /tmp/ldap-cas-4.1.x/ldap-schemas/rd-connect-common.schema
-include /tmp/ldap-cas-4.1.x/ldap-schemas/basicRDproperties.schema
-include /tmp/ldap-cas-4.1.x/ldap-schemas/cas-management.schema
-include /tmp/ldap-cas-4.1.x/ldap-schemas/pwm.schema
-```
-
-and this is for CentOS:
-
-```
+```bash
+cat > /tmp/all-schemas.conf <<EOF
 include /etc/openldap/schema/core.schema
 include /etc/openldap/schema/cosine.schema
 include /etc/openldap/schema/nis.schema
 include /etc/openldap/schema/inetorgperson.schema
-include /tmp/ldap-cas-4.1.x/ldap-schemas/rd-connect-common.schema
-include /tmp/ldap-cas-4.1.x/ldap-schemas/basicRDproperties.schema
-include /tmp/ldap-cas-4.1.x/ldap-schemas/cas-management.schema
-include /tmp/ldap-cas-4.1.x/ldap-schemas/pwm.schema
+EOF
+for schema in /tmp/ldap-cas-4.1.x/ldap-schemas/*.schema ; do
+	echo "include ${schema}" >> /tmp/all-schemas.conf
+done
+```
+
+and this code snippet for CentOS:
+
+```bash
+cat > /tmp/all-schemas.conf <<EOF
+include /etc/openldap/schema/core.schema
+include /etc/openldap/schema/cosine.schema
+include /etc/openldap/schema/nis.schema
+include /etc/openldap/schema/inetorgperson.schema
+EOF
+for schema in /tmp/ldap-cas-4.1.x/ldap-schemas/*.schema ; do
+	echo "include ${schema}" >> /tmp/all-schemas.conf
+done
 ```
 
 so we run next command in order to generate the needed LDIFs:
