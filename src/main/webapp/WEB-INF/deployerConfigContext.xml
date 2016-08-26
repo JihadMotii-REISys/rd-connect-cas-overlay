@@ -119,6 +119,7 @@
 				<entry key="givenName" value="givename" />
 				<entry key="sn" value="surname" />
 				<entry key="disabledAccount" value="isDisabled" />
+				<entry key="userClass" value="userCategory" />
 			</map>
 		</property>
 	</bean>
@@ -332,6 +333,7 @@
 	<entry key="givenName" value="givename" />
 	<entry key="sn" value="surname" />
 	<entry key="disabledAccount" value="isDisabled" />
+	<entry key="userClass" value="userCategory" />
     </util:map>
 
 	<!-- Searching on the subtree, so it is 2 -->
@@ -365,6 +367,7 @@
 				<entry key="givenName" value="givename" />
 				<entry key="sn" value="surname" />
 				<entry key="disabledAccount" value="isDisabled" />
+				<entry key="userClass" value="userCategory" />
 			</map>
 		</property>
 	</bean>
