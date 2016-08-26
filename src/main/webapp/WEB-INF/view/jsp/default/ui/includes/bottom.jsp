@@ -29,7 +29,7 @@
 			<p><spring:message code="copyright" /></p>
 		</div>
 		<div class="copyleftright">
-			<p>CAS setup, infrastructure and deployment: <a href="RD-Connect CNIO team" target="_blank">RD-Connect CNIO team</a></p>
+			<p>CAS setup, infrastructure and deployment: <a href="http://rd-connect.eu/organizations/cnio/" target="_blank">RD-Connect CNIO team</a></p>
 		</div>
     </div>
 </footer>
