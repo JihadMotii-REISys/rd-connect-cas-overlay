@@ -129,6 +129,11 @@
             </exclusions>
         </dependency>
         -->
+	<dependency>
+	  <groupId>org.jasig.cas</groupId>
+	  <artifactId>cas-server-support-saml</artifactId>
+	  <version>${cas.version}</version>
+	</dependency>
         
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -219,5 +224,9 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+	<repository>
+        	<id>shibboleth-releases</id>
+        	<url>https://build.shibboleth.net/nexus/content/repositories/releases</url>
+    	</repository>
     </repositories>
 </project>
