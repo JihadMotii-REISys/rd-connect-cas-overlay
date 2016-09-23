@@ -37,16 +37,11 @@
     -->
 	<bean id="samlArgumentExtractor" class="org.jasig.cas.support.saml.web.support.SamlArgumentExtractor" />
 
-		<util:list id="argumentExtractors">
-  			<ref bean="casArgumentExtractor" />
-  			<ref bean="samlArgumentExtractor" />
-		</util:list>
-	<bean
-            id="casArgumentExtractor"
-            class="org.jasig.cas.web.support.CasArgumentExtractor"/>
+	<bean id="casArgumentExtractor" class="org.jasig.cas.web.support.CasArgumentExtractor" />
+	
+	<util:list id="argumentExtractors">
+  		<ref bean="casArgumentExtractor" />
+  		<ref bean="samlArgumentExtractor" />
+	</util:list>
 
-    <util:list id="argumentExtractors">
-        <!-- <ref bean="samlArgumentExtractor" /> -->
-        <ref bean="casArgumentExtractor"/>
-    </util:list>
 </beans>
