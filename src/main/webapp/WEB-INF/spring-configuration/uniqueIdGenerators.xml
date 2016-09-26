@@ -36,7 +36,7 @@
         c:sourceId="unique-source-id" />
     -->
     <bean id="samlServiceTicketUniqueIdGenerator" class="org.jasig.cas.support.saml.util.SamlCompliantUniqueTicketIdGenerator">
-  	<constructor-arg index="0" value="https://rdconnectcas.rd-connect.eu:9443" />
+  	<constructor-arg index="0" value="${server.name}" />
     </bean>
     <!-- ID Generators -->
     <bean id="ticketGrantingTicketUniqueIdGenerator" class="org.jasig.cas.util.DefaultUniqueTicketIdGenerator"
