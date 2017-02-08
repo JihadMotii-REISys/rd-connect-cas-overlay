@@ -16,9 +16,11 @@ esac
 if [ $# -gt 0 ] ; then
 	ldapCerts="$1"
 	if [ $# -gt 2 ] ; then
-		openLdapStartCommand="$2"
-		openLdapStopCommand="$3"
+		certsDir="$2"
+		openLdapStartCommand="$3"
+		openLdapStopCommand="$4"
 	else
+		certsDir="cas-ldap"
 		openLdapStartCommand="systemctl start sladp"
 		openLdapStopCommand="systemctl stop sladp"
 	fi
@@ -264,9 +266,9 @@ EOF
 
 	if [ ! -f /etc/openldap/certs/ldap-server-crt.pem ] ; then
 		mkdir -p "${HOME}"/ldap-certs
-		if [ -f "${ldapCerts}"/cas-ldap/cert.pem ] ;then
-			ln -s "${ldapCerts}"/cas-ldap/cert.pem "${HOME}"/ldap-certs/ldap-server-crt.pem
-			ln -s "${ldapCerts}"/cas-ldap/key.pem "${HOME}"/ldap-certs/ldap-server-key.pem
+		if [ -f "${ldapCerts}"/"${certsDir}"/cert.pem ] ;then
+			ln -s "${ldapCerts}"/"${certsDir}"/cert.pem "${HOME}"/ldap-certs/ldap-server-crt.pem
+			ln -s "${ldapCerts}"/"${certsDir}"/key.pem "${HOME}"/ldap-certs/ldap-server-key.pem
 			ln -s "${ldapCerts}"/cacert.pem "${HOME}"/ldap-certs/cacert.pem
 		else
 			if [ ! -f "${HOME}"/ldap-certs/ldap-server-crt.pem ] ; then
