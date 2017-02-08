@@ -44,68 +44,90 @@ yum -y install git java-devel ant ant-contrib maven
   * The same is applied to `CATALINA_HOME` environment variable.
 
 # SSL/TLS for Tomcat (CentOS, RPM, Ubuntu)
-* First, we are going to generate a key pair for https:// protocol, as CAS server is going to run in secured mode. Java `keytool` executable is going to be used, and it was installed at the beginning. We will use the public and private keys from a Certificate Authority (in this guide, `/etc/pki/CA/cacert.pem` and `/etc/pki/CA/private/cakey.pem`). In case you need it, you can create your own CA following [this procedure](INSTALL_CA.md)
-
-* Now, we are going to create the Java keystore which is going to be used by Tomcat, with the password we want to use, for instance `cas.Keystore.Pass`, and the private key encrypted with another password (for instance `pass,Key,CAS`):
+* First, we are going to get a copy of the default keystore, which is located at ${JAVA_HOME}, and we are going to change its default password to something different, for instance `cas.Keystore.Pass`
 
 ```bash
 mkdir -p "${HOME}"/cas-server-certs
-keytool -genkey -alias rdconnectcas.rd-connect.eu -keyalg RSA -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass cas.Keystore.Pass -keypass pass,Key,CAS -dname "CN=rdconnectcas.rd-connect.eu, OU=Spanish Bioinformatics Institute, O=INB at CNIO, L=Madrid, S=Madrid, C=CN"
-```
-  and then, the certificate request (which contains the private key) for the server:
-
-```bash
-keytool -certreq -keyalg RSA -alias rdconnectcas.rd-connect.eu -file "${HOME}"/cas-server-certs/cas-server.csr -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass cas.Keystore.Pass
+cp "${JAVA_HOME}"/jre/lib/security/cacerts "${HOME}"/cas-server-certs/cas-tomcat-server.jks
+keytool -storepasswd -new cas.Keystore.Pass -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass changeit
 ```
 
-* Now, as we are the certification authority, with the certificate request we are going to get the matching signed, public key, agreed for 1451 days (4 years, one of them a leap year):
-
-```bash
-# See below what you have to answer
-certtool --generate-certificate --load-request "${HOME}"/cas-server-certs/cas-server.csr --load-ca-certificate /etc/pki/CA/cacert.pem --load-ca-privkey /etc/pki/CA/private/cakey.pem --outfile "${HOME}"/cas-server-certs/cas-server-crt.pem
-```
-
-  Be sure the common name matches the hostname of the CAS server, and use the private key password
+* Then, we need to have a key pair for https:// protocol as well as CA public key in the keystore, as CAS server is going to run in secured mode.
+  * If we already have generated / obtained them in PEM format as `cert.pm`, `key.pem` and `cacert.pem`, we can import the set of keys into the keystore using next commands:
   
-```
-Generating a signed certificate...
-Enter password: 
-Enter the certificate's serial number in decimal (default: 6211541704542909289): 
+  ```bash
+  certtool --load-ca-certificate cacert.pem \
+    --load-certificate cert.pem --load-privkey key.pem \
+    --to-p12 --p12-name=rdconnectcas.rd-connect.eu --password=rdconnectcas.rd-connect.eu \
+    --outder --outfile "${HOME}"/cas-server-certs/cas-keystore.p12
+  keytool -v -importkeystore -srckeystore "${HOME}"/cas-server-certs/cas-keystore.p12 \
+    -srcstorepass rdconnectcas.rd-connect.eu -srcstoretype PKCS12 \
+    -destkeystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -deststorepass cas.Keystore.Pass
+  ```
+  
+  * Generating it by hand is done following next steps:
+
+	1. First, we are going to generate a key pair for https:// protocol, as CAS server is going to run in secured mode. Java `keytool` executable is going to be used, and it was installed at the beginning. We will use the public and private keys from a Certificate Authority (in this guide, `/etc/pki/CA/cacert.pem` and `/etc/pki/CA/private/cakey.pem`). In case you need it, you can create your own CA following [this procedure](INSTALL_CA.md)
+
+	2. Now, we are going to create the private key encrypted with another password different from the keystore's one (for instance `pass,Key,CAS`):
+
+	```bash
+	keytool -genkey -alias rdconnectcas.rd-connect.eu -keyalg RSA -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass cas.Keystore.Pass -keypass pass,Key,CAS -dname "CN=rdconnectcas.rd-connect.eu, OU=Spanish Bioinformatics Institute, O=INB at CNIO, L=Madrid, S=Madrid, C=ES"
+	```
+	  and then, the certificate request (which contains the private key) for the server:
+
+	```bash
+	keytool -certreq -keyalg RSA -alias rdconnectcas.rd-connect.eu -file "${HOME}"/cas-server-certs/cas-server.csr -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass cas.Keystore.Pass
+	```
+
+	3. Now, as we are the certification authority, with the certificate request we are going to get the matching signed, public key, agreed for 1451 days (4 years, one of them a leap year):
+
+	```bash
+	# See below what you have to answer
+	certtool --generate-certificate --load-request "${HOME}"/cas-server-certs/cas-server.csr --load-ca-certificate /etc/pki/CA/cacert.pem --load-ca-privkey /etc/pki/CA/private/cakey.pem --outfile "${HOME}"/cas-server-certs/cas-server-crt.pem
+	```
+
+	  Be sure the common name matches the hostname of the CAS server, and use the private key password
+  
+	```
+	Generating a signed certificate...
+	Enter password: 
+	Enter the certificate's serial number in decimal (default: 6211541704542909289): 
 
 
-Activation/Expiration time.
-The certificate will expire in (days): 1451
+	Activation/Expiration time.
+	The certificate will expire in (days): 1451
 
 
-Extensions.
-Do you want to honour the extensions from the request? (y/N): 
-Does the certificate belong to an authority? (y/N): 
-Is this a TLS web client certificate? (y/N): 
-Will the certificate be used for IPsec IKE operations? (y/N): 
-Is this a TLS web server certificate? (y/N): Y
-Enter a dnsName of the subject of the certificate: rdconnectcas.rd-connect.eu
-Enter a dnsName of the subject of the certificate: 
-Enter a URI of the subject of the certificate: https://rdconnectcas.rd-connect.eu:9443/
-Enter a URI of the subject of the certificate: https://rdconnectcas.rd-connect.eu/
-Enter a URI of the subject of the certificate: 
-Enter the IP address of the subject of the certificate: 
-Will the certificate be used for signing (DHE and RSA-EXPORT ciphersuites)? (Y/n): 
-Will the certificate be used for encryption (RSA ciphersuites)? (Y/n): 
-```
+	Extensions.
+	Do you want to honour the extensions from the request? (y/N): 
+	Does the certificate belong to an authority? (y/N): 
+	Is this a TLS web client certificate? (y/N): 
+	Will the certificate be used for IPsec IKE operations? (y/N): 
+	Is this a TLS web server certificate? (y/N): Y
+	Enter a dnsName of the subject of the certificate: rdconnectcas.rd-connect.eu
+	Enter a dnsName of the subject of the certificate: 
+	Enter a URI of the subject of the certificate: https://rdconnectcas.rd-connect.eu:9443/
+	Enter a URI of the subject of the certificate: https://rdconnectcas.rd-connect.eu/
+	Enter a URI of the subject of the certificate: 
+	Enter the IP address of the subject of the certificate: 
+	Will the certificate be used for signing (DHE and RSA-EXPORT ciphersuites)? (Y/n): 
+	Will the certificate be used for encryption (RSA ciphersuites)? (Y/n): 
+	```
 
-* Now, we are importing the CA certificate (public key) used for LDAP and CAS. If you have used different CAs, then you have to repeat this step for each one of them, changing the alias and the path to the public key:
-```bash
-keytool -import -alias rdconnect-ca-root -file /etc/pki/CA/cacert.pem -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass cas.Keystore.Pass
-```
-* At last, import generated certificate (public key) into the keystore, as well as the public Java keystore:
-```bash
-keytool -import -trustcacerts -alias rdconnectcas.rd-connect.eu -file "${HOME}"/cas-server-certs/cas-server-crt.pem -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass cas.Keystore.Pass
-```
-  It is possible to check that the certificates are in place just using next sentence:
+	4. Now, we are importing the CA certificate (public key) used for LDAP and CAS. If you have used different CAs, then you have to repeat this step for each one of them, changing the alias and the path to the public key:
+	```bash
+	keytool -import -alias rdconnect-ca-root -file /etc/pki/CA/cacert.pem -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass cas.Keystore.Pass
+	```
+	5. At last, import generated certificate (public key) into the keystore, as well as the public Java keystore:
+	```bash
+	keytool -import -trustcacerts -alias rdconnectcas.rd-connect.eu -file "${HOME}"/cas-server-certs/cas-server-crt.pem -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass cas.Keystore.Pass
+	```
+	  It is possible to check that the certificates are in place just using next sentence:
 
-```bash
-keytool -list -v -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass cas.Keystore.Pass
-```
+	```bash
+	keytool -list -v -keystore "${HOME}"/cas-server-certs/cas-tomcat-server.jks -storepass cas.Keystore.Pass
+	```
 
 # Configure Tomcat to use the prepared keystore (CentOS, RPM)
 
