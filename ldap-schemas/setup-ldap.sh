@@ -15,17 +15,18 @@ esac
 # Which directory contains the certificates?
 if [ $# -gt 0 ] ; then
 	ldapCerts="$1"
-	if [ $# -gt 2 ] ; then
-		certsDir="$2"
-		openLdapStartCommand="$3"
-		openLdapStopCommand="$4"
-	else
-		certsDir="cas-ldap"
-		openLdapStartCommand="systemctl start sladp"
-		openLdapStopCommand="systemctl stop sladp"
-	fi
 else
 	ldapCerts=/tmp/rd-connect_cas_ldap_certs
+fi
+
+if [ $# -gt 2 ] ; then
+	certsDir="$2"
+	openLdapStartCommand="$3"
+	openLdapStopCommand="$4"
+else
+	certsDir="cas-ldap"
+	openLdapStartCommand="systemctl start sladp"
+	openLdapStopCommand="systemctl stop sladp"
 fi
 
 alreadyGen=/etc/openldap/for_sysadmin.txt
