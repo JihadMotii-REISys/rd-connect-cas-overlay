@@ -89,6 +89,7 @@ EOF
 	# Setting up the base keystore
 	keystorePass="$(apg -n 1 -m 12 -x 16 -M ncl)"
 	tempKeystoreDir="/tmp/cas-server-certs.$$"
+	initialP12Keystore="${tomcatCerts}"/"${certsDir}"/keystoreOpenSSL.p12
 	tempKeystore="${tempKeystoreDir}"/cas-tomcat-server.jks
 	destKeystore="${destEtcTomcatDir}"/cas-tomcat-server.jks
 	
@@ -98,13 +99,12 @@ EOF
 	
 	# Populating it
 	install -D -o tomcat -g tomcat -m 644 "${tomcatCerts}"/cacert.pem "${destEtcCASDir}"/cacert.pem
-	keytool -v -importkeystore -srckeystore "${tomcatCerts}"/"${certsDir}"/keystore.p12 \
-		-srcstorepass "${p12Pass}" -srcstoretype PKCS12 \
-		-destkeystore "${tempKeystore}" -deststorepass "${keystorePass}"
+	keytool -v -importkeystore -srckeystore "${initialP12Keystore}" -srcstorepass "${p12Pass}" -srcstoretype PKCS12 \
+		-destkeystore "${tempKeystore}" -destkeypass "${p12Pass}" -deststorepass "${keystorePass}"
 	install -D -o tomcat -g tomcat -m 600 "${tempKeystore}" "${destKeystore}"
 
 	# This is needed, in order to get next steps working
-	keyAlias="$(certtool --p12-info --inder --password="${p12Pass}" --infile "${tomcatCerts}"/"${certsDir}"/keystore.p12 2>&1 | head -n 1 | sed 's#^[^:]\+: \(.\+\)$#\1#')"
+	keyAlias="$(certtool --p12-info --inder --password="${p12Pass}" --infile "${initialP12Keystore}" 2>&1 | grep -F 'Friendly name' | head -n 1 | sed 's#^[^:]\+: \(.\+\)$#\1#')"
 	
 	fragFile="$(mktemp)"
 	cat > "$fragFile" <<EOF
