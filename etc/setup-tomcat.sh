@@ -94,11 +94,9 @@ EOF
 	
 	mkdir -p "${tempKeystoreDir}"
 	cp "${JAVA_HOME}"/jre/lib/security/cacerts "${tempKeystore}"
-	keytool -storepasswd -new "${keystorePass}" "${tempKeystore}" -storepass changeit
+	keytool -storepasswd -new "${keystorePass}" -keystore "${tempKeystore}" -storepass changeit
 	
 	# Populating it
-	"${tomcatCerts}"/"${certsDir}"
-	
 	install -D -o tomcat -g tomcat -m 644 "${tomcatCerts}"/cacert.pem "${destEtcCASDir}"/cacert.pem
 	keytool -v -importkeystore -srckeystore "${tomcatCerts}"/"${certsDir}"/keystore.p12 \
 		-srcstorepass "${p12Pass}" -srcstoretype PKCS12 \
