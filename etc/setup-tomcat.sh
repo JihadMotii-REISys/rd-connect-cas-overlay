@@ -40,6 +40,15 @@ if [ ! -d "${destEtcCASDir}" ] ; then
 	# We want it to exit on first error
 	set -e
 	
+	if [ -z "$JAVA_HOME" ] ; then
+		for javaloc in /usr/lib/jvm/java ; do
+			if [ -e "${javaloc}" ] ; then
+				JAVA_HOME="${javaloc}"
+				export JAVA_HOME
+			fi
+		done
+	fi
+	
 	# Setting up basic paths
 	install -o tomcat -g tomcat -m 755 -d "${destEtcCASDir}"
 	install -o tomcat -g tomcat -m 755 -d "${destEtcCASDir}"/services
