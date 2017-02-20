@@ -10,8 +10,8 @@ yum -y install git java-devel ant ant-contrib maven
   * You can generate the needed RPMs for Tomcat just following the instructions in [this repository](//github.com/inab/rpm-tomcat7). Once generated, RPMs are available at `~/rpmbuild/RPMS/noarch`, and you have to install only the needed RPMs:
   ```bash
   cd "${HOME}"/rpmbuild/RPMS/noarch
-  # Supposing it is Tomcat 7.0.65
-  sudo yum install tomcat7-7.0.65-1.noarch.rpm tomcat7-admin-webapps-7.0.65-1.noarch.rpm tomcat7-lib-7.0.65-1.noarch.rpm tomcat7-root-webapp-7.0.65-1.noarch.rpm
+  # Supposing it is Tomcat 7.0.73
+  sudo yum install tomcat7-7.0.73-1.noarch.rpm tomcat7-admin-webapps-7.0.73-1.noarch.rpm tomcat7-lib-7.0.73-1.noarch.rpm tomcat7-root-webapp-7.0.73-1.noarch.rpm
   # Now, creating a symlink from tomcat7 to tomcat in /etc and /usr/share
   # so next instructions are coherent
   sudo ln -s /etc/tomcat7 /etc/tomcat
