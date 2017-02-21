@@ -21,13 +21,11 @@ fi
 if [ $# -gt 2 ] ; then
 	certsDir="$2"
 	ldapAdminPass="$3"
-	tomcatStartCommand="$4"
-	tomcatStopCommand="$5"
+	tomcatSysconfigFile="$4"
 else
 	certsDir="cas-tomcat"
 	ldapAdminPass="changeit"
-	tomcatStartCommand="systemctl start tomcat7"
-	tomcatStopCommand="systemctl stop tomcat7"
+	tomcatSysconfigFile=/etc/sysconfig/tomcat7
 fi
 # Hack, convention, whatever
 p12Pass="$certsDir"
@@ -74,7 +72,7 @@ if [ ! -d "${destEtcCASDir}" ] ; then
 		echo "tgc.encryption.key=$tgc_encryption_key" >> "${destEtcCASDir}"/cas.properties
 	)
 	
-	# FIXME Setting up LDAP manager password
+	# Setting up LDAP manager password
 	sed -i "s#^ldap.managerPassword=.*#ldap.managerPassword=${ldapAdminPass}#" "${destEtcCASDir}"/cas.properties
 	
 	# Generating the password for Tomcat user with management privileges
@@ -108,6 +106,7 @@ EOF
 	fragFile="$(mktemp)"
 	cat > "$fragFile" <<EOF
 <Connector port="9443" protocol="HTTP/1.1"
+	address="0.0.0.0"
         connectionTimeout="20000"
         redirectPort="9443"
         SSLEnabled="true"
@@ -115,13 +114,20 @@ EOF
         secure="true"
         sslProtocol="TLS"
         keyAlias="${keyAlias}"
-        keyPass="${keystorePass}"
+        keyPass="${p12Pass}"
         keystoreFile="${destKeystore}"
         keystorePass="${keystorePass}"
         truststoreFile="${destKeystore}"
         truststorePass="${keystorePass}" />
 EOF
 	sed -i -e "/redirectPort=/r ${fragFile}" "${destEtcTomcatDir}"/server.xml
+	
+	# Patching tomcat7 sysconfig file, so it uses the keystore and truststore from the very beginning
+	cat >> "${tomcatSysconfigFile}" <<EOF
+export JAVA_OPTS=" -Djavax.net.ssl.keyStore=${destKeystore} -Djavax.net.ssl.keyStorePassword=${keystorePass} -Djavax.net.ssl.trustStore=${destKeystore} -Djavax.net.ssl.trustStorePassword=${keystorePass}"
+EOF
+	
+	# Last, cleanup
 	rm -rf "$tempKeystoreDir"
 	rm -f "$fragFile"
 fi

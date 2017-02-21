@@ -149,6 +149,7 @@ keytool -importkeystore -srckeystore "${JAVA_HOME}"/jre/lib/security/cacerts -sr
 * Then, edit /etc/tomcat/server.xml (or $CATALINA_BASE/conf/server.xml), adding next connector:
 ```xml
 <Connector port="9443" protocol="HTTP/1.1"
+	address="0.0.0.0"
         connectionTimeout="20000"
         redirectPort="9443"
         SSLEnabled="true"
@@ -298,6 +299,7 @@ ANT_OPTS="-Djavax.net.ssl.trustStore=/etc/tomcat/cas-tomcat-server.jks -Djavax.n
 * Edit conf/server.xml adding:
 ```xml
 	<Connector port="9443" protocol="HTTP/1.1"
+		address="0.0.0.0"
                 connectionTimeout="20000"
                 redirectPort="9443"
                 SSLEnabled="true"
