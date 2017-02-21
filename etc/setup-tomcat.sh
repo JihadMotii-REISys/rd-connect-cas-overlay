@@ -122,5 +122,6 @@ EOF
         truststorePass="${keystorePass}" />
 EOF
 	sed -i -e "/redirectPort=/r ${fragFile}" "${destEtcTomcatDir}"/server.xml
+	rm -rf "$tempKeystoreDir"
 	rm -f "$fragFile"
 fi
