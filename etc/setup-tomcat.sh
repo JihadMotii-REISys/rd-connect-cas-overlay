@@ -100,12 +100,11 @@ EOF
 	# Populating it
 	install -D -o tomcat -g tomcat -m 644 "${tomcatCerts}"/cacert.pem "${destEtcCASDir}"/cacert.pem
 	keytool -v -importkeystore -srckeystore "${initialP12Keystore}" -srcstorepass "${p12Pass}" -srcstoretype PKCS12 \
-		-destkeystore "${tempKeystore}" -destkeypass "${p12Pass}" -deststorepass "${keystorePass}"
+		-destkeystore "${tempKeystore}" -deststorepass "${keystorePass}"
 	install -D -o tomcat -g tomcat -m 600 "${tempKeystore}" "${destKeystore}"
 
 	# This is needed, in order to get next steps working
-	keyAlias="$(certtool --p12-info --inder --password="${p12Pass}" --infile "${initialP12Keystore}" 2>&1 | grep -F 'Friendly name' | head -n 1 | sed 's#^[^:]\+: \(.\+\)$#\1#')"
-	
+	keyAlias="$(keytool -rfc -list -storetype PKCS12 -keystore "${initialP12Keystore}" -storepass "${p12Pass}" | grep -F 'Alias name' | head -n 1 | sed 's#^[^:]\+: \(.\+\)$#\1#')"
 	fragFile="$(mktemp)"
 	cat > "$fragFile" <<EOF
 <Connector port="9443" protocol="HTTP/1.1"
@@ -116,7 +115,7 @@ EOF
         secure="true"
         sslProtocol="TLS"
         keyAlias="${keyAlias}"
-        keyPass="${p12Pass}"
+        keyPass="${keystorePass}"
         keystoreFile="${destKeystore}"
         keystorePass="${keystorePass}"
         truststoreFile="${destKeystore}"
