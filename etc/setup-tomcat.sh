@@ -105,22 +105,22 @@ EOF
 	keyAlias="$(keytool -rfc -list -storetype PKCS12 -keystore "${initialP12Keystore}" -storepass "${p12Pass}" | grep -F 'Alias name' | head -n 1 | sed 's#^[^:]\+: \(.\+\)$#\1#')"
 	fragFile="$(mktemp)"
 	cat > "$fragFile" <<EOF
-<Connector port="9443" protocol="HTTP/1.1"
-	address="0.0.0.0"
-        connectionTimeout="20000"
-        redirectPort="9443"
-        SSLEnabled="true"
-        scheme="https"
-        secure="true"
-        sslProtocol="TLS"
-        keyAlias="${keyAlias}"
-        keyPass="${p12Pass}"
-        keystoreFile="${destKeystore}"
-        keystorePass="${keystorePass}"
-        truststoreFile="${destKeystore}"
-        truststorePass="${keystorePass}" />
+	<Connector port="9443" protocol="HTTP/1.1"
+		address="0.0.0.0"
+		connectionTimeout="20000"
+		redirectPort="9443"
+		SSLEnabled="true"
+		scheme="https"
+		secure="true"
+		sslProtocol="TLS"
+		keyAlias="${keyAlias}"
+		keyPass="${p12Pass}"
+		keystoreFile="${destKeystore}"
+		keystorePass="${keystorePass}"
+		truststoreFile="${destKeystore}"
+		truststorePass="${keystorePass}" />
 EOF
-	sed -i -e "/redirectPort=/r ${fragFile}" "${destEtcTomcatDir}"/server.xml
+	sed -i -e "/^ *redirectPort=/r ${fragFile}" "${destEtcTomcatDir}"/server.xml
 	
 	# Patching tomcat7 sysconfig file, so it uses the keystore and truststore from the very beginning
 	cat >> "${tomcatSysconfigFile}" <<EOF
