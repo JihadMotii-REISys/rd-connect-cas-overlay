@@ -91,6 +91,9 @@ EOF
 	tempKeystore="${tempKeystoreDir}"/cas-tomcat-server.jks
 	destKeystore="${destEtcTomcatDir}"/cas-tomcat-server.jks
 	
+	truststorePass="${keystorePass}"
+	destTruststore="${destKeystore}"
+	
 	mkdir -p "${tempKeystoreDir}"
 	cp "${JAVA_HOME}"/jre/lib/security/cacerts "${tempKeystore}"
 	keytool -storepasswd -new "${keystorePass}" -keystore "${tempKeystore}" -storepass changeit
@@ -117,14 +120,18 @@ EOF
 		keyPass="${p12Pass}"
 		keystoreFile="${destKeystore}"
 		keystorePass="${keystorePass}"
-		truststoreFile="${destKeystore}"
-		truststorePass="${keystorePass}" />
+		truststoreFile="${destTruststore}"
+		truststorePass="${truststorePass}" />
 EOF
 	sed -i -e "/^ *redirectPort=/r ${fragFile}" "${destEtcTomcatDir}"/server.xml
 	
+	# Setting up truststore password for CAS
+	sed -i "s#^http.client.truststore.file=.*#http.client.truststore.file=${destTruststore}#" "${destEtcCASDir}"/cas.properties
+	sed -i "s#^http.client.truststore.psw=.*#http.client.truststore.psw=${truststorePass}#" "${destEtcCASDir}"/cas.properties
+	
 	# Patching tomcat7 sysconfig file, so it uses the keystore and truststore from the very beginning
 	cat >> "${tomcatSysconfigFile}" <<EOF
-export JAVA_OPTS=" -Djavax.net.ssl.keyStore=${destKeystore} -Djavax.net.ssl.keyStorePassword=${keystorePass} -Djavax.net.ssl.trustStore=${destKeystore} -Djavax.net.ssl.trustStorePassword=${keystorePass}"
+export JAVA_OPTS=" -Djavax.net.ssl.keyStore=${destKeystore} -Djavax.net.ssl.keyStorePassword=${keystorePass} -Djavax.net.ssl.trustStore=${destTruststore} -Djavax.net.ssl.trustStorePassword=${truststorePass}"
 EOF
 	
 	# Last, cleanup

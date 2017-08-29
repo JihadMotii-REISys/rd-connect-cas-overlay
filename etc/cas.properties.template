@@ -36,6 +36,9 @@ server.name=${server.protocol}://${host.name}:${server.port}
 cas.context=/cas
 server.prefix=${server.name}${cas.context}
 
+http.client.truststore.file=file:/etc/tomcat7/cas-tomcat-server.jks
+http.client.truststore.psw=ChangeThisPassword!!!
+
 # Spring Security's EL-based access rules for the /status URI of CAS that exposes health check information
 cas.securityContext.status.access=hasIpAddress('127.0.0.1')
 
