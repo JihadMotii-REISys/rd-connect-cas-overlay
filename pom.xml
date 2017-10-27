@@ -141,6 +141,21 @@
             <version>3.1.0</version>
             <scope>provided</scope>
         </dependency>
+        
+	<!-- This is needed to get asynchronous logging -->
+	<dependency>
+		<groupId>com.lmax</groupId>
+		<artifactId>disruptor</artifactId>
+		<version>3.3.7</version>
+	</dependency>
+	
+	<!-- This is needed to send backups to a PostgreSQL instance -->
+	<dependency>
+		<groupId>org.postgresql</groupId>
+		<artifactId>postgresql</artifactId>
+		<!-- remove .jre7 postfix when jre8 is used -->
+		<version>42.1.4.jre7</version>
+	</dependency>
     </dependencies>
 
     <build>
