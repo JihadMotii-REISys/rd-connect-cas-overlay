@@ -1,0 +1,6 @@
+dn: cn={5}basicrdproperties,cn=schema,cn=config
+changetype: modify
+replace: olcObjectClasses
+olcObjectClasses: {0}( RDObjectClass:1 NAME 'basicRDproperties' DESC 'Basic 
+ RD-Connect LDAP user properties, not covered outside' AUXILIARY MAY ( membe
+ rOf $ disabledAccount $ jsonData ) )

@@ -1,0 +1,39 @@
+# include this schema in your OpenLDAP deployment, or uncomment here
+#include /etc/ldap/schema/core.schema
+
+# These ones are specific of the basic RD-Connect user properties
+objectIdentifier RDConnectDocument RDConnectLDAP:3
+objectIdentifier RDocAttributeType RDConnectDocument:1
+objectIdentifier RDocObjectClass RDConnectDocument:2
+
+attributeType ( RDocAttributeType:3
+	NAME 'mimeType'
+	DESC 'This attribute is to have the mime type of the content (usually application/pdf)'
+	SINGLE-VALUE
+	EQUALITY caseIgnoreMatch
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{256} )
+
+# Binary
+attributeType ( RDocAttributeType:4
+	NAME 'content'
+	DESC 'This attribute contains the document itself'
+	SINGLE-VALUE
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 )
+
+# Inspired on userClass
+attributeType ( RDocAttributeType:5
+	NAME 'documentClass'
+	DESC 'This attribute is used to classify the documents by categories or classes'
+	EQUALITY caseIgnoreMatch
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{256} )
+
+# 'cn' attribute type is in core.schema
+# 'description' attribute type is in core.schema
+objectClass ( RDocObjectClass:1
+	NAME 'RDConnectDocument'
+	DESC 'RD-Connect document stored in LDAP, like for instance an agreement'
+	STRUCTURAL
+	MUST ( cn $ mimeType $ content $ documentClass )
+	MAY ( description ) )

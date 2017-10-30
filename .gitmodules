@@ -1,0 +1,3 @@
+[submodule "json-web-key-generator"]
+	path = json-web-key-generator
+	url = https://github.com/mitreid-connect/json-web-key-generator.git
