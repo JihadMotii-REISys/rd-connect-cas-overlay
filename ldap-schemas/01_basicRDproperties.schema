@@ -29,6 +29,16 @@ attributeType ( RDAttributeType:5
 	SUBSTR caseIgnoreSubstringsMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 
+# Acceptance of GDPR
+attributeType ( RDAttributeType:6
+	NAME 'acceptedGDPR'
+	DESC 'This attrib ute contains the timestamp of accepted GDPR'
+	SINGLE-VALUE
+	EQUALITY caseIgnoreMatch
+	SUBSTR caseIgnoreSubstringsMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+objectClass ( RDObjectClass:1
 objectClass ( RDObjectClass:1
 	NAME 'basicRDproperties'
 	DESC 'Basic RD-Connect LDAP user properties, not covered outside'
