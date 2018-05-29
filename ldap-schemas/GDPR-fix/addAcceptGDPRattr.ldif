@@ -1,0 +1,14 @@
+dn: cn={5}basicrdproperties,cn=schema,cn=config
+changetype: modify
+add: olcAttributeTypes
+olcAttributeTypes: {3}( RDAttributeType:6 NAME 'acceptedGDPR' DESC 'This attrib
+ ute contains the timestamp of accepted GDPR' EQUALITY caseIgnoreMatch SUBST
+ R caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VAL
+ UE )
+
+dn: cn={5}basicrdproperties,cn=schema,cn=config
+changetype: modify
+replace: olcObjectClasses
+olcObjectClasses: {0}( RDObjectClass:1 NAME 'basicRDproperties' DESC 'Basic 
+ RD-Connect LDAP user properties, not covered outside' AUXILIARY MAY ( membe
+ rOf $ disabledAccount $ jsonData $ acceptedGDPR ) )
