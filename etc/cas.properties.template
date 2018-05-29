@@ -168,8 +168,8 @@ password.policy.url=https://rdconnectcas.rd-connect.eu:9443/password/change
 # == General LDAP connection settings ==
 
 # Search filter when using a search-and-bind strategy.
-ldap.authn.searchFilter=(&(|(uid={user})(mail={user}))(disabledAccount=FALSE))
-ldap.authn.userSearchFilter=(&(|(uid={0})(mail={0}))(disabledAccount=FALSE))
+ldap.authn.searchFilter=(&(|(uid={user})(mail={user}))(disabledAccount=FALSE)(acceptedGDPR=*)(!(acceptedGDPR=GDPR)))
+ldap.authn.userSearchFilter=(&(|(uid={0})(mail={0}))(disabledAccount=FALSE)(acceptedGDPR=*)(!(acceptedGDPR=GDPR)))
 ldap.authn.groupSearchFilter=(&(cn=admin)(member={0}))
 
 # Base DN for directory searches.
