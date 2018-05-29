@@ -67,7 +67,12 @@
 
 <div class="box" id="login">
     <form:form method="post" id="fm1" commandName="${commandName}" htmlEscape="true">
-
+        <form:errors path="*" id="msg" cssClass="errors" element="div" htmlEscape="false">
+		<div id="msg" class="info" style="display: flex">
+			<b>The RD-Connect GPAP has updated its policies and procedures according to the new General Data Protection Regulation (GDPR, EU 2016/679). You should have received an email to re-activate your account.</b>
+		</div>
+	</form:errors>
+	
         <form:errors path="*" id="msg" cssClass="errors" element="div" htmlEscape="false" />
 
         <h2><spring:message code="screen.welcome.instructions" /></h2>
@@ -127,11 +132,13 @@
 
 <div id="sidebar">
     <div class="sidebar-content">
+	<!--
 	<spring:hasBindErrors htmlEscape="true" name="${commandName}">
 		<div id="msg" class="info" style="display: flex">
 			<b>The RD-Connect GPAP has updated its policies and procedures according to the new General Data Protection Regulation (GDPR, EU 2016/679). You should have received an email to re-activate your account.</b>
 		</div>
 	</spring:hasBindErrors>
+	-->
 	
         <p><spring:message code="screen.welcome.security" /></p>
 
