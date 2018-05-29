@@ -129,7 +129,7 @@
     <div class="sidebar-content">
 	<spring:hasBindErrors htmlEscape="true" name="${commandName}">
 		<div id="msg" class="info" style="display: flex">
-			<b>The RD-Connect GPAP has updated its policies and procedures according to the new General Data Protection Regulation (GDPR, EU 2016/679). You should have received and email to re-activate your account.</b>
+			<b>The RD-Connect GPAP has updated its policies and procedures according to the new General Data Protection Regulation (GDPR, EU 2016/679). You should have received an email to re-activate your account.</b>
 		</div>
 	</spring:hasBindErrors>
 	
