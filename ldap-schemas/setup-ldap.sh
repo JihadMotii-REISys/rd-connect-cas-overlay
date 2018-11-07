@@ -1,6 +1,14 @@
 #!/bin/sh
 
 # OpenLDAP initial setup
+domainDC='rd-connect'
+domainO="RD-Connect"
+domainCountry='eu'
+domainDN="dc=${domainDC},dc=${domainCountry}"
+adminName='admin'
+adminDN="cn=$adminName,$domainDN"
+adminGroupDN="cn=admin,ou=groups,$domainDN"
+rootMail="platform@${domainDC}.${domainCountry}"
 
 ldapcasdir="$(dirname "$0")"
 case "${ldapcasdir}" in
@@ -19,17 +27,53 @@ else
 	ldapCerts=/tmp/rd-connect_cas_ldap_certs
 fi
 
+# Which directory contains OpenLDAP?
+for dir in /etc/openldap /etc/ldap ; do
+	if [ -d "$dir" ] ; then
+		ldapProfileDir="$dir"
+		break
+	fi
+done
+
+if [ -z "$ldapProfileDir" ] ; then
+	echo "ERROR: Unable to find LDAP profile directory!" 1>&2
+	exit 1
+fi
+
+case "$ldapProfileDir" in
+	/etc/openldap)
+		base1='{1}monitor'
+		base2='{2}hdb'
+		ldapUser=ldap
+		ldapGroup=ldap
+		pwVerb=add
+		openLdapStartCommand="systemctl start sladp"
+		openLdapStopCommand="systemctl stop sladp"
+		;;
+	/etc/ldap)
+		base1=''
+		base2='{1}mdb'
+		ldapUser=openldap
+		ldapGroup=openldap
+		pwVerb=replace
+		openLdapStartCommand="/etc/init.d/slapd start"
+		openLdapStopCommand="/etc/init.d/slapd stop"
+		;;
+	*)
+		echo "ERROR: Unable to find LDAP profile directory!" 1>&2
+		exit 1
+		;;
+esac
+
 if [ $# -gt 2 ] ; then
 	certsDir="$2"
 	openLdapStartCommand="$3"
 	openLdapStopCommand="$4"
 else
 	certsDir="cas-ldap"
-	openLdapStartCommand="systemctl start sladp"
-	openLdapStopCommand="systemctl stop sladp"
 fi
 
-alreadyGen=/etc/openldap/for_sysadmin.txt
+alreadyGen="${ldapProfileDir}"/for_sysadmin.txt
 
 if [ ! -f "${alreadyGen}" ] ; then
 	# We want it to exit on first error
@@ -61,7 +105,7 @@ if [ ! -f "${alreadyGen}" ] ; then
 
 dn: olcDatabase={0}config,cn=config
 changetype: modify
-add: olcRootPW
+${pwVerb}: olcRootPW
 olcRootPW: $adminHashPass
 
 EOF
@@ -69,10 +113,10 @@ EOF
 
 	# Let's add the needed schemas
 	cat > /tmp/all-schemas.conf <<EOF
-include /etc/openldap/schema/core.schema
-include /etc/openldap/schema/cosine.schema
-include /etc/openldap/schema/nis.schema
-include /etc/openldap/schema/inetorgperson.schema
+include ${ldapProfileDir}/schema/core.schema
+include ${ldapProfileDir}/schema/cosine.schema
+include ${ldapProfileDir}/schema/nis.schema
+include ${ldapProfileDir}/schema/inetorgperson.schema
 EOF
 	for schema in "${ldapcasdir}"/*.schema ; do
 		echo "include ${schema}" >> /tmp/all-schemas.conf
@@ -90,10 +134,6 @@ EOF
 	done
 
 	# Domain creation
-	domainDN='dc=rd-connect,dc=eu'
-	adminName='admin'
-	adminDN="cn=$adminName,$domainDN"
-	adminGroupDN="cn=admin,ou=groups,$domainDN"
 	cat > /tmp/chdomain.ldif <<EOF
 # Disallow anonymous binds
 dn: cn=config
@@ -115,36 +155,71 @@ olcRequires: authc
 # replace to your own domain name for "dc=***,dc=***" section
 # specify the password generated above for "olcRootPW" section
 
-dn: olcDatabase={1}monitor,cn=config
+EOF
+	if [ -n "${base1}" ] ; then
+		cat >> /tmp/chdomain.ldif <<EOF
+dn: olcDatabase=${base1},cn=config
 changetype: modify
 replace: olcAccess
 olcAccess: {0}to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"
   read by dn.base="$adminDN" read by * none
 
+EOF
+	fi
+	
+	if [ -d /etc/openldap ] ; then
+		cat >> /tmp/chdomain.ldif <<EOF
 # We declare an index on uid
-dn: olcDatabase={2}hdb,cn=config
+dn: olcDatabase=${base2},cn=config
 changetype: modify
 add: olcDbIndex
 olcDbIndex: uid pres,eq
 
-dn: olcDatabase={2}hdb,cn=config
+EOF
+	elif [ -d /etc/ldap ] ; then
+		cat >> /tmp/chdomain.ldif <<EOF
+# We declare an index on uid
+dn: olcDatabase=${base2},cn=config
+changetype: modify
+delete: olcDbIndex
+olcDbIndex: cn,uid eq
+
+dn: olcDatabase=${base2},cn=config
+changetype: modify
+add: olcDbIndex
+olcDbIndex: cn,mail,surname,givenname eq,pres,sub
+olcDbIndex: uid pres,eq
+#olcDbIndex: ou,cn,mail,surname,givenname eq,pres,sub
+#olcDbIndex: uidNumber,gidNumber eq
+#olcDbIndex: member,memberUid eq
+
+EOF
+	fi
+	
+	cat >> /tmp/chdomain.ldif <<EOF
+dn: olcDatabase=${base2},cn=config
 changetype: modify
 replace: olcSuffix
 olcSuffix: $domainDN
 
-dn: olcDatabase={2}hdb,cn=config
+dn: olcDatabase=${base2},cn=config
 changetype: modify
 replace: olcRootDN
 olcRootDN: $adminDN
 
-dn: olcDatabase={2}hdb,cn=config
+dn: olcDatabase=${base2},cn=config
 changetype: modify
-add: olcRootPW
+${pwVerb}: olcRootPW
 olcRootPW: $domainHashPass
+
+# This operation removes all the access rules
+dn: olcDatabase=${base2},cn=config
+changetype: modify
+delete: olcAccess
 
 # These rules grant write access to LDAP topology parts
 # based on admin group
-dn: olcDatabase={2}hdb,cn=config
+dn: olcDatabase=${base2},cn=config
 changetype: modify
 add: olcAccess
 olcAccess: to attrs=userPassword,shadowLastChange
@@ -185,33 +260,33 @@ dn: $domainDN
 objectClass: top
 objectClass: dcObject
 objectclass: organization
-o: RD-Connect
-dc: rd-connect
+o: $domainO
+dc: $domainDC
 
 dn: $adminDN
 objectClass: organizationalRole
 cn: $adminName
-description: RD-Connect LDAP domain manager
+description: $domainO LDAP domain manager
 
 dn: ou=people,$domainDN
 objectClass: organizationalUnit
 ou: people
-description: RD-Connect platform users
+description: $domainO platform users
 
 dn: ou=groups,$domainDN
 objectClass: organizationalUnit
 ou: groups
-description: RD-Connect platform groups
+description: $domainO platform groups
 
 dn: ou=admins,ou=people,$domainDN
 objectClass: organizationalUnit
 ou: admins
-description: RD-Connect platform privileged users
+description: $domainO platform privileged users
 
 dn: ou=services,$domainDN
 objectClass: organizationalUnit
 ou: services
-description: RD-Connect platform allowed services
+description: $domainO platform allowed services
 
 dn: cn=root,ou=admins,ou=people,$domainDN
 objectClass: inetOrgPerson
@@ -222,7 +297,7 @@ userPassword: $rootHashPass
 cn: root
 sn: root
 displayName: root
-mail: platform@rd-connect.eu
+mail: ${rootMail}
 description: A user named root
 
 dn: $adminGroupDN
@@ -253,7 +328,7 @@ EOF
 	# Adding the default service
 	cat > /tmp/defaultservice.ldif <<EOF
 # The default service
-dn: uid=10000001,ou=services,dc=rd-connect,dc=eu
+dn: uid=10000001,ou=services,${domainDN}
 objectClass: casRegisteredService
 uid: 10000001
 EOF
@@ -265,7 +340,7 @@ EOF
 	# It assumes that the public and private keys from the Certificate Authority are
 	# at /etc/pki/CA/cacert.pem and /etc/pki/CA/private/cakey.pem
 
-	if [ ! -f /etc/openldap/certs/ldap-server-crt.pem ] ; then
+	if [ ! -f "${ldapProfileDir}"/certs/ldap-server-crt.pem ] ; then
 		mkdir -p "${HOME}"/ldap-certs
 		if [ -f "${ldapCerts}"/"${certsDir}"/cert.pem ] ;then
 			ln -s "${ldapCerts}"/"${certsDir}"/cert.pem "${HOME}"/ldap-certs/ldap-server-crt.pem
@@ -288,37 +363,42 @@ EOF
 			fi
 			ln -s /etc/pki/CA/cacert.pem "${HOME}"/ldap-certs/cacert.pem
 		fi
-		mkdir -p /etc/openldap/certs
-		install -D -o ldap -g ldap -m 644 "${HOME}"/ldap-certs/ldap-server-crt.pem /etc/openldap/certs/ldap-server-crt.pem
-		install -D -o ldap -g ldap -m 600 "${HOME}"/ldap-certs/ldap-server-key.pem /etc/openldap/certs/ldap-server-key.pem
-		install -D -o ldap -g ldap -m 644 "${HOME}"/ldap-certs/cacert.pem /etc/openldap/certs/cacert.pem
+		mkdir -p "${ldapProfileDir}"/certs
+		install -D -o "${ldapUser}" -g "${ldapGroup}" -m 644 "${HOME}"/ldap-certs/ldap-server-crt.pem "${ldapProfileDir}"/certs/ldap-server-crt.pem
+		install -D -o "${ldapUser}" -g "${ldapGroup}" -m 600 "${HOME}"/ldap-certs/ldap-server-key.pem "${ldapProfileDir}"/certs/ldap-server-key.pem
+		install -D -o "${ldapUser}" -g "${ldapGroup}" -m 644 "${HOME}"/ldap-certs/cacert.pem "${ldapProfileDir}"/certs/cacert.pem
 	fi
 
-	cat > /tmp/mod_ldap_ssl_centos.ldif <<EOF
+	cat > /tmp/mod_ldap_ssl.ldif <<EOF
 # create new
 
 dn: cn=config
 changetype: modify
 add: olcTLSCACertificateFile
-olcTLSCACertificateFile: /etc/openldap/certs/cacert.pem
+olcTLSCACertificateFile: ${ldapProfileDir}/certs/cacert.pem
 -
 replace: olcTLSCertificateFile
-olcTLSCertificateFile: /etc/openldap/certs/ldap-server-crt.pem
+olcTLSCertificateFile: ${ldapProfileDir}/certs/ldap-server-crt.pem
 -
 replace: olcTLSCertificateKeyFile
-olcTLSCertificateKeyFile: /etc/openldap/certs/ldap-server-key.pem
+olcTLSCertificateKeyFile: ${ldapProfileDir}/certs/ldap-server-key.pem
 EOF
-	ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/mod_ldap_ssl_centos.ldif
+	ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/mod_ldap_ssl.ldif
 
 	# Now, make openLDAP listen on SSL port
-	sed -i 's/^\(SLAPD_URLS=.*\)/#\1/' /etc/sysconfig/slapd
-	echo 'SLAPD_URLS="ldapi:/// ldap:/// ldaps:///"' >> /etc/sysconfig/slapd
+	if [ -f /etc/sysconfig/slapd ] ; then
+		sed -i 's/^\(SLAPD_URLS=.*\)/#\1/' /etc/sysconfig/slapd
+		echo 'SLAPD_URLS="ldapi:/// ldap:/// ldaps:///"' >> /etc/sysconfig/slapd
+	elif [ -f /etc/default/slapd ] ; then
+		sed -i 's/^\(SLAPD_SERVICES=.*\)/#\1/' /etc/default/slapd
+		echo 'SLAPD_SERVICES="ldapi:/// ldap:/// ldaps:///"' >> /etc/default/slapd
+	fi
 
-	sed -i 's/^\(URI\|TLS_REQCERT\|TLS_CACERT\)\([ \t].*\)/#\1\2/' /etc/openldap/ldap.conf
-	cat >> /etc/openldap/ldap.conf <<EOF
+	sed -i 's/^\(BASE\|URI\|TLS_REQCERT\|TLS_CACERT\)\([ \t].*\)/#\1\2/' ${ldapProfileDir}/ldap.conf
+	cat >> ${ldapProfileDir}/ldap.conf <<EOF
 URI ldap:// ldaps:// ldapi://
 TLS_REQCERT allow
-TLS_CACERT     /etc/openldap/certs/cacert.pem
+TLS_CACERT     ${ldapProfileDir}/certs/cacert.pem
 EOF
 
 	# Restart it
