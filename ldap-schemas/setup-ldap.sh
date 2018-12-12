@@ -102,14 +102,9 @@ if [ ! -f "${alreadyGen}" ] ; then
 	# Setting up the OpenLDAP administrator password
 	cat > /tmp/chrootpw.ldif <<EOF
 # specify the password generated above for "olcRootPW" section
-
 dn: olcDatabase={0}config,cn=config
 changetype: modify
-delete: olcRootPW
-
-dn: olcDatabase={0}config,cn=config
-changetype: modify
-add: olcRootPW
+${pwVerb}: olcRootPW
 olcRootPW: $adminHashPass
 
 EOF
