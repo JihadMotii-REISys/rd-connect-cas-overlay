@@ -161,15 +161,16 @@ olcRequires: authc
 
 EOF
 	if [ -n "${base1}" ] ; then
+		if grep -qF olcAccess "${ldapProfileDir}/slapd.d/cn=config/olcDatabase=${base1}.ldif" ; then
+			domainAccVerb=modify
+		else
+			domainAccVerb=add
+		fi
 		cat >> /tmp/chdomain.ldif <<EOF
 # This operation removes all the access rules
 dn: olcDatabase=${base1},cn=config
 changetype: modify
-delete: olcAccess
-
-dn: olcDatabase=${base1},cn=config
-changetype: modify
-add: olcAccess
+${domainAccVerb}: olcAccess
 olcAccess: {0}to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"
   read by dn.base="$adminDN" read by * none
 
