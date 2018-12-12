@@ -105,7 +105,11 @@ if [ ! -f "${alreadyGen}" ] ; then
 
 dn: olcDatabase={0}config,cn=config
 changetype: modify
-${pwVerb}: olcRootPW
+remove: olcRootPW
+
+dn: olcDatabase={0}config,cn=config
+changetype: modify
+add: olcRootPW
 olcRootPW: $adminHashPass
 
 EOF
@@ -158,9 +162,14 @@ olcRequires: authc
 EOF
 	if [ -n "${base1}" ] ; then
 		cat >> /tmp/chdomain.ldif <<EOF
+# This operation removes all the access rules
 dn: olcDatabase=${base1},cn=config
 changetype: modify
-replace: olcAccess
+delete: olcAccess
+
+dn: olcDatabase=${base1},cn=config
+changetype: modify
+add: olcAccess
 olcAccess: {0}to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"
   read by dn.base="$adminDN" read by * none
 
