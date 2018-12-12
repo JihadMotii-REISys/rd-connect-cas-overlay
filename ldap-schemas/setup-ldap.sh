@@ -206,6 +206,11 @@ olcDbIndex: uid pres,eq
 EOF
 	fi
 	
+	if grep -qF olcAccess "${ldapProfileDir}/slapd.d/cn=config/olcDatabase=${base2}.ldif" ; then
+		domain2AccVerb=replace
+	else
+		domain2AccVerb=add
+	fi
 	cat >> /tmp/chdomain.ldif <<EOF
 dn: olcDatabase=${base2},cn=config
 changetype: modify
@@ -222,16 +227,11 @@ changetype: modify
 ${pwVerb}: olcRootPW
 olcRootPW: $domainHashPass
 
-# This operation removes all the access rules
-dn: olcDatabase=${base2},cn=config
-changetype: modify
-delete: olcAccess
-
 # These rules grant write access to LDAP topology parts
 # based on admin group
 dn: olcDatabase=${base2},cn=config
 changetype: modify
-add: olcAccess
+${domain2AccVerb}: olcAccess
 olcAccess: to attrs=userPassword,shadowLastChange
   by dn="$adminDN" write
   by group.exact="$adminGroupDN" write
