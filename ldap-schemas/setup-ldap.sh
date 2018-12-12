@@ -105,7 +105,7 @@ if [ ! -f "${alreadyGen}" ] ; then
 
 dn: olcDatabase={0}config,cn=config
 changetype: modify
-remove: olcRootPW
+delete: olcRootPW
 
 dn: olcDatabase={0}config,cn=config
 changetype: modify
