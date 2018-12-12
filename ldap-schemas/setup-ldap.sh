@@ -162,7 +162,7 @@ olcRequires: authc
 EOF
 	if [ -n "${base1}" ] ; then
 		if grep -qF olcAccess "${ldapProfileDir}/slapd.d/cn=config/olcDatabase=${base1}.ldif" ; then
-			domainAccVerb=modify
+			domainAccVerb=replace
 		else
 			domainAccVerb=add
 		fi
