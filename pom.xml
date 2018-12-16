@@ -154,7 +154,7 @@
 		<groupId>org.postgresql</groupId>
 		<artifactId>postgresql</artifactId>
 		<!-- remove .jre7 postfix when jre8 is used -->
-		<version>42.1.4.jre7</version>
+		<version>42.1.4</version>
 	</dependency>
     </dependencies>
 
@@ -177,6 +177,7 @@
                                 <exclude>WEB-INF/lib/hibernate-*.jar</exclude>
                                 -->
                                 <exclude>WEB-INF/lib/person-directory-*.jar</exclude>
+                                <exclude>WEB-INF/lib/bcprov-*.jar</exclude>
                             </excludes>
                         </overlay>
                     </overlays>
