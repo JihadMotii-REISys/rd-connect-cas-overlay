@@ -34,7 +34,7 @@ destEtcCASDir=/etc/cas
 destEtcTomcatDir=/etc/tomcat
 destCASLog=/var/log/cas
 
-if [ ! -d "${destEtcCASDir}" ] ; then
+if [ ! -d "${destEtcCASDir}" -o ! -f "${destEtcCASDir}"/cas.properties ] ; then
 	# We want it to exit on first error
 	set -e
 	
