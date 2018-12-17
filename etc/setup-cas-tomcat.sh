@@ -34,7 +34,7 @@ destEtcCASDir=/etc/cas
 destEtcTomcatDir=/etc/tomcat
 destCASLog=/var/log/cas
 
-if [ ! -d "${destEtcCASDir}" ] ; then
+if [ ! -d "${destEtcCASDir}" -o ! -f "${destEtcCASDir}"/cas.properties ] ; then
 	# We want it to exit on first error
 	set -e
 	
@@ -65,7 +65,9 @@ if [ ! -d "${destEtcCASDir}" ] ; then
 	# Generating the TGC keys
 	(
 		cd "${etccasdir}"/../json-web-key-generator
-		mvn clean package
+		if [ ! -f target/json-web-key-generator-0.2-SNAPSHOT-jar-with-dependencies.jar ] ; then
+			mvn -B clean package
+		fi
 		tgc_signing_key="$(java -jar target/json-web-key-generator-0.2-SNAPSHOT-jar-with-dependencies.jar -t oct -s 512 -S | grep -F '"k":' | cut -f 4 -d '"')"
 		tgc_encryption_key="$(java -jar target/json-web-key-generator-0.2-SNAPSHOT-jar-with-dependencies.jar -t oct -s 256 -S | grep -F '"k":' | cut -f 4 -d '"')"
 		echo "tgc.signing.key=$tgc_signing_key" >> "${destEtcCASDir}"/cas.properties
