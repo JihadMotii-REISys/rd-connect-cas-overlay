@@ -1,0 +1,7 @@
+# include this schema in your OpenLDAP deployment, or uncomment here
+#include /usr/lib/openldap/schema/core.schema
+
+# These common definitions ease creation of custom schemas
+objectIdentifier RDConnectOIDRoot 2.25.43403101489198369939828723099835007064
+objectIdentifier RDConnectSNMP RDConnectOIDRoot:1
+objectIdentifier RDConnectLDAP RDConnectOIDRoot:2
