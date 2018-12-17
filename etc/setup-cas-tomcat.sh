@@ -25,7 +25,7 @@ if [ $# -gt 2 ] ; then
 else
 	certsDir="cas-tomcat"
 	ldapAdminPass="changeit"
-	tomcatSysconfigFile=/etc/sysconfig/tomcat7
+	tomcatSysconfigFile=/etc/sysconfig/tomcat8
 fi
 # Hack, convention, whatever
 p12Pass="$certsDir"
@@ -64,12 +64,12 @@ if [ ! -d "${destEtcCASDir}" -o ! -f "${destEtcCASDir}"/cas.properties ] ; then
 	
 	# Generating the TGC keys
 	(
-		cd "${etccasdir}"/../json-web-key-generator
-		if [ ! -f target/json-web-key-generator-0.2-SNAPSHOT-jar-with-dependencies.jar ] ; then
+		cd "${etccasdir}"/../../json-web-key-generator
+		if [ ! -f target/json-web-key-generator-*-jar-with-dependencies.jar ] ; then
 			mvn -B clean package
 		fi
-		tgc_signing_key="$(java -jar target/json-web-key-generator-0.2-SNAPSHOT-jar-with-dependencies.jar -t oct -s 512 -S | grep -F '"k":' | cut -f 4 -d '"')"
-		tgc_encryption_key="$(java -jar target/json-web-key-generator-0.2-SNAPSHOT-jar-with-dependencies.jar -t oct -s 256 -S | grep -F '"k":' | cut -f 4 -d '"')"
+		tgc_signing_key="$(java -jar target/json-web-key-generator-*-jar-with-dependencies.jar -t oct -s 512 -S | grep -F '"k":' | cut -f 4 -d '"')"
+		tgc_encryption_key="$(java -jar target/json-web-key-generator-*-jar-with-dependencies.jar -t oct -s 256 -S | grep -F '"k":' | cut -f 4 -d '"')"
 		echo "tgc.signing.key=$tgc_signing_key" >> "${destEtcCASDir}"/cas.properties
 		echo "tgc.encryption.key=$tgc_encryption_key" >> "${destEtcCASDir}"/cas.properties
 	)
