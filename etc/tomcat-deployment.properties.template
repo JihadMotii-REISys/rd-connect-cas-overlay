@@ -1,0 +1,7 @@
+catalina.home=/usr/share/tomcat
+# Change to the fully qualified name of the host
+deploy.host=rdconnectcas.rd-connect.eu
+deploy.tomcat.protocol=https
+deploy.tomcat.port=9443
+deploy.tomcat.user=cas-tomcat-deployer
+deploy.tomcat.pass=ChangeThisPassword!!!
