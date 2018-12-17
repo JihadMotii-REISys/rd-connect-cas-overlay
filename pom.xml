@@ -3,8 +3,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd ">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.apereo.cas</groupId>
-    <artifactId>cas-overlay</artifactId>
+    <groupId>eu.rd-connect</groupId>
+    <artifactId>rdconnect-cas-overlay</artifactId>
     <packaging>war</packaging>
     <version>1.0</version>
 
@@ -70,7 +70,7 @@
         <cas.version>5.3.6</cas.version>
         <springboot.version>1.5.18.RELEASE</springboot.version>
         <!-- app.server could be -jetty, -undertow, -tomcat, or blank if you plan to provide appserver -->
-        <app.server>-tomcat</app.server>
+        <app.server></app.server>
 
         <mainClassName>org.springframework.boot.loader.WarLauncher</mainClassName>
         <isExecutable>false</isExecutable>
@@ -125,6 +125,24 @@
                 <!--
                 ...Additional dependencies may be placed here...
                 -->
+                <!-- SAML 1.1 support -->
+                <dependency>
+                    <groupId>org.apereo.cas</groupId>
+                    <artifactId>cas-server-support-saml</artifactId>
+                    <version>${cas.version}</version>
+                </dependency>
+                <!-- CAS REST protocol support -->
+                <dependency>
+                    <groupId>org.apereo.cas</groupId>
+                    <artifactId>cas-server-support-rest</artifactId>
+                    <version>${cas.version}</version>
+                </dependency>
+                <!-- CAS LDAP support -->
+                <dependency>
+                     <groupId>org.apereo.cas</groupId>
+                     <artifactId>cas-server-support-ldap</artifactId>
+                     <version>${cas.version}</version>
+                </dependency>
             </dependencies>
         </profile>
 
