@@ -238,10 +238,12 @@ mvn clean package
     git clone -b json-web-key-generator-0.3 https://github.com/mitreid-connect/json-web-key-generator.git
     cd /tmp/json-web-key-generator
     mvn clean package
-    FIRST_KEY="$(java -jar target/json-web-key-generator-*-SNAPSHOT-jar-with-dependencies.jar -t oct -s 512 -S)"
-    SECOND_KEY="$(java -jar target/json-web-key-generator-*-SNAPSHOT-jar-with-dependencies.jar -t oct -s 256 -S)"
+    # Generating the first key
+    java -jar target/json-web-key-generator-*-jar-with-dependencies.jar -t oct -s 512 -S | grep -F '"k":' | cut -f 4 -d '"'
+    # Generating the second key
+    java -jar target/json-web-key-generator-*-jar-with-dependencies.jar -t oct -s 256 -S | grep -F '"k":' | cut -f 4 -d '"'
     ```	
-    The environment variables contain a couple of keys which are needed to update your cas.properties at next parameters:
+    These generated keys are needed to update your cas.properties at next parameters:
     ```
     tgc.signing.key=<First key generated>
     tgc.encryption.key=<Second key generated>
