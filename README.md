@@ -1,4 +1,4 @@
-CAS Overlay Template
+RD-Connect CAS Overlay (based on CAS Overlay template)
 ============================
 
 Generic CAS WAR overlay to exercise the latest versions of CAS. This overlay could be freely used as a starting template for local CAS war overlays. The CAS services management overlay is available [here](https://github.com/apereo/cas-services-management-overlay).
@@ -99,3 +99,13 @@ Invokes the CAS Command Line Shell. For a list of commands either use no argumen
 ```bash
 ./build.sh cli
 ```
+
+# Configuration
+The `etc` directory contains the sample configuration files that would need to be copied to an external file system location (`/etc/cas` or `${user.home}/etc/cas` by default) and configured to satisfy local CAS and CAS Management installation needs. Current files are:
+
+* `cas.properties.template`, which is a template for `cas.properties`.
+* `log4j2-user.xml` or `log4j2-system.xml`, depending on a user or a system Tomcat installation.
+
+# Deployment
+
+Follow [INSTALL.md](installation instructions).
