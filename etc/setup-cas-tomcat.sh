@@ -30,7 +30,8 @@ fi
 # Hack, convention, whatever
 p12Pass="$certsDir"
 
-destEtcCASDir=/etc/cas
+# This changed on CAS 5.x
+destEtcCASDir=/etc/cas/config
 destEtcTomcatDir=/etc/tomcat
 destCASLog=/var/log/cas
 
@@ -70,12 +71,12 @@ if [ ! -d "${destEtcCASDir}" -o ! -f "${destEtcCASDir}"/cas.properties ] ; then
 		fi
 		tgc_signing_key="$(java -jar target/json-web-key-generator-*-jar-with-dependencies.jar -t oct -s 512 -S | grep -F '"k":' | cut -f 4 -d '"')"
 		tgc_encryption_key="$(java -jar target/json-web-key-generator-*-jar-with-dependencies.jar -t oct -s 256 -S | grep -F '"k":' | cut -f 4 -d '"')"
-		echo "tgc.signing.key=$tgc_signing_key" >> "${destEtcCASDir}"/cas.properties
-		echo "tgc.encryption.key=$tgc_encryption_key" >> "${destEtcCASDir}"/cas.properties
+		echo "cas.tgc.crypto.signing.key=$tgc_signing_key" >> "${destEtcCASDir}"/cas.properties
+		echo "cas.tgc.crypto.encryption.key=$tgc_encryption_key" >> "${destEtcCASDir}"/cas.properties
 	)
 	
 	# Setting up LDAP manager password
-	sed -i "s#^ldap.managerPassword=.*#ldap.managerPassword=${ldapAdminPass}#" "${destEtcCASDir}"/cas.properties
+	sed -i "s#^cas.authn.ldap\[0\].bindCredential=.*#cas.authn.ldap[0].bindCredential=${ldapAdminPass}#" "${destEtcCASDir}"/cas.properties
 	
 	# Generating the password for Tomcat user with management privileges
 	sed -i 's#^</tomcat-users>.*##' "${destEtcTomcatDir}"/tomcat-users.xml
@@ -128,8 +129,8 @@ EOF
 	sed -i -e "/^ *redirectPort=/r ${fragFile}" "${destEtcTomcatDir}"/server.xml
 	
 	# Setting up truststore password for CAS
-	sed -i "s#^http.client.truststore.file=.*#http.client.truststore.file=${destTruststore}#" "${destEtcCASDir}"/cas.properties
-	sed -i "s#^http.client.truststore.psw=.*#http.client.truststore.psw=${truststorePass}#" "${destEtcCASDir}"/cas.properties
+	sed -i "s#^cas.httpClient.truststore.file=.*#cas.httpClient.truststore.file=${destTruststore}#" "${destEtcCASDir}"/cas.properties
+	sed -i "s#^cas.httpClient.truststore.psw=.*#cas.httpClient.truststore.psw=${truststorePass}#" "${destEtcCASDir}"/cas.properties
 	
 	# Patching tomcat7 sysconfig file, so it uses the keystore and truststore from the very beginning
 	cat >> "${tomcatSysconfigFile}" <<EOF
