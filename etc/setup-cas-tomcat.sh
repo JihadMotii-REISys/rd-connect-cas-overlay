@@ -54,7 +54,6 @@ if [ ! -d "${destEtcCASDir}" -o ! -f "${destEtcCASDir}"/cas.properties ] ; then
 	install -o tomcat -g tomcat -m 755 -d "${destCASLog}"
 	
 	install -D -o tomcat -g tomcat -m 600 "${etccasdir}"/cas.properties.template "${destEtcCASDir}"/cas.properties
-	install -D -o tomcat -g tomcat -m 600 "${etccasdir}"/cas-managers.properties "${destEtcCASDir}"/cas-managers.properties
 	install -D -o tomcat -g tomcat -m 644 "${etccasdir}"/log4j2-system.xml "${destEtcCASDir}"/log4j2.xml
 	install -D -o tomcat -g tomcat -m 600 -t "${destEtcCASDir}"/services "${etccasdir}"/services/*
 	
@@ -132,7 +131,7 @@ EOF
 	sed -i "s#^cas.httpClient.truststore.file=.*#cas.httpClient.truststore.file=${destTruststore}#" "${destEtcCASDir}"/cas.properties
 	sed -i "s#^cas.httpClient.truststore.psw=.*#cas.httpClient.truststore.psw=${truststorePass}#" "${destEtcCASDir}"/cas.properties
 	
-	# Patching tomcat7 sysconfig file, so it uses the keystore and truststore from the very beginning
+	# Patching tomcat sysconfig file, so it uses the keystore and truststore from the very beginning
 	cat >> "${tomcatSysconfigFile}" <<EOF
 export JAVA_OPTS=" -Djavax.net.ssl.keyStore=${destKeystore} -Djavax.net.ssl.keyStorePassword=${keystorePass} -Djavax.net.ssl.trustStore=${destTruststore} -Djavax.net.ssl.trustStorePassword=${truststorePass}"
 EOF

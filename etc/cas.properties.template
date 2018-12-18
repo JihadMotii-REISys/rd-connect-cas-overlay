@@ -1,5 +1,6 @@
 # unofficial keys
-cas.host.name=rdconnectcas.rd-connect.eu
+cas.domain.name=rd-connect.eu
+cas.host.name=rdconnectcas.${cas.domain.name}
 cas.server.protocol=https
 cas.server.port=9443
 # /unofficial keys
@@ -30,7 +31,7 @@ cas.authn.throttle.failure.rangeSeconds=3
 ##############
 # LDAP Setup #
 ##############
-cas.authn.ldap[0].ldapUrl=ldaps://ldap.rd-connect.eu
+cas.authn.ldap[0].ldapUrl=ldaps://ldap.${cas.domain.name}
 cas.authn.ldap[0].useSsl=true
 cas.authn.ldap[0].useStartTls=false
 # Manager credentials to bind; only used for searches.
