@@ -143,6 +143,12 @@
                      <artifactId>cas-server-support-ldap</artifactId>
                      <version>${cas.version}</version>
                 </dependency>
+                <!-- CAS LDAP Service registry -->
+                <dependency>
+                    <groupId>org.apereo.cas</groupId>
+                    <artifactId>cas-server-support-ldap-service-registry</artifactId>
+                    <version>${cas.version}</version>
+                </dependency>
             </dependencies>
         </profile>
 

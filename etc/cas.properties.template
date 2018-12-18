@@ -1,3 +1,7 @@
+#####
+# See this https://apereo.github.io/2018/06/10/cas-mfa-google-authenticator/
+#####
+
 # unofficial keys
 cas.domain.name=rd-connect.eu
 cas.host.name=rdconnectcas.${cas.domain.name}
@@ -92,6 +96,14 @@ cas.authn.ldap[0].trustCertificates=file:${cas.resources.dir}/cacert.pem
 #cas.authn.ldap[0].binaryAttributes=objectGUID,someOtherAttribute
 #cas.authn.ldap[0].name=
 
+#########################
+# LDAP Service registry #
+#########################
+cas.serviceRegistry.ldap.serviceDefinitionAttribute=description
+cas.serviceRegistry.ldap.idAttribute=uid
+cas.serviceRegistry.ldap.objectClass=casRegisteredService
+# cas.serviceRegistry.ldap.searchFilter=(%s={0})
+# cas.serviceRegistry.ldap.loadFilter=(objectClass=%s)
 
 
 logging.config: file:${cas.resources.dir}/log4j2.xml
