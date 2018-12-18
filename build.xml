@@ -81,10 +81,10 @@
 		</then>
 	</if>
 	<!-- ******************* MAVEN PROPERTIES******************** -->
-	<condition property="mavenExecutableFile" value="mvn.bat" else="mvn">
+	<condition property="mavenExecutableFile" value="mvnw.bat" else="mvnw">
 		<os family="windows" />
 	</condition>
-	<var name="mavenExecutable" value="${env.M2_HOME}\bin\${mavenExecutableFile}"/>
+	<var name="mavenExecutable" value="${basedir}\${mavenExecutableFile}"/>
 	<available file="${mavenExecutable}" type="file" property="maven.exec.exists" />
 
 	<if>
