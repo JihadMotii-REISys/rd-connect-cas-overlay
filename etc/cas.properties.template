@@ -23,6 +23,8 @@ cas.adminPagesSecurity.ip=127\.0\.0\.1
 ###########################
 # Throttle by IP and user #
 ###########################
+# https://apereo.github.io/cas/5.3.x/installation/Configuration-Properties.html#authentication-throttling
+
 cas.authn.throttle.usernameParameter=uid
 cas.authn.throttle.schedule.startDelay=PT10S
 cas.authn.throttle.schedule.repeatInterval=PT30S
@@ -35,6 +37,9 @@ cas.authn.throttle.failure.rangeSeconds=3
 ##############
 # LDAP Setup #
 ##############
+# https://apereo.github.io/cas/5.3.x/installation/Configuration-Properties-Common.html#ldap-authenticationsearch-settings
+
+cas.authn.ldap[0].type=AUTHENTICATED
 cas.authn.ldap[0].ldapUrl=ldaps://ldap.${cas.domain.name}
 cas.authn.ldap[0].useSsl=true
 cas.authn.ldap[0].useStartTls=false
@@ -44,6 +49,8 @@ cas.authn.ldap[0].bindDn=cn=admin,dc=rd-connect,dc=eu
 cas.authn.ldap[0].bindCredential=ChangeIt!!!
 
 # == Authentication ==
+# https://apereo.github.io/cas/5.3.x/installation/Configuration-Properties.html#ldap-authentication-1
+
 cas.authn.ldap[0].principalAttributeList=uid,memberOf,dn:distinguishedName,mail:email,cn:fullname,givenName:givenname,sn:surname,disabledAccount:isDisabled,userClass:userCategory
 
 # cas.authn.ldap[0].collectDnAttribute=false
@@ -53,7 +60,6 @@ cas.authn.ldap[0].allowMultiplePrincipalAttributeValues=false
 # cas.authn.ldap[0].credentialCriteria=
 
 # == Search ==
-# cas.authn.ldap[0].type=AD|AUTHENTICATED|DIRECT|ANONYMOUS
 
 cas.authn.ldap[0].baseDn=ou=people,dc=rd-connect,dc=eu
 cas.authn.ldap[0].subtreeSearch=true
@@ -66,6 +72,8 @@ cas.authn.ldap[0].principalAttributePassword=userPassword
 
 
 # == Connection pooling settings ==
+# https://apereo.github.io/cas/5.3.x/installation/Configuration-Properties-Common.html#ldap-connection-settings
+
 cas.authn.ldap[0].minPoolSize=0
 cas.authn.ldap[0].maxPoolSize=10
 cas.authn.ldap[0].blockWaitTime=PT3S
@@ -99,6 +107,8 @@ cas.authn.ldap[0].trustCertificates=file:${cas.resources.dir}/cacert.pem
 #########################
 # LDAP Service registry #
 #########################
+# https://apereo.github.io/cas/5.3.x/installation/Configuration-Properties.html#ldap-service-registry
+
 cas.serviceRegistry.ldap.serviceDefinitionAttribute=description
 cas.serviceRegistry.ldap.idAttribute=uid
 cas.serviceRegistry.ldap.objectClass=casRegisteredService
