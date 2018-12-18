@@ -198,10 +198,10 @@ connectionTimeout="20000"
 git clone -b cas-5.3.x --recurse-submodules https://github.com/inab/rd-connect-cas-overlay.git /tmp/cas-5.3.x
 ```	
 
-* Inside the checked-out directory, run `mvn clean package` in order to generate the war:
+* Inside the checked-out directory, run `./mvnw clean package` in order to generate the war:
 ```bash
 cd /tmp/cas-5.3.x
-mvn clean package
+./mvnw clean package
 ```
 
 * Now, depending on whether you are using a system or an user Tomcat, you have to slightly change your installation procedure.
@@ -237,7 +237,7 @@ mvn clean package
     cd /tmp
     git clone -b json-web-key-generator-0.3 https://github.com/mitreid-connect/json-web-key-generator.git
     cd /tmp/json-web-key-generator
-    mvn clean package
+    /tmp/cas-5.3.x/mvnw clean package
     # Generating the first key
     java -jar target/json-web-key-generator-*-jar-with-dependencies.jar -t oct -s 512 -S | grep -F '"k":' | cut -f 4 -d '"'
     # Generating the second key
