@@ -1,265 +1,96 @@
-#
-# Licensed to Jasig under one or more contributor license
-# agreements. See the NOTICE file distributed with this work
-# for additional information regarding copyright ownership.
-# Jasig licenses this file to you under the Apache License,
-# Version 2.0 (the "License"); you may not use this file
-# except in compliance with the License.  You may obtain a
-# copy of the License at the following location:
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
-
-# Uncomment this block if you are going to use a system-wide Tomcat
-#cas.resources.dir=/etc/cas
-#cas.log.dir=/var/log/cas
-
-# Uncomment this block if you are going to use your own Tomcat
-#cas.resources.dir=${user.home}/etc/cas
-#cas.log.dir=${user.home}/cas-log
-
-##
-# Unique CAS node name
-# host.name is used to generate unique Service Ticket IDs and SAMLArtifacts.  This is usually set to the specific
-# hostname of the machine running the CAS node, but it could be any label so long as it is unique in the cluster.
-host.name=rdconnectcas.rd-connect.eu
-server.protocol=https
-server.port=9443
-server.name=${server.protocol}://${host.name}:${server.port}
+# unofficial keys
+cas.host.name=rdconnectcas.rd-connect.eu
+cas.server.protocol=https
+cas.server.port=9443
+# /unofficial keys
+cas.server.name=${cas.server.protocol}://${cas.host.name}:${cas.server.port}
+# unofficial keys
 cas.context=/cas
-server.prefix=${server.name}${cas.context}
+# /unofficial keys
+cas.server.prefix=${cas.server.name}${cas.context}
 
-http.client.truststore.file=file:/etc/tomcat7/cas-tomcat-server.jks
-http.client.truststore.psw=ChangeThisPassword!!!
-
-# Spring Security's EL-based access rules for the /status URI of CAS that exposes health check information
-cas.securityContext.status.access=hasIpAddress('127.0.0.1')
-
-# Spring Security's EL-based access rules for the /statistics URI of CAS that exposes stats about the CAS server
-cas.securityContext.statistics.access=hasIpAddress('127.0.0.1')
-
-
-cas.themeResolver.defaultThemeName=cas-theme-default
-cas.viewResolver.basename=default_views
-
-##
-# Database flavors for Hibernate
-#
-# One of these is needed if you are storing Services or Tickets in an RDBMS via JPA.
-#
-# database.hibernate.dialect=org.hibernate.dialect.OracleDialect
-# database.hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect
-# database.hibernate.dialect=org.hibernate.dialect.HSQLDialect
-
-##
-# CAS SSO Cookie Generation & Security
-# See https://github.com/mitreid-connect/json-web-key-generator
-#
-# Do note that the following settings MUST be generated per deployment.
-#
-# Defaults at spring-configuration/ticketGrantingTicketCookieGenerator.xml
-# The encryption secret key. By default, must be a octet string of size 256.
-#tgc.encryption.key=
-
-# The signing secret key. By default, must be a octet string of size 512.
-#tgc.signing.key=
-
-# Decides whether SSO cookie should be created only under secure connections.
-# tgc.secure=true
-
-# The expiration value of the SSO cookie
-# tgc.maxAge=-1
-
-# The name of the SSO cookie
-# tgc.name=TGC
-
-# The path to which the SSO cookie will be scoped
-# tgc.path=/cas
-
-# Decides whether SSO Warning cookie should be created only under secure connections.
-# warn.cookie.secure=true
-
-# The expiration value of the SSO Warning cookie
-# warn.cookie.maxAge=-1
-
-# The name of the SSO Warning cookie
-# warn.cookie.name=CASPRIVACY
-
-# The path to which the SSO Warning cookie will be scoped
-# warn.cookie.path=/cas
-
-
-##
-# CAS Logout Behavior
-# WEB-INF/cas-servlet.xml
-#
-# Specify whether CAS should redirect to the specified service parameter on /logout requests
-cas.logout.followServiceRedirects=true
-
-##
-# Single Sign-On Session Timeouts
-# Defaults sourced from WEB-INF/spring-configuration/ticketExpirationPolices.xml
-#
-# Maximum session timeout - TGT will expire in maxTimeToLiveInSeconds regardless of usage
-# tgt.maxTimeToLiveInSeconds=28800
-#
-# Idle session timeout -  TGT will expire sooner than maxTimeToLiveInSeconds if no further requests
-# for STs occur within timeToKillInSeconds
-# tgt.timeToKillInSeconds=7200
-
-##
-# Service Ticket Timeout
-# Default sourced from WEB-INF/spring-configuration/ticketExpirationPolices.xml
-#
-# Service Ticket timeout - typically kept short as a control against replay attacks, default is 10s.  You'll want to
-# increase this timeout if you are manually testing service ticket creation/validation via tamperdata or similar tools
-# st.timeToKillInSeconds=10
-
-##
-# Single Logout Out Callbacks
-# Default sourced from WEB-INF/spring-configuration/argumentExtractorsConfiguration.xml
-#
-# To turn off all back channel SLO requests set slo.disabled to true
-# slo.callbacks.disabled=false
-
-##
-# Service Registry Periodic Reloading Scheduler
-# Default sourced from WEB-INF/spring-configuration/applicationContext.xml
-#
-# Force a startup delay of 2 minutes.
-# service.registry.quartz.reloader.startDelay=120000
-#
-# Reload services every 2 minutes
-# service.registry.quartz.reloader.repeatInterval=120000
-
-##
-# Log4j
-# Default sourced from WEB-INF/spring-configuration/log4jConfiguration.xml:
-#
-# It is often time helpful to externalize log4j.xml to a system path to preserve settings between upgrades.
-# e.g. log4j.config.location=/etc/cas/log4j.xml
-log4j.config.location=file:${cas.resources.dir}/log4j2.xml
-log4j.cas-management.config.location=file:${cas.resources.dir}/log4j2-cas-management.xml
-# log4j refresh interval in millis
-log4j.refresh.interval=60000
-
-##
-# Password Policy
-#
-# Warn all users of expiration date regardless of warningDays value.
-password.policy.warnAll=false
-
-# Threshold number of days to begin displaying password expiration warnings.
-password.policy.warningDays=30
-
-# URL to which the user will be redirected to change the passsword.
-password.policy.url=https://rdconnectcas.rd-connect.eu:9443/password/change
-
-
-
-
-# == General LDAP connection settings ==
-
-# Search filter when using a search-and-bind strategy.
-ldap.authn.searchFilter=(&(|(uid={user})(mail={user}))(disabledAccount=FALSE)(acceptedGDPR=*)(!(acceptedGDPR=GDPR)))
-ldap.authn.userSearchFilter=(&(|(uid={0})(mail={0}))(disabledAccount=FALSE)(acceptedGDPR=*)(!(acceptedGDPR=GDPR)))
-ldap.authn.groupSearchFilter=(&(cn=admin)(member={0}))
-
-# Base DN for directory searches.
-ldap.authn.baseDn=ou=people,dc=rd-connect,dc=eu
-ldap.authn.groupDn=ou=groups,dc=rd-connect,dc=eu
-
-# Search filter used for configurations that require searching for DNs
-#ldap.authn.format=uid=%s,ou=Users,dc=example,dc=org
-ldap.authn.format=uid=%s,${ldap.authn.baseDn}
-
-# Base DN for service lookups.
-ldap.service.baseDn=ou=services,dc=rd-connect,dc=eu
-
-# Search filter when using a search-and-bind strategy.
-ldap.service.searchFilter=(uid=*)
-
-# Directory URL. Only one URL should be supplied.
-# For deployments that need HA directory connections, hardware load balancing with a
-# single virtual host is the only reasonable solution.
-
-
-ldap.url=ldaps://ldap.rd-connect.eu
-ldap.useSSL=true
-ldap.useStartTLS=false
-
-
-# Manager credentials to bind; only used for searches.
-# Only required by directories that prevent anonymous queries (e.g. AD) when performing
-# a search-and-bind authentication strategy.
-ldap.managerDn=cn=admin,dc=rd-connect,dc=eu
+cas.httpClient.truststore.file=file:/etc/tomcat8/cas-tomcat-server.jks
 # Change this fake password by the real one used in the setup environment
-ldap.managerPassword=ChangeIt!!!
+cas.httpClient.truststore.psw=ChangeThisPassword!!!
 
-# Strongly recommended for AD.
-ldap.authentication.ignorePartialResultException=true
+cas.adminPagesSecurity.ip=127\.0\.0\.1
 
-ldap.connectTimeout=3000
+###########################
+# Throttle by IP and user #
+###########################
+cas.authn.throttle.usernameParameter=uid
+cas.authn.throttle.schedule.startDelay=PT10S
+cas.authn.throttle.schedule.repeatInterval=PT30S
+cas.authn.throttle.appcode=CAS
+
+cas.authn.throttle.failure.threshold=1
+cas.authn.throttle.failure.code=AUTHENTICATION_FAILED
+cas.authn.throttle.failure.rangeSeconds=3
+
+##############
+# LDAP Setup #
+##############
+cas.authn.ldap[0].ldapUrl=ldaps://ldap.rd-connect.eu
+cas.authn.ldap[0].useSsl=true
+cas.authn.ldap[0].useStartTls=false
+# Manager credentials to bind; only used for searches.
+cas.authn.ldap[0].bindDn=cn=admin,dc=rd-connect,dc=eu
+# Change this fake password by the real one used in the setup environment
+cas.authn.ldap[0].bindCredential=ChangeIt!!!
+
+# == Authentication ==
+cas.authn.ldap[0].principalAttributeList=uid,memberOf,dn:distinguishedName,mail:email,cn:fullname,givenName:givenname,sn:surname,disabledAccount:isDisabled,userClass:userCategory
+
+# cas.authn.ldap[0].collectDnAttribute=false
+cas.authn.ldap[0].principalDnAttributeName=dn
+cas.authn.ldap[0].allowMultiplePrincipalAttributeValues=false
+# cas.authn.ldap[0].allowMissingPrincipalAttributeValue=true
+# cas.authn.ldap[0].credentialCriteria=
+
+# == Search ==
+# cas.authn.ldap[0].type=AD|AUTHENTICATED|DIRECT|ANONYMOUS
+
+cas.authn.ldap[0].baseDn=ou=people,dc=rd-connect,dc=eu
+cas.authn.ldap[0].subtreeSearch=true
+cas.authn.ldap[0].searchFilter=(&(|(uid={user})(mail={user}))(disabledAccount=FALSE)(acceptedGDPR=*)(!(acceptedGDPR=GDPR)))
+
+# cas.authn.ldap[0].enhanceWithEntryResolver=true
+# cas.authn.ldap[0].derefAliases=NEVER|SEARCHING|FINDING|ALWAYS
+cas.authn.ldap[0].dnFormat=uid=%s,${cas.authn.ldap[0].baseDn}
+cas.authn.ldap[0].principalAttributePassword=userPassword
+
 
 # == Connection pooling settings ==
+cas.authn.ldap[0].minPoolSize=0
+cas.authn.ldap[0].maxPoolSize=10
+cas.authn.ldap[0].blockWaitTime=PT3S
+cas.authn.ldap[0].validateOnCheckin=false
+cas.authn.ldap[0].validateOnCheckout=false
+cas.authn.ldap[0].validatePeriodically=true
+cas.authn.ldap[0].validatePeriod=PT5M
+cas.authn.ldap[0].prunePeriod=PT2H
+cas.authn.ldap[0].idleTime=PT10M
 
-# Changed to avoid masking ldap authentication messages 
-#ldap.pool.minSize=3
-ldap.pool.minSize=0
-ldap.pool.maxSize=10
-ldap.pool.blockWaitTime=3000
-# One of these three must be true
-ldap.pool.validateOnCheckIn=false
-ldap.pool.validateOnCheckOut=false
-ldap.pool.validatePeriodically=true
-ldap.pool.validatePeriod=1800
+cas.authn.ldap[0].trustCertificates=file:${cas.resources.dir}/cacert.pem
 
-ldap.pool.prunePeriod=300
-ldap.pool.idleTime=600
-
-# Maximum time in ms to wait for connection to become available
-# under pool exhausted condition.
-ldap.authentication.pool.maxWait=10000
-
-# == Evictor configuration ==
-
-# Period in ms at which evictor process runs.
-ldap.authentication.pool.evictionPeriod=600000
-
-# Maximum time in ms at which connections can remain idle before
-# they become liable to eviction.
-ldap.pool.idleTime=1200000
-
-# Change this file and path according to your setup
-ldap.trustedCert=file:${cas.resources.dir}/cacert.pem
+# official unassigned attributes
+#cas.authn.ldap[0].poolPassivator=NONE|CLOSE|BIND
+#cas.authn.ldap[0].connectionStrategy=
+#cas.authn.ldap[0].providerClass=org.ldaptive.provider.unboundid.UnboundIDProvider
+#cas.authn.ldap[0].connectTimeout=PT5S
+#cas.authn.ldap[0].keystore=
+#cas.authn.ldap[0].keystorePassword=
+#cas.authn.ldap[0].keystoreType=JKS|JCEKS|PKCS12
+#cas.authn.ldap[0].validateTimeout=PT5S
+#cas.authn.ldap[0].failFast=true
+#cas.authn.ldap[0].blockWaitTime=PT3S
+#cas.authn.ldap[0].responseTimeout=PT5S
+#cas.authn.ldap[0].allowMultipleDns=false
+#cas.authn.ldap[0].allowMultipleEntries=false
+#cas.authn.ldap[0].followReferrals=false
+#cas.authn.ldap[0].binaryAttributes=objectGUID,someOtherAttribute
+#cas.authn.ldap[0].name=
 
 
-# Service registry directory
-service.registry.config.location=file:${cas.resources.dir}/services
 
-# CAS management webapp configuration
-# hosts and urls
-# CAS
-cas.host=${server.name}
-cas.prefix=${server.prefix}
-cas.securityContext.casProcessingFilterEntryPoint.loginUrl=${cas.prefix}/login
-cas.securityContext.ticketValidator.casServerUrlPrefix=${cas.prefix}
-# Management
-cas-management.host=${server.name}
-cas-management.context=/cas-management
-cas-management.prefix=${cas-management.host}${cas-management.context}
-cas-management.securityContext.serviceProperties.service=${cas-management.prefix}/login/cas
-cas-management.securityContext.serviceProperties.adminRoles=hasRole('ROLE_ADMIN')
-
-# views
-cas-management.viewResolver.basename=default_views
-
-# allowed managers file
-user.details.file.location=file:${cas.resources.dir}/cas-managers.properties
+logging.config: file:${cas.resources.dir}/log4j2.xml
