@@ -50,12 +50,10 @@ if [ ! -d "${destEtcCASDir}" -o ! -f "${destEtcCASDir}"/cas.properties ] ; then
 	
 	# Setting up basic paths
 	install -o tomcat -g tomcat -m 755 -d "${destEtcCASDir}"
-	install -o tomcat -g tomcat -m 755 -d "${destEtcCASDir}"/services
 	install -o tomcat -g tomcat -m 755 -d "${destCASLog}"
 	
 	install -D -o tomcat -g tomcat -m 600 "${etccasdir}"/cas.properties.template "${destEtcCASDir}"/cas.properties
 	install -D -o tomcat -g tomcat -m 644 "${etccasdir}"/log4j2-system.xml "${destEtcCASDir}"/log4j2.xml
-	install -D -o tomcat -g tomcat -m 600 -t "${destEtcCASDir}"/services "${etccasdir}"/services/*
 	
 	echo >> "${destEtcCASDir}"/cas.properties
 	echo "# Parameters automatically added from Dockerfile" >> "${destEtcCASDir}"/cas.properties
