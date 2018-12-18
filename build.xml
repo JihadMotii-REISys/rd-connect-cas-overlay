@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to Jasig under one or more contributor license
+    agreements. See the NOTICE file distributed with this work
+    for additional information regarding copyright ownership.
+    Jasig licenses this file to you under the Apache License,
+    Version 2.0 (the "License"); you may not use this file
+    except in compliance with the License.  You may obtain a
+    copy of the License at the following location:
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<project name="cas" default="deploy" basedir=".">
+
+	<!-- ******************* PROPERTIES ************************* -->
+	<property environment="env" />
+	<property name="build.target.dir" value="target" />
+	
+	<property name="tomcat.log.patterns" value="**/*.log, **/*.txt" />
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+	
+	<available file="${basedir}/etc/tomcat-deployment.properties"  type="file" property="tomcat.config.exists" />
+	<fail unless="tomcat.config.exists" message="Tomcat configuration file ${basedir}/etc/tomcat-deployment.properties does not exist"/>
+	
+	<property file="${basedir}/etc/tomcat-deployment.properties" />
+	
+	<available file="${user.home}/etc/cas/cas.properties" type="file" property="user.tomcat.install" />
+	<if>
+		<istrue value="${user.tomcat.install}"/>
+		<then>
+			<property file="${user.home}/etc/cas/cas.properties" />
+		</then>
+		<else>
+			<property file="/etc/cas/cas.properties" />
+		</else>
+	</if>
+
+	<if>
+		<not>
+			<isset property="catalina.home"/>
+		</not>
+		<then>
+			<if>
+				<isset property="env.CATALINA_HOME"/>
+				<then>
+					<property name="catalina.home" value="${env.CATALINA_HOME}" />
+				</then>
+				<else>
+					<property name="catalina.home" location="/usr/share/tomcat"/>
+				</else>
+			</if>
+		</then>
+	</if>
+	<available file="${catalina.home}" type="dir" property="catalina.home.exists" />
+	<fail unless="catalina.home.exists" message="Tomcat directory ${catalina.home} does not exist" />
+	
+	<!-- Tomcat deployment task -->
+	<!-- This taskdef is needed to use the power of ant deployments! -->
+	<import file="${catalina.home}/bin/catalina-tasks.xml"/>
+	
+	<property name="application.context" value="${cas.context}" />
+	<property name="application.war" location="${basedir}/target/${ant.project.name}.war"/>
+	
+	<property name="deploy.tomcat.url" value="${deploy.tomcat.protocol}://${deploy.host}:${deploy.tomcat.port}/manager/text"/>
+	
+	<if>
+		<not>
+			<isset property="deploy.tomcat.pass" />
+		</not>
+		<then>
+			<echo message="You have not provided a password using deploy.tomcat.pass property. Something like 'ant -Ddeploy.tomcat.pass=.... ${ant.project.invoked-targets}'" level="error" />
+		</then>
+	</if>
+	<!-- ******************* MAVEN PROPERTIES******************** -->
+	<condition property="mavenExecutableFile" value="mvn.bat" else="mvn">
+		<os family="windows" />
+	</condition>
+	<var name="mavenExecutable" value="${env.M2_HOME}\bin\${mavenExecutableFile}"/>
+	<available file="${mavenExecutable}" type="file" property="maven.exec.exists" />
+
+	<if>
+		<not>
+			<isset property="maven.exec.exists" />
+		</not>
+		<then>
+			<var name="mavenExecutable" value="${env.MAVEN_HOME}\bin\${mavenExecutableFile}"/>
+			<available file="${mavenExecutable}" type="file" property="maven.exec.exists" />
+		</then>
+	</if>
+	<if>
+		<not>
+			<isset property="maven.exec.exists" />
+		</not>
+		<then>
+			<var name="mavenExecutable" value="/usr/bin/mvn"/>
+			<available file="${mavenExecutable}" type="file" property="maven.exec.exists" />
+		</then>
+	</if>
+	<fail unless="maven.exec.exists" message="Cannot determine the maven installation location through M2_HOME or MAVEN_HOME environment variables."/>
+		
+	<!-- ***************** TOMCAT PROPERTIES ******************** -->
+	<condition property="tomcatStartupFile" value="startup.bat" else="startup">
+		<os family="windows" />
+	</condition>
+	<property name="tomcatStartup" value="${catalina.home}\bin\${tomcatStartupFile}" />
+
+	<condition property="tomcatShutDownFile" value="shutdown.bat" else="shutdown">
+		<os family="windows" />
+	</condition>
+	<property name="tomcatShutDown" value="${catalina.home}\bin\${tomcatShutDownFile}" />
+
+	<!-- ********************* TARGETS *************************** -->
+	<target name="cleanTomcatLogs" description="Clean tomcat log files">
+		<delete failonerror="false">
+			<fileset dir="${catalina.home}/logs" includes="${tomcat.log.patterns}" />
+			<fileset dir="${catalina.home}/bin" includes="${tomcat.log.patterns}" />
+			<fileset dir="${catalina.home}" includes="${tomcat.log.patterns}" />
+		</delete>
+	</target>
+
+	<target name="clean" description="Clean deployed artifacts and logs">
+		<exec dir="${basedir}" executable="${mavenExecutable}">
+			<arg value="clean" />
+			<arg value="-Dmaven.test.skip=true" />
+		</exec>
+	</target>
+
+	<target name="package" description="Compile artifacts and prepare the package" depends="clean">
+		<exec dir="${basedir}" executable="${mavenExecutable}">
+			<arg value="compile" />
+			<arg value="-Dmaven.test.skip=true" />
+		</exec>
+	</target>
+
+	<target name="test" description="Compile artifacts and run tests" depends="clean">
+		<exec dir="${basedir}" executable="${mavenExecutable}">
+			<arg value="test" />
+		</exec>
+	</target>
+	
+	<target name="undeploy" description="Undeploy the application">
+		<undeploy
+			url="${deploy.tomcat.url}"
+			failOnError="false"
+			username="${deploy.tomcat.user}"
+			password="${deploy.tomcat.pass}"
+			path="${application.context}"
+		/>
+	</target>
+
+	<target name="deploy" description="Deploy ${application.war}">
+ 		<deploy
+			url="${deploy.tomcat.url}"
+			username="${deploy.tomcat.user}"
+			password="${deploy.tomcat.pass}"
+			path="${application.context}"
+			war="file:${application.war}"
+		/>
+	</target>
+	
+	<target name="genclientjks" description="Generate a client Java keystore which holds the deployment server certificate">
+		<tempfile property="temp.client.cer" suffix=".cer" deleteonexit="true"/>
+		
+		<exec executable="openssl" inputstring="" output="${temp.client.cer}" errorproperty="openssl.error" failonerror="true">
+			<arg value="s_client" />
+			<arg value="-connect" /> <arg value="${deploy.host}:${deploy.tomcat.port}" />
+		</exec>
+		<exec executable="sed" errorproperty="openssl.error" failonerror="true">
+			<arg value="-i" />
+			<arg value="-ne" /> <arg value="/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p" />
+			<arg value="${temp.client.cer}" />
+		</exec>
+		
+		<tempfile property="temp.client.jks" prefix="client" suffix=".jks" deleteonexit="false"/>
+		<echo message="Temporal client JKS to access ${deploy.host}:${deploy.tomcat.port} is ${temp.client.jks}" />
+		<property name="jre.cacerts.path" location="${java.home}/lib/security/cacerts"/>
+		<copy file="${jre.cacerts.path}" tofile="${temp.client.jks}" />
+		
+		<exec executable="keytool" inputstring="yes${line.separator}" failonerror="true">
+			<arg value="-importcert"/>
+			<arg value="-keystore"/> <arg value="${temp.client.jks}"/>
+			<arg value="-alias"/> <arg value="localhost"/>
+			<arg value="-storepass"/> <arg value="changeit"/>
+			<arg value="-file"/> <arg value="${temp.client.cer}"/>
+		</exec>
+		
+		<echo>You can use this temporal JKS with ant as:${line.separator}ANT_OPTS="-Djavax.net.ssl.trustStore=${temp.client.jks}" ant -Ddeploy.tomcat.pass=... deploy</echo>
+	</target>
+	
+	<target name="genserverjks" description="Generate a self-signed SSL certificate in a Java keystore">
+		<!--
+		<exec executable="hostname" outputproperty="computer.hostname" failonerror="true">
+			<arg value="-f" />
+		</exec>
+		-->
+		<hostinfo prefix="machine"/>
+		
+		<property name="computer.hostname" value="${machine.NAME}.${machine.DOMAIN}"/>
+		
+		<tempfile property="temp.server.jks" prefix="server" suffix=".jks" deleteonexit="false"/>
+		<echo message="Temporal server JKS for ${computer.hostname} will be in ${temp.server.jks}" />
+		
+		<exec executable="keytool" inputstring="${computer.hostname}${line.separator}INB${line.separator}CNIO${line.separator}Madrid${line.separator}Madrid${line.separator}ES${line.separator}yes${line.separator}${line.separator}" failonerror="true">
+			<arg value="-genkeypair"/>
+			<arg value="-keyalg"/> <arg value="RSA"/>
+			<arg value="-alias"/> <arg value="selfsigned"/>
+			<arg value="-keystore"/> <arg value="${temp.server.jks}"/>
+			<arg value="-storepass"/> <arg value="changeit"/>
+			<arg value="-validity"/> <arg value="360"/>
+			<arg value="-keysize"/> <arg value="8192"/>
+		</exec>
+	</target>
+
+	<target name="help" description="Prints instructions on how to run the build.">
+		<echo message="Use 'ant -projecthelp' to see all available commands" />
+	</target>
+
+</project>
