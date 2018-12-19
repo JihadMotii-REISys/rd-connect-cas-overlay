@@ -342,7 +342,7 @@ dn: uid=10000001,ou=services,${domainDN}
 objectClass: casRegisteredService
 uid: 10000001
 EOF
-	base64 "${ldapcasdir}"/../etc/services/HTTPS-10000001.json | sed 's#^# #;1 s#^#description::#;' >> /tmp/defaultservice.ldif
+	base64 "${ldapcasdir}"/HTTPS-10000001.json | sed 's#^# #;1 s#^#description::#;' >> /tmp/defaultservice.ldif
 	ldapadd -x -D "$adminDN" -w "$domainPass" -f /tmp/defaultservice.ldif
 
 
