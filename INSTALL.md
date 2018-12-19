@@ -195,7 +195,7 @@ connectionTimeout="20000"
 # CAS Maven Overlay Installation
 * Clone git project with the simple overlay template here
 ```bash
-git clone -b cas-5.3.x --recurse-submodules https://github.com/inab/rd-connect-cas-overlay.git /tmp/cas-5.3.x
+git clone -b cas-5.3.x https://github.com/inab/rd-connect-cas-overlay.git /tmp/cas-5.3.x
 ```	
 
 * Inside the checked-out directory, run `./mvnw clean package` in order to generate the war:
@@ -206,16 +206,14 @@ cd /tmp/cas-5.3.x
 
 * Now, depending on whether you are using a system or an user Tomcat, you have to slightly change your installation procedure.
 
-  * (SYSTEM) Create directories /etc/cas and /var/log/cas as the `tomcat` user, and copy cas-managers.properties, cas.properties.template, log4j2-system.xml, cacert.pem and services to /etc/cas , renaming wherever it is needed:
+  * (SYSTEM) Create directories /etc/cas and /var/log/cas as the `tomcat` user, and copy cas.properties.template, log4j2-system.xml and cacert.pem to /etc/cas , renaming wherever it is needed:
   ```bash
   install -o tomcat -g tomcat -m 755 -d /etc/cas
   install -o tomcat -g tomcat -m 755 -d /etc/cas/services
   install -o tomcat -g tomcat -m 755 -d /var/log/cas
-  install -D -o tomcat -g tomcat -m 600 /tmp/cas-5.3.x/etc/cas.properties.template /etc/cas/cas.properties
-  install -D -o tomcat -g tomcat -m 600 /tmp/cas-5.3.x/etc/cas-managers.properties /etc/cas/cas-managers.properties
-  install -D -o tomcat -g tomcat -m 644 /tmp/cas-5.3.x/etc/log4j2-system.xml /etc/cas/log4j2.xml
+  install -D -o tomcat -g tomcat -m 600 /tmp/cas-5.3.x/etc/cas.properties.template /etc/cas/config/cas.properties
+  install -D -o tomcat -g tomcat -m 644 /tmp/cas-5.3.x/etc/log4j2-system.xml /etc/cas/config/log4j2.xml
   install -D -o tomcat -g tomcat -m 644 /etc/pki/CA/cacert.pem /etc/cas/cacert.pem
-  install -D -o tomcat -g tomcat -m 600 -t /etc/cas/services /tmp/cas-5.3.x/etc/services/*
   ```
   
   * (USER) Create directories ${HOME}/etc/cas and ${HOME}/cas-log, and copy cas-managers.properties, cas.properties.template, log4j2-user.xml, cacert.pem and services to "${HOME}"/etc/cas , renaming wherever it is needed:
@@ -245,8 +243,20 @@ cd /tmp/cas-5.3.x
     ```	
     These generated keys are needed to update your cas.properties at next parameters:
     ```
-    tgc.signing.key=<First key generated>
-    tgc.encryption.key=<Second key generated>
+    cas.tgc.crypto.signing.key=<First key generated>
+    cas.tgc.crypto.encryption.key=<Second key generated>
+    ```
+    
+    And we repeat the procedure for Google Authenticator setup keys:
+    ```bash
+    # Generating the gauth first key
+    java -jar target/json-web-key-generator-*-jar-with-dependencies.jar -t oct -s 512 -S | grep -F '"k":' | cut -f 4 -d '"'
+    # Generating the gauth second key
+    java -jar target/json-web-key-generator-*-jar-with-dependencies.jar -t oct -s 256 -S | grep -F '"k":' | cut -f 4 -d '"'
+    These generated keys are needed to update your cas.properties at next parameters:
+    ```
+    cas.authn.mfa.gauth.crypto.signing.key=<First gauth key generated>
+    cas.authn.mfa.gauth.crypto.encryption.key=<Second gauth key generated>
     ```
 
 * (SYSTEM, USER) Last, deploy it using the provided ant script. You have to copy `etc/tomcat-deployment.properties.template` to `etc/tomcat-deployment.properties`, and put there the password you assigned to the Tomcat user `cas-tomcat-deployer`:

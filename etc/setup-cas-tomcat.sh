@@ -22,10 +22,12 @@ if [ $# -gt 2 ] ; then
 	certsDir="$2"
 	ldapAdminPass="$3"
 	tomcatSysconfigFile="$4"
+	jwkgPath="$5"
 else
 	certsDir="cas-tomcat"
 	ldapAdminPass="changeit"
 	tomcatSysconfigFile=/etc/sysconfig/tomcat8
+	jwkgPath="$(echo /tmp/tgc-repo/target/json-web-key-generator-*-jar-with-dependencies.jar)"
 fi
 # Hack, convention, whatever
 p12Pass="$certsDir"
@@ -54,7 +56,14 @@ if [ ! -d "${destEtcCASDir}" -o ! -f "${destEtcCASDir}"/cas.properties ] ; then
 	
 	install -D -o tomcat -g tomcat -m 600 "${etccasdir}"/cas.properties.template "${destEtcCASDir}"/cas.properties
 	install -D -o tomcat -g tomcat -m 644 "${etccasdir}"/log4j2-system.xml "${destEtcCASDir}"/log4j2.xml
+	install -D -o tomcat -g tomcat -m 644 "${etccasdir}"/MultifactorBypass.groovy "${destEtcCASDir}"/MultifactorBypass.groovy
 	
+	# Multifactor secrets go here
+	touch "${destEtcCASDir}"/multifactor-secrets.json
+	chmod u=rw,go= "${destEtcCASDir}"/multifactor-secrets.json
+	chown tomcat: "${destEtcCASDir}"/multifactor-secrets.json
+	
+	# Setting up properties
 	echo >> "${destEtcCASDir}"/cas.properties
 	echo "# Parameters automatically added from Dockerfile" >> "${destEtcCASDir}"/cas.properties
 	echo "cas.resources.dir=${destEtcCASDir}" >> "${destEtcCASDir}"/cas.properties
@@ -62,14 +71,17 @@ if [ ! -d "${destEtcCASDir}" -o ! -f "${destEtcCASDir}"/cas.properties ] ; then
 	
 	# Generating the TGC keys
 	(
-		cd "${etccasdir}"/../../json-web-key-generator
-		if [ ! -f target/json-web-key-generator-*-jar-with-dependencies.jar ] ; then
-			mvn -B clean package
-		fi
-		tgc_signing_key="$(java -jar target/json-web-key-generator-*-jar-with-dependencies.jar -t oct -s 512 -S | grep -F '"k":' | cut -f 4 -d '"')"
-		tgc_encryption_key="$(java -jar target/json-web-key-generator-*-jar-with-dependencies.jar -t oct -s 256 -S | grep -F '"k":' | cut -f 4 -d '"')"
+		# TGC
+		tgc_signing_key="$(java -jar "$jwkgPath" -t oct -s 512 -S | grep -F '"k":' | cut -f 4 -d '"')"
+		tgc_encryption_key="$(java -jar  "$jwkgPath" -t oct -s 256 -S | grep -F '"k":' | cut -f 4 -d '"')"
 		echo "cas.tgc.crypto.signing.key=$tgc_signing_key" >> "${destEtcCASDir}"/cas.properties
 		echo "cas.tgc.crypto.encryption.key=$tgc_encryption_key" >> "${destEtcCASDir}"/cas.properties
+		
+		# Google authenticator
+		gauth_signing_key="$(java -jar  "$jwkgPath" -t oct -s 512 -S | grep -F '"k":' | cut -f 4 -d '"')"
+		gauth_encryption_key="$(java -jar  "$jwkgPath" -t oct -s 256 -S | grep -F '"k":' | cut -f 4 -d '"')"
+		echo "cas.authn.mfa.gauth.crypto.signing.key=$gauth_signing_key" >> "${destEtcCASDir}"/cas.properties
+		echo "cas.authn.mfa.gauth.crypto.encryption.key=$gauth_encryption_key" >> "${destEtcCASDir}"/cas.properties
 	)
 	
 	# Setting up LDAP manager password

@@ -115,5 +115,22 @@ cas.serviceRegistry.ldap.objectClass=casRegisteredService
 # cas.serviceRegistry.ldap.searchFilter=(%s={0})
 # cas.serviceRegistry.ldap.loadFilter=(objectClass=%s)
 
+########################
+# Google Authenticator #
+########################
+cas.authn.mfa.gauth.issuer=CAS
+cas.authn.mfa.gauth.label=CASLabel
+
+# File to keep associated secrets related to TOTP algorithm
+cas.authn.mfa.gauth.json.location=file:${cas.resources.dir}/multifactor-secrets.json
+
+# Users willing to use multifactor must belong
+# to the group mfa-eligible
+cas.authn.mfa.globalPrincipalAttributeNameTriggers=memberOf
+cas.authn.mfa.globalPrincipalAttributeValueRegex=mfa-eligible
+
+# Multifactor bypass hook, written in groovy
+cas.authn.mfa.gauth.bypass.type=GROOVY
+cas.authn.mfa.gauth.bypass.groovy.location=file:${cas.resources.dir}/MultifactorBypass.groovy
 
 logging.config: file:${cas.resources.dir}/log4j2.xml
