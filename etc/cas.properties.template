@@ -1,24 +1,34 @@
 #####
+# Remember, all the properties from registered cas prefixes are validated.
+# So, we have to create properties in custom prefixes like "custom." ,
+# instead of starting with "cas." or similar, as unkown keys are rejected.
+#####
+#####
 # See this https://apereo.github.io/2018/06/10/cas-mfa-google-authenticator/
 #####
 
 # unofficial keys
-cas.domain.name=rd-connect.eu
-cas.host.name=rdconnectcas.${cas.domain.name}
-cas.server.protocol=https
-cas.server.port=9443
+custom.domainName=rd-connect.eu
+custom.hostName=rdconnectcas.${custom.domainName}
+custom.serverProtocol=https
+custom.serverPort=9443
+custom.context=/cas
 # /unofficial keys
-cas.server.name=${cas.server.protocol}://${cas.host.name}:${cas.server.port}
-# unofficial keys
-cas.context=/cas
-# /unofficial keys
-cas.server.prefix=${cas.server.name}${cas.context}
+
+cas.server.name=${custom.serverProtocol}://${custom.hostName}:${custom.serverPort}
+cas.server.prefix=${cas.server.name}${custom.context}
 
 cas.httpClient.truststore.file=file:/etc/tomcat8/cas-tomcat-server.jks
 # Change this fake password by the real one used in the setup environment
 cas.httpClient.truststore.psw=ChangeThisPassword!!!
 
 cas.adminPagesSecurity.ip=127\.0\.0\.1
+
+##################
+# Internal setup #
+##################
+# This is badly needed to disable the embedded user list
+cas.authn.accept.users=
 
 ###########################
 # Throttle by IP and user #
@@ -40,7 +50,7 @@ cas.authn.throttle.failure.rangeSeconds=3
 # https://apereo.github.io/cas/5.3.x/installation/Configuration-Properties-Common.html#ldap-authenticationsearch-settings
 
 cas.authn.ldap[0].type=AUTHENTICATED
-cas.authn.ldap[0].ldapUrl=ldaps://ldap.${cas.domain.name}
+cas.authn.ldap[0].ldapUrl=ldaps://ldap.${custom.domainName}
 cas.authn.ldap[0].useSsl=true
 cas.authn.ldap[0].useStartTls=false
 # Manager credentials to bind; only used for searches.
@@ -77,14 +87,13 @@ cas.authn.ldap[0].principalAttributePassword=userPassword
 cas.authn.ldap[0].minPoolSize=0
 cas.authn.ldap[0].maxPoolSize=10
 cas.authn.ldap[0].blockWaitTime=PT3S
-cas.authn.ldap[0].validateOnCheckin=false
 cas.authn.ldap[0].validateOnCheckout=false
 cas.authn.ldap[0].validatePeriodically=true
 cas.authn.ldap[0].validatePeriod=PT5M
 cas.authn.ldap[0].prunePeriod=PT2H
 cas.authn.ldap[0].idleTime=PT10M
 
-cas.authn.ldap[0].trustCertificates=file:${cas.resources.dir}/cacert.pem
+cas.authn.ldap[0].trustCertificates=file:${custom.resourcesDir}/cacert.pem
 
 # official unassigned attributes
 #cas.authn.ldap[0].poolPassivator=NONE|CLOSE|BIND
@@ -109,6 +118,24 @@ cas.authn.ldap[0].trustCertificates=file:${cas.resources.dir}/cacert.pem
 #########################
 # https://apereo.github.io/cas/5.3.x/installation/Configuration-Properties.html#ldap-service-registry
 
+cas.serviceRegistry.ldap.ldapUrl=ldaps://ldap.${custom.domainName}
+# Manager credentials to bind; only used for searches.
+cas.serviceRegistry.ldap.bindDn=cn=admin,dc=rd-connect,dc=eu
+# Change this fake password by the real one used in the setup environment
+cas.serviceRegistry.ldap.bindCredential=cHANGEiT!!
+cas.serviceRegistry.ldap.trustCertificates=file:${custom.resourcesDir}/cacert.pem
+cas.serviceRegistry.ldap.minPoolSize=0
+cas.serviceRegistry.ldap.maxPoolSize=10
+cas.serviceRegistry.ldap.validateOnCheckout=false
+cas.serviceRegistry.ldap.validatePeriodically=true
+cas.serviceRegistry.ldap.validatePeriod=PT5M
+cas.serviceRegistry.ldap.idleTime=PT10M
+cas.serviceRegistry.ldap.prunePeriod=PT2H
+cas.serviceRegistry.ldap.useSsl=true
+cas.serviceRegistry.ldap.useStartTls=false
+
+
+
 cas.serviceRegistry.ldap.serviceDefinitionAttribute=description
 cas.serviceRegistry.ldap.idAttribute=uid
 cas.serviceRegistry.ldap.objectClass=casRegisteredService
@@ -121,16 +148,23 @@ cas.serviceRegistry.ldap.objectClass=casRegisteredService
 cas.authn.mfa.gauth.issuer=CAS
 cas.authn.mfa.gauth.label=CASLabel
 
+#######
+# MFA #
+#######
+cas.authn.mfa.globalProviderId=mfa-gauth
+
 # File to keep associated secrets related to TOTP algorithm
-cas.authn.mfa.gauth.json.location=file:${cas.resources.dir}/multifactor-secrets.json
+cas.authn.mfa.gauth.json.location=file:${custom.resourcesDir}/multifactor-secrets.json
 
 # Users willing to use multifactor must belong
 # to the group mfa-eligible
+cas.authn.mfa.globalAuthenticationAttributeNameTriggers=memberOf
+cas.authn.mfa.globalAuthenticationAttributeValueRegex=mfa-eligible
 cas.authn.mfa.globalPrincipalAttributeNameTriggers=memberOf
 cas.authn.mfa.globalPrincipalAttributeValueRegex=mfa-eligible
 
 # Multifactor bypass hook, written in groovy
 cas.authn.mfa.gauth.bypass.type=GROOVY
-cas.authn.mfa.gauth.bypass.groovy.location=file:${cas.resources.dir}/MultifactorBypass.groovy
+cas.authn.mfa.gauth.bypass.groovy.location=file:${custom.resourcesDir}/MultifactorBypass.groovy
 
-logging.config: file:${cas.resources.dir}/log4j2.xml
+logging.config: file:${custom.resourcesDir}/log4j2.xml

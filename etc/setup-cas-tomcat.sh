@@ -65,9 +65,9 @@ if [ ! -d "${destEtcCASDir}" -o ! -f "${destEtcCASDir}"/cas.properties ] ; then
 	
 	# Setting up properties
 	echo >> "${destEtcCASDir}"/cas.properties
-	echo "# Parameters automatically added from Dockerfile" >> "${destEtcCASDir}"/cas.properties
-	echo "cas.resources.dir=${destEtcCASDir}" >> "${destEtcCASDir}"/cas.properties
-	echo "cas.log.dir=${destCASLog}" >> "${destEtcCASDir}"/cas.properties
+	echo "# Parameters automatically added from automated CAS setup ($(date -I))" >> "${destEtcCASDir}"/cas.properties
+	echo "custom.resourcesDir=${destEtcCASDir}" >> "${destEtcCASDir}"/cas.properties
+	#echo "custom.logDir=${destCASLog}" >> "${destEtcCASDir}"/cas.properties
 	
 	# Generating the TGC keys
 	(
@@ -84,8 +84,12 @@ if [ ! -d "${destEtcCASDir}" -o ! -f "${destEtcCASDir}"/cas.properties ] ; then
 		echo "cas.authn.mfa.gauth.crypto.encryption.key=$gauth_encryption_key" >> "${destEtcCASDir}"/cas.properties
 	)
 	
-	# Setting up LDAP manager password
-	sed -i "s#^cas.authn.ldap\[0\].bindCredential=.*#cas.authn.ldap[0].bindCredential=${ldapAdminPass}#" "${destEtcCASDir}"/cas.properties
+	# Setting up LDAP manager password in a couple of places
+	sed -i 's/^\(cas.authn.ldap\[0\].bindCredential=\)/#\1/' "${destEtcCASDir}"/cas.properties
+	echo "cas.authn.ldap[0].bindCredential=${ldapAdminPass}" >> "${destEtcCASDir}"/cas.properties
+
+	sed -i 's/^\(cas.serviceRegistry.ldap.bindCredential=\)/#\1/' "${destEtcCASDir}"/cas.properties
+	echo "cas.serviceRegistry.ldap.bindCredential=${ldapAdminPass}" >> "${destEtcCASDir}"/cas.properties
 	
 	# Generating the password for Tomcat user with management privileges
 	sed -i 's#^</tomcat-users>.*##' "${destEtcTomcatDir}"/tomcat-users.xml
