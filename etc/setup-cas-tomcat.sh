@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # Tomcat CAS initial setup
+TOMCAT_PORT=9443
 
 etccasdir="$(dirname "$0")"
 case "${etccasdir}" in
@@ -123,11 +124,12 @@ EOF
 	# This is needed, in order to get next steps working
 	keyAlias="$(keytool -rfc -list -storetype PKCS12 -keystore "${initialP12Keystore}" -storepass "${p12Pass}" | grep -F 'Alias name' | head -n 1 | sed 's#^[^:]\+: \(.\+\)$#\1#')"
 	fragFile="$(mktemp)"
+	
 	cat > "$fragFile" <<EOF
-	<Connector port="9443" protocol="HTTP/1.1"
+	<Connector port="${TOMCAT_PORT}" protocol="HTTP/1.1"
 		address="0.0.0.0"
 		connectionTimeout="20000"
-		redirectPort="9443"
+		redirectPort="${TOMCAT_PORT}"
 		SSLEnabled="true"
 		scheme="https"
 		secure="true"
@@ -139,7 +141,8 @@ EOF
 		truststoreFile="${destTruststore}"
 		truststorePass="${truststorePass}" />
 EOF
-	sed -i -e "/^ *redirectPort=/r ${fragFile}" "${destEtcTomcatDir}"/server.xml
+	sed -i 's#pathname="[^"]*"#pathname="/etc/tomcat/tomcat-users.xml"#g' "${destEtcTomcatDir}"/server.xml
+	sed -i -e "s#redirectPort=\"[^\"]*\"#redirectPort=\"${TOMCAT_PORT}\"#g; /^ *redirectPort=/r ${fragFile}" "${destEtcTomcatDir}"/server.xml
 	
 	# Setting up truststore password for CAS
 	sed -i "s#^cas.httpClient.truststore.file=.*#cas.httpClient.truststore.file=${destTruststore}#" "${destEtcCASDir}"/cas.properties
