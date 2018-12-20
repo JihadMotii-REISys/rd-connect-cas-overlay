@@ -118,7 +118,7 @@ EOF
 	# Populating it
 	install -D -o tomcat -g tomcat -m 644 "${tomcatCerts}"/cacert.pem "${destEtcCASDir}"/cacert.pem
 	keytool -v -importkeystore -srckeystore "${initialP12Keystore}" -srcstorepass "${p12Pass}" -srcstoretype PKCS12 \
-		-destkeystore "${tempKeystore}" -deststorepass "${keystorePass}"
+		-destkeystore "${tempKeystore}" -deststorepass "${keystorePass}" -deststoretype PKCS12
 	install -D -o tomcat -g tomcat -m 600 "${tempKeystore}" "${destKeystore}"
 
 	# This is needed, in order to get next steps working
