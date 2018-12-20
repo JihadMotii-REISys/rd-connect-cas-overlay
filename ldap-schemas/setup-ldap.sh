@@ -303,6 +303,7 @@ objectClass: inetOrgPerson
 objectClass: basicRDproperties
 uid: root
 disabledAccount: FALSE
+acceptedGDPR: 19700101
 userPassword: $rootHashPass
 cn: root
 sn: root

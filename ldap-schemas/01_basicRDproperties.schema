@@ -42,4 +42,4 @@ objectClass ( RDObjectClass:1
 	NAME 'basicRDproperties'
 	DESC 'Basic RD-Connect LDAP user properties, not covered outside'
 	AUXILIARY
-	MAY ( memberOf $ disabledAccount $ jsonData ) )
+	MAY ( memberOf $ disabledAccount $ jsonData $ acceptedGDPR ) )
