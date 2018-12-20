@@ -79,6 +79,7 @@ cas.authn.ldap[0].searchFilter=(&(|(uid={user})(mail={user}))(disabledAccount=FA
 # cas.authn.ldap[0].derefAliases=NEVER|SEARCHING|FINDING|ALWAYS
 cas.authn.ldap[0].dnFormat=uid=%s,${cas.authn.ldap[0].baseDn}
 cas.authn.ldap[0].principalAttributePassword=userPassword
+cas.authn.ldap[0].passwordEncoder.type=DEFAULT
 
 
 # == Connection pooling settings ==
@@ -113,6 +114,21 @@ cas.authn.ldap[0].trustCertificates=file:${custom.resourcesDir}/cacert.pem
 #cas.authn.ldap[0].binaryAttributes=objectGUID,someOtherAttribute
 #cas.authn.ldap[0].name=
 
+####################
+# Service registry #
+####################
+
+cas.serviceRegistry.watcherEnabled=true
+
+# cas.serviceRegistry.schedule.repeatInterval=120000
+# cas.serviceRegistry.schedule.startDelay=15000
+
+# Auto-initialize the registry from default JSON service definitions
+#cas.serviceRegistry.initFromJson=true
+cas.serviceRegistry.initFromJson=false
+
+# cas.serviceRegistry.managementType=DEFAULT|DOMAIN
+
 #########################
 # LDAP Service registry #
 #########################
@@ -134,7 +150,10 @@ cas.serviceRegistry.ldap.prunePeriod=PT2H
 cas.serviceRegistry.ldap.useSsl=true
 cas.serviceRegistry.ldap.useStartTls=false
 
+#cas.serviceRegistry.ldap.connectionStrategy=ACTIVE_PASSIVE
 
+cas.serviceRegistry.ldap.baseDn=ou=services,dc=rd-connect,dc=eu
+cas.serviceRegistry.ldap.subtreeSearch=true
 
 cas.serviceRegistry.ldap.serviceDefinitionAttribute=description
 cas.serviceRegistry.ldap.idAttribute=uid
