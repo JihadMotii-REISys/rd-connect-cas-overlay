@@ -8,7 +8,9 @@ domainDN="dc=${domainDC},dc=${domainCountry}"
 adminName='admin'
 adminDN="cn=$adminName,$domainDN"
 adminGroupDN="cn=admin,ou=groups,$domainDN"
+mfaGroupDN="cn=mfa-eligible,ou=groups,$domainDN"
 rootMail="platform@${domainDC}.${domainCountry}"
+demoMail="demo@${domainDC}.${domainCountry}"
 
 ldapcasdir="$(dirname "$0")"
 case "${ldapcasdir}" in
@@ -86,10 +88,12 @@ if [ ! -f "${alreadyGen}" ] ; then
 		adminPass="$(apg -n 1 -m 12 -x 16 -M ncl)"
 		domainPass="$(apg -n 1 -m 12 -x 16 -M ncl)"
 		rootPass="$(apg -n 1 -m 12 -x 16 -M ncl)"
+		demoPass="$(apg -n 1 -m 12 -x 16 -M ncl)"
 	else
 		adminPass='CHANGEIT'
 		domainPass='OTHERCHANGEIT'
 		rootPass='LASTCHANGEIT'
+		demoPass='NOCHANGEIT'
 	fi
 	# OpenLDAP administrator password
 	adminHashPass="$(slappasswd -s "$adminPass")"
@@ -97,6 +101,8 @@ if [ ! -f "${alreadyGen}" ] ; then
 	domainHashPass="$(slappasswd -s "$domainPass")"
 	# root user (user with administration privileges) password
 	rootHashPass="$(slappasswd -s "$rootPass")"
+	# demo user (user with no privileges) password
+	demoHashPass="$(slappasswd -s "$demoPass")"
 
 
 	# Setting up the OpenLDAP administrator password
@@ -311,6 +317,19 @@ displayName: root
 mail: ${rootMail}
 description: A user named root
 
+dn: cn=demo,ou=admins,ou=people,$domainDN
+objectClass: inetOrgPerson
+objectClass: basicRDproperties
+uid: demo
+disabledAccount: FALSE
+acceptedGDPR: 19700101
+userPassword: $demoHashPass
+cn: demo
+sn: demo
+displayName: demo
+mail: ${demoMail}
+description: The demo user
+
 dn: $adminGroupDN
 objectClass: groupOfNames
 cn: admin
@@ -318,12 +337,12 @@ member: cn=root,ou=admins,ou=people,$domainDN
 owner: cn=root,ou=admins,ou=people,$domainDN
 description: Users with administration privileges
 
-dn: cn=pwmAdmin,ou=groups,$domainDN
+dn: $mfaGroupDN
 objectClass: groupOfNames
-cn: pwmAdmin
-member: cn=root,ou=admins,ou=people,$domainDN
+cn: mfa-eligible
+member: cn=demo,ou=admins,ou=people,$domainDN
 owner: cn=root,ou=admins,ou=people,$domainDN
-description: Users with administration privileges on PWM
+description: Users who have enabled MFA
 EOF
 	ldapadd -x -D "$adminDN" -w "$domainPass" -f /tmp/basedomain.ldif
 
@@ -332,7 +351,11 @@ dn: cn=root,ou=admins,ou=people,$domainDN
 changetype: modify
 add: memberOf
 memberOf: $adminGroupDN
-memberOf: cn=pwmAdmin,ou=groups,$domainDN
+
+dn: cn=demo,ou=admins,ou=people,$domainDN
+changetype: modify
+add: memberOf
+memberOf: $mfaGroupDN
 EOF
 	ldapmodify -x -D "$adminDN" -w "$domainPass" -f /tmp/memberOfModify.ldif
 
@@ -432,9 +455,11 @@ EOF
 
 	# This last step is needed to save the passwords in clear somewhere
 	cat > "${alreadyGen}" <<EOF
+adminDN=${adminDN}
 adminPass=${adminPass}
 domainPass=${domainPass}
 rootPass=${rootPass}
+demoPass=${rootPass}
 EOF
 	chmod go= "${alreadyGen}"
 fi
