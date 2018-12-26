@@ -61,12 +61,37 @@ cas.authn.ldap[0].bindCredential=ChangeIt!!!
 # == Authentication ==
 # https://apereo.github.io/cas/5.3.x/installation/Configuration-Properties.html#ldap-authentication-1
 
+# This is needed to tell when the login has happened, and other details
+cas.authn.releaseProtocolAttributes=true
+
+cas.authn.attributeRepository.defaultAttributesToRelease=uid,memberOf,distinguishedName,email,fullname,givenname,surname,isDisabled,userCategory
+cas.authn.attributeRepository.ldap[0].attributes.uid=uid
+cas.authn.attributeRepository.ldap[0].attributes.memberOf=memberOf
+cas.authn.attributeRepository.ldap[0].attributes.dn=distinguishedName
+cas.authn.attributeRepository.ldap[0].attributes.mail=email
+cas.authn.attributeRepository.ldap[0].attributes.cn=fullname
+cas.authn.attributeRepository.ldap[0].attributes.givenName=givenname
+cas.authn.attributeRepository.ldap[0].attributes.sn=surname
+cas.authn.attributeRepository.ldap[0].attributes.disabledAccount=isDisabled
+cas.authn.attributeRepository.ldap[0].attributes.userClass=userCategory
+cas.authn.attributeRepository.ldap[0].ldapUrl=ldaps://ldap.${custom.domainName}
+cas.authn.attributeRepository.ldap[0].useSsl=true
+cas.authn.attributeRepository.ldap[0].useStartTls=false
+cas.authn.attributeRepository.ldap[0].bindDn=cn=admin,dc=rd-connect,dc=eu
+# Change this fake password by the real one used in the setup environment
+cas.authn.attributeRepository.ldap[0].bindCredential=cHaNgEiT!!!
+
+#cas.authn.authenticationAttributeRelease.onlyRelease=uid,memberOf,distinguishedName,email,fullname,givenname,surname,isDisabled,userCategory
+# We are hiding these protocol attributes by default, as it tells about the internal setup
+cas.authn.authenticationAttributeRelease.neverRelease=samlAuthenticationStatementAuthMethod,successfulAuthenticationHandlers,credentialType,authenticationMethod
+
 cas.authn.ldap[0].principalAttributeList=uid,memberOf,dn:distinguishedName,mail:email,cn:fullname,givenName:givenname,sn:surname,disabledAccount:isDisabled,userClass:userCategory
 
 # cas.authn.ldap[0].collectDnAttribute=false
-cas.authn.ldap[0].principalDnAttributeName=dn
-cas.authn.ldap[0].allowMultiplePrincipalAttributeValues=false
-# cas.authn.ldap[0].allowMissingPrincipalAttributeValue=true
+#cas.authn.ldap[0].principalDnAttributeName=dn
+#cas.authn.ldap[0].allowMultiplePrincipalAttributeValues=false
+cas.authn.ldap[0].allowMultiplePrincipalAttributeValues=true
+cas.authn.ldap[0].allowMissingPrincipalAttributeValue=true
 # cas.authn.ldap[0].credentialCriteria=
 
 # == Search ==
@@ -169,20 +194,22 @@ cas.authn.mfa.gauth.label=CASLabel
 #######
 # MFA #
 #######
-cas.authn.mfa.globalProviderId=mfa-gauth
+# Enabling this will force MFA with gauth on everyone
+#cas.authn.mfa.globalProviderId=mfa-gauth
 
 # File to keep associated secrets related to TOTP algorithm
 cas.authn.mfa.gauth.json.location=file:${custom.resourcesDir}/multifactor-secrets.json
 
 # Users willing to use multifactor must belong
 # to the group mfa-eligible
-cas.authn.mfa.globalAuthenticationAttributeNameTriggers=memberOf
-cas.authn.mfa.globalAuthenticationAttributeValueRegex=mfa-eligible
+#cas.authn.mfa.globalAuthenticationAttributeNameTriggers=memberOf
+#cas.authn.mfa.globalAuthenticationAttributeValueRegex=cn=mfa-eligible,.*
+# This will force mfa on any member of mfa-eligible group
 cas.authn.mfa.globalPrincipalAttributeNameTriggers=memberOf
-cas.authn.mfa.globalPrincipalAttributeValueRegex=mfa-eligible
+cas.authn.mfa.globalPrincipalAttributeValueRegex=.*=mfa-eligible,.*
 
 # Multifactor bypass hook, written in groovy
-cas.authn.mfa.gauth.bypass.type=GROOVY
-cas.authn.mfa.gauth.bypass.groovy.location=file:${custom.resourcesDir}/MultifactorBypass.groovy
+#cas.authn.mfa.gauth.bypass.type=GROOVY
+#cas.authn.mfa.gauth.bypass.groovy.location=file:${custom.resourcesDir}/MultifactorBypass.groovy
 
 logging.config: file:${custom.resourcesDir}/log4j2.xml

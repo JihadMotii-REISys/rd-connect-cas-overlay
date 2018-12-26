@@ -21,11 +21,15 @@ else
 fi
 if [ $# -gt 2 ] ; then
 	certsDir="$2"
-	ldapAdminPass="$3"
-	tomcatSysconfigFile="$4"
-	jwkgPath="$5"
+	ldapServer="$3"
+	ldapAdminDn="$4"
+	ldapAdminPass="$5"
+	tomcatSysconfigFile="$6"
+	jwkgPath="$7"
 else
 	certsDir="cas-tomcat"
+	ldapServer="ldap.rd-connect.eu"
+	ldapAdminDn="cn=admin,dc=rd-connect,dc=eu"
 	ldapAdminPass="changeit"
 	tomcatSysconfigFile=/etc/sysconfig/tomcat8
 	jwkgPath="$(echo /tmp/tgc-repo/target/json-web-key-generator-*-jar-with-dependencies.jar)"
@@ -85,12 +89,32 @@ if [ ! -d "${destEtcCASDir}" -o ! -f "${destEtcCASDir}"/cas.properties ] ; then
 		echo "cas.authn.mfa.gauth.crypto.encryption.key=$gauth_encryption_key" >> "${destEtcCASDir}"/cas.properties
 	)
 	
-	# Setting up LDAP manager password in a couple of places
-	sed -i 's/^\(cas.authn.ldap\[0\].bindCredential=\)/#\1/' "${destEtcCASDir}"/cas.properties
-	echo "cas.authn.ldap[0].bindCredential=${ldapAdminPass}" >> "${destEtcCASDir}"/cas.properties
+	# Setting up LDAP manager DN and password in several places
+	for configKey in 'cas.authn.ldap[0]' 'cas.serviceRegistry.ldap' 'cas.authn.attributeRepository.ldap[0]' ; do
+		# Left square bracket escaping
+		configSedKey="${configKey/\[/\\[}"
+		# Right square bracket escaping
+		configSedKey="${configSedKey/\]/\\]}"
+		
+		# Definitions commented-out
+		sed -i 's/^\('"${configSedKey}"'.\(bindCredential\|bindDn\|ldapUrl\)=\)/#\1/' "${destEtcCASDir}"/cas.properties
+		
+		# New definitions at the end
+		cat <<EOF >> "${destEtcCASDir}"/cas.properties
+${configKey}.ldapUrl=ldaps://${ldapServer}
+${configKey}.bindDn=${ldapAdminDn}
+${configKey}.bindCredential=${ldapAdminPass}
+EOF
+	done
 
-	sed -i 's/^\(cas.serviceRegistry.ldap.bindCredential=\)/#\1/' "${destEtcCASDir}"/cas.properties
-	echo "cas.serviceRegistry.ldap.bindCredential=${ldapAdminPass}" >> "${destEtcCASDir}"/cas.properties
+	#sed -i 's/^\(cas.authn.ldap\[0\].bindCredential=\)/#\1/' "${destEtcCASDir}"/cas.properties
+	#echo "cas.authn.ldap[0].bindCredential=${ldapAdminPass}" >> "${destEtcCASDir}"/cas.properties
+	#
+	#sed -i 's/^\(cas.serviceRegistry.ldap.bindCredential=\)/#\1/' "${destEtcCASDir}"/cas.properties
+	#echo "cas.serviceRegistry.ldap.bindCredential=${ldapAdminPass}" >> "${destEtcCASDir}"/cas.properties
+	#
+	#sed -i 's/^\(cas.authn.attributeRepository.ldap\[0\].bindCredential=\)/#\1/' "${destEtcCASDir}"/cas.properties
+	#echo "cas.authn.attributeRepository.ldap[0].bindCredential=${ldapAdminPass}" >> "${destEtcCASDir}"/cas.properties
 	
 	# Generating the password for Tomcat user with management privileges
 	sed -i 's#^</tomcat-users>.*##' "${destEtcTomcatDir}"/tomcat-users.xml
@@ -119,6 +143,7 @@ EOF
 	install -D -o tomcat -g tomcat -m 644 "${tomcatCerts}"/cacert.pem "${destEtcCASDir}"/cacert.pem
 	keytool -v -importkeystore -srckeystore "${initialP12Keystore}" -srcstorepass "${p12Pass}" -srcstoretype PKCS12 \
 		-destkeystore "${tempKeystore}" -deststorepass "${keystorePass}"
+	#keytool -v -alias 'ca' -importcert -file "${destEtcCASDir}"/cacert.pem -keystore "${tempKeystore}" -storepass "${keystorePass}" -noprompt -trustcacerts
 	install -D -o tomcat -g tomcat -m 600 "${tempKeystore}" "${destKeystore}"
 
 	# This is needed, in order to get next steps working
