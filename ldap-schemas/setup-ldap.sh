@@ -459,7 +459,7 @@ adminPass=${adminPass}
 domainDN=${adminDN}
 domainPass=${domainPass}
 rootPass=${rootPass}
-demoPass=${rootPass}
+demoPass=${demoPass}
 EOF
 	chmod go= "${alreadyGen}"
 fi
