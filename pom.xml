@@ -149,6 +149,12 @@
                     <artifactId>cas-server-support-ldap-service-registry</artifactId>
                     <version>${cas.version}</version>
                 </dependency>
+                <!-- Enable CAS discovery profile -->
+                <dependency>
+			<groupId>org.apereo.cas</groupId>
+			<artifactId>cas-server-support-discovery-profile</artifactId>
+			<version>${cas.version}</version>
+                </dependency>
                 <!-- Google Authenticator support for MFA -->
                 <dependency>
                      <groupId>org.apereo.cas</groupId>
