@@ -135,6 +135,8 @@ EOF
 	truststorePass="${keystorePass}"
 	destTruststore="${destKeystore}"
 	
+	keyAlias="$(keytool -rfc -list -storetype PKCS12 -keystore "${initialP12Keystore}" -storepass "${p12Pass}" | grep -F 'Alias name' | head -n 1 | sed 's#^[^:]\+: \(.\+\)$#\1#')"
+	
 	mkdir -p "${tempKeystoreDir}"
 	cp "${JAVA_HOME}"/jre/lib/security/cacerts "${tempKeystore}"
 	keytool -storepasswd -new "${keystorePass}" -keystore "${tempKeystore}" -storepass changeit
@@ -143,11 +145,11 @@ EOF
 	install -D -o tomcat -g tomcat -m 644 "${tomcatCerts}"/cacert.pem "${destEtcCASDir}"/cacert.pem
 	keytool -v -importkeystore -srckeystore "${initialP12Keystore}" -srcstorepass "${p12Pass}" -srcstoretype PKCS12 \
 		-destkeystore "${tempKeystore}" -deststorepass "${keystorePass}"
+	keytool -keypasswd -keypass "${p12Pass}" -new "${keystorePass}" -alias "${keyAlias}" -keystore "${tempKeystore}" -storepass "${keystorePass}"
 	#keytool -v -alias 'ca' -importcert -file "${destEtcCASDir}"/cacert.pem -keystore "${tempKeystore}" -storepass "${keystorePass}" -noprompt -trustcacerts
 	install -D -o tomcat -g tomcat -m 600 "${tempKeystore}" "${destKeystore}"
 
 	# This is needed, in order to get next steps working
-	keyAlias="$(keytool -rfc -list -storetype PKCS12 -keystore "${initialP12Keystore}" -storepass "${p12Pass}" | grep -F 'Alias name' | head -n 1 | sed 's#^[^:]\+: \(.\+\)$#\1#')"
 	fragFile="$(mktemp)"
 	
 	cat > "$fragFile" <<EOF
@@ -160,7 +162,7 @@ EOF
 		secure="true"
 		sslProtocol="TLS"
 		keyAlias="${keyAlias}"
-		keyPass="${p12Pass}"
+		keyPass="${keystorePass}"
 		keystoreFile="${destKeystore}"
 		keystorePass="${keystorePass}"
 		truststoreFile="${destTruststore}"
