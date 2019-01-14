@@ -175,7 +175,7 @@ EOF
 	
 	# Patching tomcat sysconfig file, so it uses the keystore and truststore from the very beginning
 	cat >> "${tomcatSysconfigFile}" <<EOF
-export JAVA_OPTS=" -Djavax.net.ssl.keyStore=${destKeystore} -Djavax.net.ssl.keyStorePassword=${keystorePass} -Djavax.net.ssl.trustStore=${destTruststore} -Djavax.net.ssl.trustStorePassword=${truststorePass}"
+export JAVA_OPTS=" -Djavax.net.ssl.keyStore=${destKeystore} -Djavax.net.ssl.keyStorePassword=${keystorePass} -Djavax.net.ssl.trustStore=${destTruststore} -Djavax.net.ssl.trustStorePassword=${truststorePass} -Djava.security.egd=file:/dev/./urandom"
 EOF
 	
 	# Last, cleanup
