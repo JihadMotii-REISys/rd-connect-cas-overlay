@@ -455,8 +455,8 @@ EOF
 
 	# This last step is needed to save the passwords in clear somewhere
 	cat > "${alreadyGen}" <<EOF
-adminDN=${adminDN}
 adminPass=${adminPass}
+domainDN=${adminDN}
 domainPass=${domainPass}
 rootPass=${rootPass}
 demoPass=${rootPass}
