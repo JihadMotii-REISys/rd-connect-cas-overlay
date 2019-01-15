@@ -87,6 +87,12 @@ if [ ! -d "${destEtcCASDir}" -o ! -f "${destEtcCASDir}"/cas.properties ] ; then
 		gauth_encryption_key="$(java -jar  "$jwkgPath" -t oct -s 256 -S | grep -F '"k":' | cut -f 4 -d '"')"
 		echo "cas.authn.mfa.gauth.crypto.signing.key=$gauth_signing_key" >> "${destEtcCASDir}"/cas.properties
 		echo "cas.authn.mfa.gauth.crypto.encryption.key=$gauth_encryption_key" >> "${destEtcCASDir}"/cas.properties
+		
+		# Webflow
+		webflow_signing_key="$(java -jar  "$jwkgPath" -t oct -s 512 -S | grep -F '"k":' | cut -f 4 -d '"')"
+		webflow_encryption_key="$(java -jar  "$jwkgPath" -t oct -s 256 -S | grep -F '"k":' | cut -f 4 -d '"')"
+		echo "cas.webflow.crypto.signing.key=$webflow_signing_key" >> "${destEtcCASDir}"/cas.properties
+		echo "cas.webflow.crypto.encryption.key=$webflow_encryption_key" >> "${destEtcCASDir}"/cas.properties
 	)
 	
 	# Setting up LDAP manager DN and password in several places
